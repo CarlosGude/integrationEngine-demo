@@ -1,0 +1,13 @@
+steps:
+  step1:
+    title: Intro
+    description: Introduction to the demo
+    order: 1
+  step2:
+    title: The Problem
+    description: The problem we solve
+    order: 2
+  step3:
+    title: The Solution
+    description: How we solve it
+    order: 3

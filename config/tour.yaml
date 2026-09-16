@@ -1,0 +1,25 @@
+steps:
+  the-problem:
+    title: The Problem
+    description: Why integrations are hard
+    order: 1
+  parallel-requests:
+    title: Parallel Requests
+    description: How the engine handles concurrency
+    order: 2
+  behind-the-counter:
+    title: Behind the Counter
+    description: Extensibility without code changes
+    order: 3
+  when-suppliers-fail:
+    title: When Suppliers Fail
+    description: Resiliency and retries
+    order: 4
+  renting-a-movie:
+    title: Renting a Movie
+    description: Outbound integrations with Stripe
+    order: 5
+  payment-confirmation:
+    title: Payment Confirmation
+    description: Webhooks and async processing
+    order: 6
