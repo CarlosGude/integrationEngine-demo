@@ -1,1 +1,17 @@
-# Routes will be added here
+controllers:
+    resource:
+        path: '../src/Controller/'
+        namespace: 'App\Controller'
+    type: attribute
+
+app_homepage:
+    path: /
+    controller: App\Controller\HomepageController::index
+
+app_localized:
+    path: /{_locale}
+    requirements:
+        _locale: 'en|es'
+    defaults:
+        _locale: 'en'
+    controller: App\Controller\HomepageController::index

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="{{ app.request.locale }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ 'app.title'|trans }}{% endblock %}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #333; }
+        header { background: #f5f5f5; padding: 1rem; border-bottom: 1px solid #ddd; }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        h1 { font-size: 1.5rem; }
+        .lang-switcher { display: flex; gap: 0.5rem; }
+        .lang-switcher a { padding: 0.5rem 1rem; text-decoration: none; border: 1px solid #ddd; border-radius: 4px; }
+        .lang-switcher a.active { background: #333; color: white; }
+        main { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+        footer { background: #f5f5f5; padding: 1rem; text-align: center; border-top: 1px solid #ddd; margin-top: 2rem; }
+        footer small { color: #666; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>{{ 'app.title'|trans }}</h1>
+            <nav class="lang-switcher">
+                <a href="{{ path('app_localized', {'_locale': 'en'}) }}" class="{% if locale == 'en' %}active{% endif %}">English</a>
+                <a href="{{ path('app_localized', {'_locale': 'es'}) }}" class="{% if locale == 'es' %}active{% endif %}">Español</a>
+            </nav>
+        </div>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <small>{{ 'app.tmdb_attribution'|trans }}</small>
+    </footer>
+</body>
+</html>
