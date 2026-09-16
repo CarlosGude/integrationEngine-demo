@@ -13,12 +13,14 @@ WORKDIR /app
 
 COPY composer.json ./
 ENV DATABASE_URL="sqlite:///:memory:"
-ENV APP_ENV="prod"
+ENV APP_ENV="dev"
+ENV APP_DEBUG=1
 RUN composer install --no-progress --no-interaction || composer install --no-progress --no-interaction --no-scripts
 
 COPY . .
 RUN composer dump-autoload --optimize && \
-    echo '<?php return require __DIR__ . "/autoload.php";' > /app/vendor/autoload_runtime.php
+    echo '<?php return require __DIR__ . "/autoload.php";' > /app/vendor/autoload_runtime.php && \
+    echo 'error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT\n' > /usr/local/etc/php/conf.d/symfony.ini
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
