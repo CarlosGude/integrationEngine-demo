@@ -33,11 +33,11 @@ final class SyntaxHighlighter
         $code = htmlspecialchars($code, ENT_QUOTES, 'UTF-8');
 
         foreach (self::PHP_KEYWORDS as $keyword) {
-            $pattern = '/\b' . preg_quote($keyword, '/') . '\b/';
+            $pattern = '/\b'.preg_quote($keyword, '/').'\b/';
             /** @var string */
             $code = preg_replace(
                 $pattern,
-                '<span class="keyword">' . $keyword . '</span>',
+                '<span class="keyword">'.$keyword.'</span>',
                 $code,
             );
         }

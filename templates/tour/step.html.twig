@@ -1,0 +1,61 @@
+{% extends "base.html.twig" %}
+
+{% block title %}{{ step.title }} - Tour{% endblock %}
+
+{% block content %}
+<div class="tour-container">
+    <h2>{{ step.title }}</h2>
+    <p>{{ step.description }}</p>
+
+    <div class="tour-nav">
+        {% if previousStep %}
+            <a href="{{ path('tour_step', {'stepId': previousStep.id}) }}" class="btn-prev">← Previous</a>
+        {% endif %}
+        {% if nextStep %}
+            <a href="{{ path('tour_step', {'stepId': nextStep.id}) }}" class="btn-next">Next →</a>
+        {% endif %}
+    </div>
+
+    <button id="run-btn" class="btn-run">Run Step</button>
+
+    <div id="trace" class="trace-output" style="display: none;">
+        <h3>Execution Trace</h3>
+        <ul id="trace-list"></ul>
+        <p>Total: <span id="total-duration">0</span>ms</p>
+    </div>
+</div>
+
+<style>
+    .tour-container { max-width: 800px; margin: 2rem auto; padding: 1rem; }
+    .tour-nav { margin: 2rem 0; display: flex; gap: 1rem; }
+    .btn-run { padding: 0.5rem 1.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    .btn-run:hover { background: #0056b3; }
+    .btn-prev, .btn-next { padding: 0.5rem 1rem; text-decoration: none; background: #f0f0f0; border-radius: 4px; }
+    .trace-output { margin-top: 2rem; padding: 1rem; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; }
+    #trace-list { list-style: none; padding: 0; }
+    #trace-list li { padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+</style>
+
+<script>
+    document.getElementById('run-btn').addEventListener('click', async () => {
+        const response = await fetch('{{ path('tour_run', {'stepId': step.id}) }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        displayTrace(data.trace);
+    });
+
+    function displayTrace(trace) {
+        const list = document.getElementById('trace-list');
+        list.innerHTML = '';
+        trace.calls.forEach(call => {
+            const li = document.createElement('li');
+            li.textContent = `${call.action} → ${call.method} (${call.status}) ${call.duration_ms}ms`;
+            list.appendChild(li);
+        });
+        document.getElementById('total-duration').textContent = trace.total_duration_ms.toFixed(2);
+        document.getElementById('trace').style.display = 'block';
+    }
+</script>
+{% endblock %}
