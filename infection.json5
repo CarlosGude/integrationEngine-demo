@@ -1,0 +1,12 @@
+{
+    "source": {
+        "directories": ["src"]
+    },
+    "logs": {
+        "text": "var/infection/infection.log",
+        "summary": "var/infection/summary.log"
+    },
+    "testFramework": "phpunit",
+    "minMsi": 85,
+    "minCoveredMsi": 95
+}

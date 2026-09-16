@@ -1,0 +1,19 @@
+includes:
+    - phpstan-baseline.neon
+    - vendor/phpstan/phpstan-symfony/extension.neon
+
+parameters:
+    level: max
+    paths:
+        - src
+        - tests
+    excludePaths:
+        analyze:
+            - var/
+            - vendor/
+    errorFormat: table
+    reportUnmatchedIgnoredErrors: true
+    strictRules:
+        booleansInConditions: true
+        matchingInheritedMethodParameterType: true
+        overridingMethodInheritanceRules: true

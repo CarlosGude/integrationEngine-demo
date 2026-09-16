@@ -1,0 +1,57 @@
+paths:
+    - ./src
+
+exclude_files: ~
+
+layers:
+    - name: Shared
+      collectors:
+          - type: className
+            regex: ^App\\Shared\\.*
+
+    - name: Catalog
+      collectors:
+          - type: className
+            regex: ^App\\Catalog\\.*
+
+    - name: Rental
+      collectors:
+          - type: className
+            regex: ^App\\Rental\\.*
+
+    - name: Payments
+      collectors:
+          - type: className
+            regex: ^App\\Payments\\.*
+
+    - name: Legacy
+      collectors:
+          - type: className
+            regex: ^App\\Legacy\\.*
+
+    - name: Tour
+      collectors:
+          - type: className
+            regex: ^App\\Tour\\.*
+
+ruleset:
+    Shared:
+        - Catalog
+        - Rental
+        - Payments
+        - Legacy
+        - Tour
+    Catalog:
+        - Shared
+    Rental:
+        - Shared
+        - Catalog
+    Payments:
+        - Shared
+    Legacy:
+        - Shared
+    Tour:
+        - Shared
+        - Catalog
+        - Rental
+        - Payments
