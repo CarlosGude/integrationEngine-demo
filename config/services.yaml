@@ -7,3 +7,7 @@ services:
         resource: '../src/'
         exclude:
             - '../src/Kernel.php'
+
+    App\Tour\Infrastructure\YamlTourRegistry:
+        arguments:
+            $configPath: '%kernel.project_dir%/config/tour.yaml'

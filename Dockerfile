@@ -20,7 +20,7 @@ RUN composer install --no-progress --no-interaction || composer install --no-pro
 COPY . .
 RUN composer dump-autoload --optimize && \
     echo '<?php return require __DIR__ . "/autoload.php";' > /app/vendor/autoload_runtime.php && \
-    echo 'error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT\n' > /usr/local/etc/php/conf.d/symfony.ini
+    echo 'error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT\noutput_buffering = off\n' > /usr/local/etc/php/conf.d/symfony.ini
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 

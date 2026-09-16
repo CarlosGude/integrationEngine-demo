@@ -18,7 +18,7 @@ final class HomepageController extends AbstractController
         return $this->redirect($this->generateUrl('app_localized', ['_locale' => 'en']));
     }
 
-    #[Route('/{_locale}', name: 'app_localized', requirements: ['_locale' => 'en|es'])]
+    #[Route('/{_locale}/', name: 'app_localized', requirements: ['_locale' => 'en|es'])]
     public function localized(Request $request): Response
     {
         return $this->render('base.html.twig', [
