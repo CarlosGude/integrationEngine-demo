@@ -4,9 +4,12 @@
     "description": "IntegrationEngine demo: TMDB + Stripe live tour",
     "require": {
         "php": ">=8.4",
-        "symfony/symfony": "^7.4",
+        "symfony/framework-bundle": "^7.4",
         "symfony/flex": "^2",
         "symfony/runtime": "^7.4",
+        "symfony/console": "^7.4",
+        "symfony/routing": "^7.4",
+        "symfony/twig-bundle": "^7.4",
         "carlosgude/integration-engine": "@dev",
         "twig/extra-bundle": "^3.8",
         "twig/string-extra": "^3.8",

@@ -11,11 +11,11 @@ services:
       APP_SECRET: ${APP_SECRET:-dev-secret}
       DATABASE_URL: sqlite:///%kernel.project_dir%/var/data.db
     ports:
-      - "127.0.0.1:80:80"
-      - "127.0.0.1:443:443"
+      - "127.0.0.1:8080:80"
     volumes:
       - ./:/app:rw
       - /app/var
+      - /app/vendor
     working_dir: /app
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/"]

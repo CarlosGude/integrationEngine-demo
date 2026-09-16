@@ -1,6 +1,5 @@
 {
 	admin off
-	on startup exec sleep 1
 }
 
 :80 {
@@ -20,7 +19,7 @@
 	root * /app/public
 	file_server
 
-	php_fastcgi unix//run/php-cgi.sock {
+	php_fastcgi 127.0.0.1:9000 {
 		env SCRIPT_FILENAME {http.request.uri.path}
 		env PATH_INFO {http.request.uri.path}
 	}
