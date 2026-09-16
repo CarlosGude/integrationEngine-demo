@@ -10,6 +10,7 @@ services:
       APP_DEBUG: ${APP_DEBUG:-1}
       APP_SECRET: ${APP_SECRET:-dev-secret}
       DATABASE_URL: sqlite:///%kernel.project_dir%/var/data.db
+      DEFAULT_URI: http://localhost:8080/
     ports:
       - "127.0.0.1:8080:80"
     volumes:
