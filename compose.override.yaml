@@ -1,7 +1,8 @@
-
 services:
-###> doctrine/doctrine-bundle ###
-  database:
+  php:
+    environment:
+      APP_ENV: dev
+      APP_DEBUG: 1
     ports:
-      - "5432"
-###< doctrine/doctrine-bundle ###
+      - "80:80"
+      - "443:443"

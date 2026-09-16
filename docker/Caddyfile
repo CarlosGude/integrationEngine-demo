@@ -1,0 +1,29 @@
+{
+	admin off
+	on startup exec sleep 1
+}
+
+:80 {
+	log {
+		output stdout
+		format filter {
+			wrap console
+			fields {
+				common_log delete
+				request>headers>User-Agent delete
+			}
+		}
+	}
+
+	encode gzip
+
+	root * /app/public
+	file_server
+
+	php_fastcgi unix//run/php-cgi.sock {
+		env SCRIPT_FILENAME {http.request.uri.path}
+		env PATH_INFO {http.request.uri.path}
+	}
+
+	try_files {path} /index.php?{query}
+}
