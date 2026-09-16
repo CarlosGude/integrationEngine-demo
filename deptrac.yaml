@@ -1,9 +1,10 @@
-paths:
+deptrac:
+  paths:
     - ./src
 
-exclude_files: ~
+  exclude_files: []
 
-layers:
+  layers:
     - name: Shared
       collectors:
           - type: className
@@ -34,24 +35,24 @@ layers:
           - type: className
             regex: ^App\\Tour\\.*
 
-ruleset:
+  ruleset:
     Shared:
-        - Catalog
-        - Rental
-        - Payments
-        - Legacy
-        - Tour
+      - Catalog
+      - Rental
+      - Payments
+      - Legacy
+      - Tour
     Catalog:
-        - Shared
+      - Shared
     Rental:
-        - Shared
-        - Catalog
+      - Shared
+      - Catalog
     Payments:
-        - Shared
+      - Shared
     Legacy:
-        - Shared
+      - Shared
     Tour:
-        - Shared
-        - Catalog
-        - Rental
-        - Payments
+      - Shared
+      - Catalog
+      - Rental
+      - Payments
