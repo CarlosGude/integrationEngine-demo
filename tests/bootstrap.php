@@ -7,7 +7,7 @@ if (!isset($_SERVER['APP_ENV'])) {
 }
 
 if (!isset($_SERVER['KERNEL_CLASS'])) {
-    $_SERVER['KERNEL_CLASS'] = 'App\\Kernel';
+    $_SERVER['KERNEL_CLASS'] = 'App\Kernel';
 }
 
 require_once dirname(__DIR__).'/vendor/autoload.php';

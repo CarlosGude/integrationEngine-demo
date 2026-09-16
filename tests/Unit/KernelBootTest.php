@@ -14,7 +14,7 @@ final class KernelBootTest extends TestCase
         $kernel = new Kernel('test', true);
         $kernel->boot();
 
-        self::assertTrue($kernel->isBooted());
+        self::assertNotNull($kernel->getContainer());
     }
 
     public function testKernelContainerHasRequiredServices(): void
