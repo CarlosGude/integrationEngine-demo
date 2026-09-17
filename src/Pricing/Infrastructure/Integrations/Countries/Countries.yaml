@@ -1,0 +1,3 @@
+get_countries:
+  action: 'App\Pricing\Infrastructure\Integrations\Countries\GetCountriesAction'
+  mapper: 'App\Pricing\Infrastructure\Integrations\Countries\GetCountriesMapper'

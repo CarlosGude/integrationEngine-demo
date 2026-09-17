@@ -7,8 +7,8 @@ namespace App\Catalog\Application;
 use App\Catalog\Domain\Movie;
 use App\Catalog\Infrastructure\Integrations\Tmdb\GetConfigurationResponse;
 use App\Catalog\Infrastructure\Integrations\Tmdb\GetMovieResponse;
-use IntegrationEngine\Core\Contract\Context\DefaultActionContext;
-use IntegrationEngine\Core\Entity\EngineRequest;
+use IntegrationEngine\Core\Batch\EngineRequest;
+use IntegrationEngine\Core\Contract\Action\DefaultActionContext;
 use IntegrationEngine\Core\Registry\IntegrationRegistry;
 
 // tour:start solution/separated-responsibilities
@@ -26,7 +26,7 @@ final class MovieCatalogGateway
 
         $movieResponse = $engine->send(
             'get_movie',
-            context: new DefaultActionContext(['movie_id' => $movieId]),
+            context: DefaultActionContext::create(['movie_id' => $movieId]),
         );
 
         \assert($movieResponse instanceof GetMovieResponse);
@@ -64,9 +64,9 @@ final class MovieCatalogGateway
 
         $requests = [];
         foreach ($movieIds as $movieId) {
-            $requests[$movieId] = EngineRequest::create(
-                action: 'get_movie',
-                context: new DefaultActionContext(['movie_id' => $movieId]),
+            $requests[$movieId] = new EngineRequest(
+                actionName: 'get_movie',
+                context: DefaultActionContext::create(['movie_id' => $movieId]),
             );
         }
 

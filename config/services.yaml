@@ -11,3 +11,8 @@ services:
     App\Tour\Infrastructure\YamlTourRegistry:
         arguments:
             $configPath: '%kernel.project_dir%/config/tour.yaml'
+
+    app.middleware.rate_limit:
+        class: App\Shared\Infrastructure\Middleware\RateLimitMiddleware
+        tags:
+            - integration_engine.middleware

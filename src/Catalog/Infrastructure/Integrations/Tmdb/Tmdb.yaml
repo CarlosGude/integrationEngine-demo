@@ -1,0 +1,11 @@
+get_configuration:
+  action: 'App\Catalog\Infrastructure\Integrations\Tmdb\GetConfigurationAction'
+  mapper: 'App\Catalog\Infrastructure\Integrations\Tmdb\GetConfigurationMapper'
+
+get_movie:
+  action: 'App\Catalog\Infrastructure\Integrations\Tmdb\GetMovieAction'
+  mapper: 'App\Catalog\Infrastructure\Integrations\Tmdb\GetMovieMapper'
+
+get_tv_season:
+  action: 'App\Catalog\Infrastructure\Integrations\Tmdb\GetTvSeasonAction'
+  mapper: 'App\Catalog\Infrastructure\Integrations\Tmdb\GetTvSeasonMapper'

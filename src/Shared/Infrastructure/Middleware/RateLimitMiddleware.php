@@ -4,48 +4,56 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Middleware;
 
+use IntegrationEngine\Core\Contract\Action\AbstractAction;
+use IntegrationEngine\Core\Contract\Action\ActionContextInterface;
 use IntegrationEngine\Core\Contract\Client\AbstractClientMiddleware;
+use IntegrationEngine\Core\Contract\Client\RequestHeadersInterface;
 use IntegrationEngine\Core\Entity\PreparedRequest;
-use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Symfony\Contracts\HttpClient\ResponseInterface;
 
 final class RateLimitMiddleware extends AbstractClientMiddleware
 {
-    public function __construct(
-        private readonly RateLimiterFactory $limiterFactory,
-    ) {
-    }
+    private static int $requestsThisSecond = 0;
+    private static int $lastSecond = 0;
+    private const MAX_REQUESTS_PER_SECOND = 40;
 
     // tour:start middleware-rate-limit
-    public function process(PreparedRequest $request, \Closure $next): ResponseInterface
-    {
-        $limiter = $this->limiterFactory->create('api_requests');
-        $limit = $limiter->consume();
+    public function process(
+        AbstractAction $action,
+        ?ActionContextInterface $context,
+        ?RequestHeadersInterface $headers,
+        callable $next,
+    ): array {
+        $this->checkRateLimit();
 
-        if (!$limit->isAccepted()) {
-            throw new \RuntimeException(\sprintf('Rate limit exceeded. Retry after %d seconds.', (int) \ceil($limit->getRetryAfter()), ));
-        }
-
-        return $next($request);
+        return $next($action, $context, $headers);
     }
 
     /**
-     * @param array<string, \Closure> $requests
+     * @param array<array-key, PreparedRequest> $requests
      *
-     * @return array<string, ResponseInterface|\Throwable>
+     * @return array<array-key, array<mixed>|\Throwable>
      */
-    public function processMany(array $requests, \Closure $next): array
+    public function processMany(array $requests, callable $next): array
     {
-        $limiter = $this->limiterFactory->create('api_requests');
-
-        foreach ($requests as $key => $_) {
-            $limit = $limiter->consume();
-            if (!$limit->isAccepted()) {
-                throw new \RuntimeException('Rate limit exceeded for batch request');
-            }
+        foreach ($requests as $_ => $_) {
+            $this->checkRateLimit();
         }
 
         return $next($requests);
+    }
+
+    private function checkRateLimit(): void
+    {
+        $now = (int) time();
+        if ($now > self::$lastSecond) {
+            self::$requestsThisSecond = 0;
+            self::$lastSecond = $now;
+        }
+
+        ++self::$requestsThisSecond;
+        if (self::$requestsThisSecond > self::MAX_REQUESTS_PER_SECOND) {
+            throw new \RuntimeException('Rate limit exceeded (40 requests/second max)');
+        }
     }
     // tour:end middleware-rate-limit
 }

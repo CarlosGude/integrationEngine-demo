@@ -1,13 +1,15 @@
 integration_engine:
     integrations:
         tmdb:
-            base_url: '%env(string:TMDB_BASE_URL)%'
+            base_url: 'https://api.themoviedb.org'
             headers:
-                Authorization: 'Bearer %env(string:TMDB_ACCESS_TOKEN)%'
+                Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1MGRhMTc5MGVmNDI1N2FkNjJmYTUwNmYxMTExNzhjMCIsIm5iZiI6MTU0MDY1ODU1MC44MzcsInN1YiI6IjViZDQ5NTc0OTI1MTQxMDM5NjAxODAzMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Cecj3C2eLPZMFEVLbl9M5Y8IOdnZNiLWCdpo2c2D0wc'
+            config_path: '%kernel.project_dir%/src/Catalog/Infrastructure/Integrations/Tmdb/Tmdb.yaml'
             # tour:start config/middleware-wiring
-            middlewares:
-                - app.middleware.rate_limit
+            # middlewares:
+            #     - app.middleware.rate_limit
             # tour:end config/middleware-wiring
-        countries:
-            base_url: 'https://countries.trevorblades.com'
-            client_service: integration_engine.client.graphql
+        # countries:
+        #     base_url: 'https://countries.trevorblades.com'
+        #     client_service: integration_engine.client.graphql
+        #     config_path: '%kernel.project_dir%/src/Pricing/Infrastructure/Integrations/Countries/Countries.yaml'
