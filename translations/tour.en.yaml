@@ -41,4 +41,25 @@ tour:
     title: Behind the Counter
     description: Extensibility without code changes
     content: |
-      TBD
+      **The Problem:** Every API has limits. TMDB: 40 requests/10 seconds. Stripe: 100 requests/second. Shopify: 2 requests/second.
+
+      Without structure, you're adding retry logic, backoff, and rate limiting inside every integration — manually, inconsistently.
+
+      **The Solution:** IntegrationEngine's **middleware pipeline** lets you add cross-cutting concerns *once* and apply them everywhere.
+
+      **How It Works:**
+
+      1. **Define a Middleware** — implement `AbstractClientMiddleware` with `process()` and `processMany()`.
+      2. **Register it as a Service** — tag it with `integration_engine.middleware`.
+      3. **Wire it in YAML** — declare it under `middlewares:` per integration. No code changes needed.
+
+      In 30 lines, `RateLimitMiddleware` handles both single requests and batches, checking Symfony's rate limiter before each call.
+
+      **Extensibility Examples:**
+      - Rate limiting (shown here)
+      - Response caching
+      - Request signing (OAuth 1.0a)
+      - Custom retries
+      - Audit logging
+
+      Add a new feature *without touching* action, mapper, or controller code.

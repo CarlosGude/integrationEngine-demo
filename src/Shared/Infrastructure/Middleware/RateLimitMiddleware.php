@@ -16,6 +16,7 @@ final class RateLimitMiddleware extends AbstractClientMiddleware
     ) {
     }
 
+    // tour:start middleware-rate-limit
     public function process(PreparedRequest $request, \Closure $next): ResponseInterface
     {
         $limiter = $this->limiterFactory->create('api_requests');
@@ -46,4 +47,5 @@ final class RateLimitMiddleware extends AbstractClientMiddleware
 
         return $next($requests);
     }
+    // tour:end middleware-rate-limit
 }

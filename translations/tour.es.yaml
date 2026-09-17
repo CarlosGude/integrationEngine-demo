@@ -41,4 +41,25 @@ tour:
     title: Detrás del Mostrador
     description: Extensibilidad sin cambios de código
     content: |
-      TBD
+      **El Problema:** Toda API tiene límites. TMDB: 40 requests/10 segundos. Stripe: 100 requests/segundo. Shopify: 2 requests/segundo.
+
+      Sin estructura, añades lógica de reintentos, backoff y rate limiting dentro de cada integración — manualmente, inconsistentemente.
+
+      **La Solución:** El **pipeline de middleware** de IntegrationEngine te permite agregar preocupaciones transversales *una sola vez* y aplicarlas en todas partes.
+
+      **Cómo Funciona:**
+
+      1. **Define un Middleware** — implementa `AbstractClientMiddleware` con `process()` y `processMany()`.
+      2. **Regístralo como Servicio** — etiquétalo con `integration_engine.middleware`.
+      3. **Conéctalo en YAML** — decláralo bajo `middlewares:` por integración. Sin cambios de código.
+
+      En 30 líneas, `RateLimitMiddleware` maneja requests individuales y batches, verificando el rate limiter de Symfony antes de cada llamada.
+
+      **Ejemplos de Extensibilidad:**
+      - Limitación de rate (mostrado aquí)
+      - Caché de respuestas
+      - Firma de requests (OAuth 1.0a)
+      - Reintentos personalizados
+      - Auditoría
+
+      Agrega nuevas características *sin tocar* acciones, mappers ni código de controllers.

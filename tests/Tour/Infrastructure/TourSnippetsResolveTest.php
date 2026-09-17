@@ -19,7 +19,7 @@ final class TourSnippetsResolveTest extends TestCase
         $configPath = $projectDir.'config/tour.yaml';
         $tourConfig = Yaml::parseFile($configPath);
 
-        $extractor = new SourceSnippetExtractor($projectDir, ['src']);
+        $extractor = new SourceSnippetExtractor($projectDir, ['src', 'config']);
 
         foreach ($tourConfig['steps'] as $stepId => $stepConfig) {
             if (!isset($stepConfig['snippets'])) {

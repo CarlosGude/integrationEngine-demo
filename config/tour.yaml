@@ -31,6 +31,16 @@ steps:
     title: Behind the Counter
     description: Extensibility without code changes
     order: 3
+    snippets:
+      - id: middleware-rate-limit
+        file: src/Shared/Infrastructure/Middleware/RateLimitMiddleware.php
+        title: "Extensibility: Rate Limiting Middleware"
+      - id: config/rate-limiter
+        file: config/packages/rate_limiter.yaml
+        title: "Configuration: Rate Limiter Policy"
+      - id: config/middleware-wiring
+        file: config/packages/integration_engine.yaml
+        title: "Configuration: Middleware Wiring"
   when-suppliers-fail:
     title: When Suppliers Fail
     description: Resiliency and retries
