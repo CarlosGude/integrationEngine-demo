@@ -3,6 +3,22 @@ steps:
     title: The Problem
     description: Why integrations are hard
     order: 1
+    snippets:
+      - id: problem/antipattern1-god-class
+        file: src/Legacy/TmdbApiService.php
+        title: "Antipattern 1: God Class"
+      - id: problem/antipattern2-tight-coupling
+        file: src/Legacy/TmdbApiService.php
+        title: "Antipattern 2: Tight Coupling"
+      - id: problem/antipattern4-manual-caching
+        file: src/Legacy/TmdbApiService.php
+        title: "Antipattern 4: Manual Caching"
+      - id: solution/separated-responsibilities
+        file: src/Catalog/Application/MovieCatalogGateway.php
+        title: "Solution: Separated Responsibilities"
+      - id: solution/loose-coupling
+        file: src/Catalog/Application/MovieCatalogGateway.php
+        title: "Solution: Loose Coupling via Engine"
   parallel-requests:
     title: Parallel Requests
     description: How the engine handles concurrency

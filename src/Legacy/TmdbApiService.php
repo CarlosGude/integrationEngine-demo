@@ -6,6 +6,7 @@ namespace App\Legacy;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+// tour:start problem/antipattern1-god-class
 /**
  * Antipattern #1: God class with multiple responsibilities (HTTP, parsing, caching, mapping)
  * Antipattern #2: Tight coupling to TMDB API details
@@ -24,6 +25,7 @@ final class TmdbApiService
     ) {
     }
 
+    // tour:start problem/antipattern2-tight-coupling
     public function getMovie(int $movieId): array
     {
         $movieResponse = $this->httpClient->request('GET', "{$this->tmdbBaseUrl}/3/movie/{$movieId}", [
@@ -50,7 +52,9 @@ final class TmdbApiService
             'poster_url' => $posterUrl,
         ];
     }
+    // tour:end
 
+    // tour:start problem/antipattern4-manual-caching
     private function getConfiguration(): array
     {
         if (!empty($this->configCache)) {
@@ -65,6 +69,7 @@ final class TmdbApiService
 
         return $this->configCache;
     }
+    // tour:end
 
     private function buildPosterUrl(string $posterPath, string $secureBaseUrl, array $sizes): string
     {
@@ -80,3 +85,4 @@ final class TmdbApiService
         return $secureBaseUrl.$preferredSize.$posterPath;
     }
 }
+// tour:end

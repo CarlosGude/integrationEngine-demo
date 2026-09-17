@@ -10,6 +10,7 @@ use App\Catalog\Infrastructure\Integrations\Tmdb\GetMovieResponse;
 use IntegrationEngine\Core\Contract\Context\DefaultActionContext;
 use IntegrationEngine\Core\Registry\IntegrationRegistry;
 
+// tour:start solution/separated-responsibilities
 final class MovieCatalogGateway
 {
     public function __construct(
@@ -17,6 +18,7 @@ final class MovieCatalogGateway
     ) {
     }
 
+    // tour:start solution/loose-coupling
     public function getMovieById(int $movieId): Movie
     {
         $engine = $this->integrationRegistry->get('tmdb');
@@ -47,6 +49,7 @@ final class MovieCatalogGateway
             posterUrl: $posterUrl,
         );
     }
+    // tour:end
 
     private function buildPosterUrl(string $posterPath, string $secureBaseUrl, array $sizes): string
     {
@@ -62,3 +65,4 @@ final class MovieCatalogGateway
         return $secureBaseUrl.$preferredSize.$posterPath;
     }
 }
+// tour:end

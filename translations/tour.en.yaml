@@ -1,0 +1,34 @@
+tour:
+  the-problem:
+    title: The Problem
+    description: Why integrations are hard
+    content: |
+      Most API integrations follow the same pattern: one huge service handling everything.
+
+      **Antipattern #1: God Class** — HTTP, JSON parsing, mapping, caching, error handling — all in one class.
+
+      **Antipattern #2: Tight Coupling** — Change the API URL, response format, or headers? Refactor the whole class.
+
+      **Antipattern #3: No Reusability** — Want to fetch the same movie in a different context? Copy-paste the method.
+
+      **Antipattern #4: Manual Caching** — Cache tokens, configs, or API responses? Write a cache layer for each service.
+
+      **Antipattern #5: Error Handling Buried** — Where do you catch 401s, retries, timeouts? Scattered through the logic.
+
+      **IntegrationEngine solves this by:**
+      - Separating concerns: one action per endpoint, one mapper per response type.
+      - Decoupling from API details: reconfigure in YAML, not code.
+      - Built-in middleware: caching, retries, tracing — out of the box.
+      - Standardized errors: same handling for all integrations.
+
+  parallel-requests:
+    title: Parallel Requests
+    description: How the engine handles concurrency
+    content: |
+      TBD
+
+  behind-the-counter:
+    title: Behind the Counter
+    description: Extensibility without code changes
+    content: |
+      TBD

@@ -1,0 +1,34 @@
+tour:
+  the-problem:
+    title: El Problema
+    description: Por qué las integraciones son difíciles
+    content: |
+      La mayoría de integraciones de APIs siguen el mismo patrón: un enorme servicio manejando todo.
+
+      **Antipatrón #1: Clase Dios** — HTTP, parseo de JSON, mapeo, caché, manejo de errores — todo en una clase.
+
+      **Antipatrón #2: Acoplamiento Fuerte** — ¿Cambiar la URL de la API, formato de respuesta o headers? Refactoriza toda la clase.
+
+      **Antipatrón #3: Sin Reusabilidad** — ¿Quieres obtener la misma película en otro contexto? Copia-pega el método.
+
+      **Antipatrón #4: Caché Manual** — ¿Cachear tokens, configuraciones o respuestas de API? Escribe una capa de caché para cada servicio.
+
+      **Antipatrón #5: Manejo de Errores Disperso** — ¿Dónde capturas 401s, reintentos, timeouts? Esparcido por toda la lógica.
+
+      **IntegrationEngine resuelve esto:**
+      - Separando responsabilidades: una acción por endpoint, un mapper por tipo de respuesta.
+      - Desacoplando de detalles de API: reconfigura en YAML, no en código.
+      - Middleware integrado: caché, reintentos, trazabilidad — lista para usar.
+      - Errores estandarizados: mismo manejo para todas las integraciones.
+
+  parallel-requests:
+    title: Solicitudes Paralelas
+    description: Cómo el motor maneja concurrencia
+    content: |
+      TBD
+
+  behind-the-counter:
+    title: Detrás del Mostrador
+    description: Extensibilidad sin cambios de código
+    content: |
+      TBD
