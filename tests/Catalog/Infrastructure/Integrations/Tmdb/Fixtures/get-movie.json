@@ -1,0 +1,54 @@
+{
+  "adult": false,
+  "backdrop_path": "/fhvyh6G8M55gkTIPCbeFjvyAh4c.jpg",
+  "belongs_to_collection": null,
+  "budget": 250000000,
+  "genres": [
+    {
+      "id": 28,
+      "name": "Action"
+    },
+    {
+      "id": 12,
+      "name": "Adventure"
+    }
+  ],
+  "homepage": "https://www.marvel.com/movies/avengers-endgame",
+  "id": 299536,
+  "imdb_id": "tt4154796",
+  "original_language": "en",
+  "original_title": "Avengers: Endgame",
+  "overview": "After the devastating events that decimated the planet and wiped out half of all life, the Avengers assemble once more in order to reverse Thanos' actions and restore balance to the universe.",
+  "popularity": 408.72,
+  "poster_path": "/or06FN4Hf2tfsWASP2Oa6aSy0l1.jpg",
+  "production_companies": [
+    {
+      "id": 420,
+      "logo_path": "/hUzeosd33nzE5MCNsZxCGEKTW5l.png",
+      "name": "Marvel Studios",
+      "origin_country": "US"
+    }
+  ],
+  "production_countries": [
+    {
+      "iso_3166_1": "US",
+      "name": "United States of America"
+    }
+  ],
+  "release_date": "2019-04-26",
+  "revenue": 2798200000,
+  "runtime": 181,
+  "spoken_languages": [
+    {
+      "english_name": "English",
+      "iso_639_1": "en",
+      "name": "English"
+    }
+  ],
+  "status": "Released",
+  "tagline": "Part of the journey is the end.",
+  "title": "Avengers: Endgame",
+  "video": false,
+  "vote_average": 8.3,
+  "vote_count": 32000
+}

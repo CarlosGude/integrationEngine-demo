@@ -1,0 +1,6 @@
+integration_engine:
+    integrations:
+        tmdb:
+            base_url: '%env(string:TMDB_BASE_URL)%'
+            headers:
+                Authorization: 'Bearer %env(string:TMDB_ACCESS_TOKEN)%'

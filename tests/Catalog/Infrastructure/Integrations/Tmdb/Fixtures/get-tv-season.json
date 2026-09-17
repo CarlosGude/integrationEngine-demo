@@ -1,0 +1,22 @@
+{
+  "air_date": "2019-04-23",
+  "episodes": [
+    {
+      "air_date": "2019-04-23",
+      "episode_number": 1,
+      "id": 1,
+      "name": "Part 1",
+      "overview": "After the devastating events...",
+      "production_code": null,
+      "season_number": 1,
+      "still_path": "/path/to/still.jpg",
+      "vote_average": 8.1,
+      "vote_count": 1000
+    }
+  ],
+  "name": "Season 1",
+  "overview": "The first season of the series...",
+  "id": 1,
+  "poster_path": "/poster.jpg",
+  "season_number": 1
+}

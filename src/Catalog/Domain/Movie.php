@@ -11,8 +11,23 @@ final readonly class Movie
         public int $id,
         public string $title,
         public string $overview,
-        public ?string $posterUrl = null,
+        public string $posterPath,
+        public float $voteAverage,
+        public string $releaseDate,
+        public string $posterUrl,
     ) {
+    }
+
+    public static function fromInfrastructure(
+        int $id,
+        string $title,
+        string $overview,
+        string $posterPath,
+        float $voteAverage,
+        string $releaseDate,
+        string $posterUrl,
+    ): self {
+        return new self($id, $title, $overview, $posterPath, $voteAverage, $releaseDate, $posterUrl);
     }
 }
 // tour:end
