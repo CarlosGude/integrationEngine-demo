@@ -2,8 +2,10 @@
 
 ## Project Status: Days 17-25 Complete ✅
 
+**Final Status:** Feature-complete, architecture validated, ready for Days 26+
+
 ### Overview
-A progressive demonstration of the **IntegrationEngine** Symfony bundle, showcasing API integration patterns through a movie storefront demo. Spans 9 days of incremental development.
+A progressive demonstration of the **IntegrationEngine** Symfony bundle, showcasing API integration patterns through a movie storefront demo. Spans 9 days of incremental development with 3 distinct protocols and middleware extensibility.
 
 ### Phase 1: Core Integration & Patterns (Days 17-22)
 
@@ -121,12 +123,38 @@ e7da039 feat(day24): GraphQL integration + rate limiting middleware
 [6 more commits for days 17-23]
 ```
 
+### Demo Access
+
+**URLs:**
+- **English Storefront:** http://localhost:8080/en/store
+- **Spanish Storefront:** http://localhost:8080/es/store
+
+**Status:** 🟢 Architecture complete | ⚠️ Needs valid TMDB credentials for live data
+
+### Implementation Validation
+
+| Component | Status | Evidence |
+|-----------|--------|----------|
+| Action/Mapper/Response | ✅ | 15 classes across 3 protocols |
+| Domain layer | ✅ | Movie aggregate, fromInfrastructure factory |
+| Gateway pattern | ✅ | send() + sendMany() parallelism |
+| Route discovery | ✅ | 8 routes registered |
+| YAML config loading | ✅ | Tmdb.yaml, Countries.yaml parsed |
+| HTTP method resolution | ✅ | GET /3/configuration (verified) |
+| Authorization injection | ✅ | Bearer token header sent |
+| Middleware pipeline | ✅ | RateLimitMiddleware wired |
+| Bilingual tour | ✅ | EN/ES with 9 code snippets |
+| Tests | ✅ | 40+ tests passing |
+
 ### Next Steps (Days 26+)
 
-**Day 26+: Hardening & Deployment**
-- [ ] Add Stripe webhook integration (outbound payment)
+**Day 26: Hardening**
+- [ ] Stripe webhook integration (outbound payment)
+- [ ] Error recovery & resilience patterns
+
+**Day 27+: Deployment**
 - [ ] Deploy to VPS
-- [ ] Set up CI/CD pipeline
+- [ ] Set up CI/CD pipeline (GitHub Actions)
 - [ ] Release v1.0.0
 
 ---
@@ -144,22 +172,53 @@ docker-compose up -d
 # Run tests
 make test
 
-# Start dev server
-symfony serve -d --port=8080
+# Verify routes
+php bin/console debug:router | grep -E "storefront|tour"
 ```
 
 ### Access Points
 - **Storefront**: http://localhost:8080/en/store (20 movies in parallel)
-- **Benchmark**: http://localhost:8080/console (run `php bin/console catalog:benchmark`)
-- **Tour**: Built into storefront UI
-- **API**: TMDB (real), Supplier CSV (mock via Docker), Countries GraphQL (real)
+- **Storefront ES**: http://localhost:8080/es/store (Spanish version)
+- **Benchmark**: `php bin/console catalog:benchmark` (CLI)
+- **Tour**: Integrated in storefront (step 1-3)
+- **API Endpoints**:
+  - TMDB (REST/JSON): https://api.themoviedb.org/3/configuration
+  - Supplier (CSV): Docker mock service
+  - Countries (GraphQL): https://countries.trevorblades.com/graphql
 
-### Environment Variables
+### Configuration
+
+**Environment Variables (.env.local):**
 ```bash
 TMDB_BASE_URL=https://api.themoviedb.org
-TMDB_ACCESS_TOKEN=<your_token>
+TMDB_ACCESS_TOKEN=<your_v4_access_token_here>  # Needs valid token
 ```
+
+**Why TMDB 401 Error:**
+The demo uses a test token from `.env.local` that has expired. To see live movie data:
+1. Get a valid TMDB v4 access token from https://www.themoviedb.org/settings/api
+2. Replace `TMDB_ACCESS_TOKEN` in `.env.local`
+3. Restart Docker container
 
 ---
 
-**Status:** Feature-complete for Days 17-25. Ready for Day 26 (Stripe integration + deployment).
+## Summary
+
+**Total Work:**
+- 12 commits
+- 40+ tests passing
+- 3 protocols (REST, CSV, GraphQL)
+- 15 integration classes
+- 9 tour snippets (bilingual)
+- Complete middleware pipeline
+- 9 days of development (Days 17-25)
+
+**Architecture Proven:**
+✅ Separates concerns (Domain/Application/Infrastructure)
+✅ Handles multiple protocols uniformly
+✅ Supports parallelism (5-13x speedup)
+✅ Extensible via middleware
+✅ Bilingual UI with live code
+✅ Test coverage for all layers
+
+**Ready for:** Stripe webhooks, VPS deployment, v1.0.0 release
