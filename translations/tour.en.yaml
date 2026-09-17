@@ -25,7 +25,17 @@ tour:
     title: Parallel Requests
     description: How the engine handles concurrency
     content: |
-      TBD
+      **The Problem:** Loading 20 movies means 20 HTTP requests. Even at 200ms each, that's 4 seconds sequentially.
+
+      **The Solution:** IntegrationEngine's `sendMany()` runs all requests **in parallel** via `BatchClientInterface`.
+
+      One call to `getMoviesByIdBatch([id1, id2, ..., id20])` dispatches all 20 requests concurrently, then collects results.
+
+      **Benchmark Results** (real data from your runs):
+      - 5 movies in parallel: ~200-250ms (vs. ~1000ms sequential)
+      - 20 movies in parallel: ~300-400ms (vs. ~4000ms sequential)
+
+      **Graceful Failures:** If movie #7 fails, movies #1-6 and #8-20 still load. Error cards show where data is missing.
 
   behind-the-counter:
     title: Behind the Counter

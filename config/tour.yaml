@@ -23,6 +23,10 @@ steps:
     title: Parallel Requests
     description: How the engine handles concurrency
     order: 2
+    snippets:
+      - id: solution/parallel-requests
+        file: src/Catalog/Application/MovieCatalogGateway.php
+        title: "Solution: Parallel Batch Requests"
   behind-the-counter:
     title: Behind the Counter
     description: Extensibility without code changes
