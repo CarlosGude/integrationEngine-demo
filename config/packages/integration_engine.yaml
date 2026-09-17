@@ -4,3 +4,8 @@ integration_engine:
             base_url: '%env(string:TMDB_BASE_URL)%'
             headers:
                 Authorization: 'Bearer %env(string:TMDB_ACCESS_TOKEN)%'
+            middlewares:
+                - app.middleware.rate_limit
+        countries:
+            base_url: 'https://countries.trevorblades.com'
+            client_service: integration_engine.client.graphql

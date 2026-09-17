@@ -1,0 +1,6 @@
+framework:
+    rate_limiter:
+        api_requests:
+            policy: 'fixed_window'
+            limit: 1000
+            interval: '1 hour'
