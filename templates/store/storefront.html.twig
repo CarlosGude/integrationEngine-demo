@@ -1,0 +1,132 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Store - Movie Rental{% endblock %}
+
+{% block body %}
+<div class="storefront">
+    <h1>Featured Movies</h1>
+
+    <div class="movies-grid">
+        {% for movie in movies %}
+            {% if movie %}
+                <div class="movie-card">
+                    {% if movie.posterUrl %}
+                        <img src="{{ movie.posterUrl }}" alt="{{ movie.title }}" class="poster">
+                    {% else %}
+                        <div class="poster-placeholder">No poster</div>
+                    {% endif %}
+                    <div class="movie-info">
+                        <h3>{{ movie.title }}</h3>
+                        <p class="rating">★ {{ movie.voteAverage|round(1) }}</p>
+                        <p class="release-date">{{ movie.releaseDate }}</p>
+                        <p class="overview">{{ movie.overview[:100] }}...</p>
+                        <button class="btn-rent">Rent for $3.99</button>
+                    </div>
+                </div>
+            {% else %}
+                <div class="movie-card error">
+                    <div class="poster-placeholder error">
+                        <span>⚠️ Failed to load</span>
+                    </div>
+                    <div class="movie-info">
+                        <p>This movie is temporarily unavailable</p>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.storefront {
+    padding: 2rem;
+}
+
+.movies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.movie-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.movie-card:hover {
+    transform: translateY(-4px);
+}
+
+.movie-card.error {
+    background-color: #fff5f5;
+}
+
+.poster {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+}
+
+.poster-placeholder {
+    width: 100%;
+    height: 300px;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+}
+
+.poster-placeholder.error {
+    background-color: #fee;
+    color: #c33;
+}
+
+.movie-info {
+    padding: 1rem;
+}
+
+.movie-info h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.95rem;
+}
+
+.rating {
+    margin: 0.25rem 0;
+    font-weight: bold;
+    color: #ff9800;
+}
+
+.release-date {
+    margin: 0.25rem 0;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.overview {
+    margin: 0.5rem 0;
+    font-size: 0.85rem;
+    color: #777;
+    line-height: 1.4;
+}
+
+.btn-rent {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 0.5rem;
+}
+
+.btn-rent:hover {
+    background-color: #0056b3;
+}
+</style>
+{% endblock %}
