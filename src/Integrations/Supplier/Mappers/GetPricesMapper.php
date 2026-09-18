@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Integrations\Supplier\Pricing;
+namespace App\Integrations\Supplier\Mappers;
 
+use App\Integrations\Supplier\GetPrices\GetPricesAction;
+use App\Integrations\Supplier\GetPrices\GetPricesResponse;
 use App\Pricing\Infrastructure\Http\CsvClientAdapter;
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 use IntegrationEngine\Core\Contract\Mapper\AbstractMapper;

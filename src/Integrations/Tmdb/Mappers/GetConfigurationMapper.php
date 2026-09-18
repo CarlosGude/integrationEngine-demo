@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Integrations\Tmdb\Catalog;
+namespace App\Integrations\Tmdb\Mappers;
 
+use App\Integrations\Tmdb\GetConfiguration\GetConfigurationAction;
+use App\Integrations\Tmdb\GetConfiguration\GetConfigurationResponse;
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 use IntegrationEngine\Core\Contract\Mapper\AbstractMapper;
 use IntegrationEngine\Core\Contract\Response\ResponseInterface;

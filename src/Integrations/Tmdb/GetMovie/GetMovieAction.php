@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Integrations\Tmdb\Catalog;
+namespace App\Integrations\Tmdb\GetMovie;
 
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 
-final class GetTvSeasonAction extends AbstractAction
+final class GetMovieAction extends AbstractAction
 {
     public static function getName(): string
     {
-        return 'get_tv_season';
+        return 'get_movie';
     }
 
     public static function hasResponse(): bool
@@ -20,6 +20,6 @@ final class GetTvSeasonAction extends AbstractAction
 
     public static function mapper(): ?string
     {
-        return GetTvSeasonMapper::class;
+        return GetMovieMapper::class;
     }
 }

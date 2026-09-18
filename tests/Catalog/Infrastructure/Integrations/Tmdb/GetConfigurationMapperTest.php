@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Catalog\Infrastructure\Integrations\Tmdb;
 
-use App\Integrations\Tmdb\Catalog\GetConfigurationAction;
-use App\Integrations\Tmdb\Catalog\GetConfigurationMapper;
-use App\Integrations\Tmdb\Catalog\GetConfigurationResponse;
+use App\Integrations\Tmdb\GetConfiguration\GetConfigurationAction;
+use App\Integrations\Tmdb\Mappers\GetConfigurationMapper;
+use App\Integrations\Tmdb\GetConfiguration\GetConfigurationResponse;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

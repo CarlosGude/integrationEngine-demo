@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Integrations\Stripe\Billing;
+namespace App\Integrations\Stripe\CreatePaymentIntent;
 
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 

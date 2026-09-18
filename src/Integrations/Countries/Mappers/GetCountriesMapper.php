@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Integrations\Countries\Pricing;
+namespace App\Integrations\Countries\Mappers;
 
+use App\Integrations\Countries\GetCountries\GetCountriesAction;
+use App\Integrations\Countries\GetCountries\GetCountriesResponse;
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 use IntegrationEngine\Core\Contract\Mapper\AbstractMapper;
 use IntegrationEngine\Core\Contract\Response\ResponseInterface;

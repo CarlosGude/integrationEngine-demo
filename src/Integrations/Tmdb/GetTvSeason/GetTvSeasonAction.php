@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Integrations\Supplier\Pricing;
+namespace App\Integrations\Tmdb\GetTvSeason;
 
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 
-final class GetPricesAction extends AbstractAction
+final class GetTvSeasonAction extends AbstractAction
 {
     public static function getName(): string
     {
-        return 'get_prices';
+        return 'get_tv_season';
     }
 
     public static function hasResponse(): bool
@@ -20,6 +20,6 @@ final class GetPricesAction extends AbstractAction
 
     public static function mapper(): ?string
     {
-        return GetPricesMapper::class;
+        return GetTvSeasonMapper::class;
     }
 }

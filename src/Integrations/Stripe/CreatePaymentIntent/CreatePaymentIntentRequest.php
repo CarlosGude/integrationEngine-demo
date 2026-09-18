@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Integrations\Stripe\Billing;
+namespace App\Integrations\Stripe\CreatePaymentIntent;
 
 use IntegrationEngine\Core\Contract\Action\ActionBodyInterface;
 
-final class CreatePaymentIntentBody implements ActionBodyInterface
+final class CreatePaymentIntentRequest implements ActionBodyInterface
 {
     private function __construct(
         private readonly int $amount,

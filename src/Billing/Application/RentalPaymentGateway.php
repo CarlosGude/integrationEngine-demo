@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Billing\Application;
 
 use App\Billing\Domain\RentalPayment;
-use App\Integrations\Stripe\Billing\CreatePaymentIntentBody;
-use App\Integrations\Stripe\Billing\CreatePaymentIntentResponse;
+use App\Integrations\Stripe\CreatePaymentIntent\CreatePaymentIntentRequest;
+use App\Integrations\Stripe\CreatePaymentIntent\CreatePaymentIntentResponse;
 use IntegrationEngine\Core\Contract\Action\DefaultActionContext;
 use IntegrationEngine\Core\Registry\IntegrationRegistry;
 
@@ -27,7 +27,7 @@ final class RentalPaymentGateway
 
         $response = $engine->send(
             'create_payment_intent',
-            body: CreatePaymentIntentBody::create([
+            body: CreatePaymentIntentRequest::create([
                 'amount' => $amountCents,
                 'currency' => $currency,
                 'metadata' => ['movie_id' => $movieId],

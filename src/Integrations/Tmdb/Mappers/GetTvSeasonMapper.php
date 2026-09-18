@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Integrations\Tmdb\Catalog;
+namespace App\Integrations\Tmdb\Mappers;
 
+use App\Integrations\Tmdb\GetTvSeason\GetTvSeasonAction;
+use App\Integrations\Tmdb\GetTvSeason\GetTvSeasonResponse;
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 use IntegrationEngine\Core\Contract\Mapper\AbstractMapper;
 use IntegrationEngine\Core\Contract\Response\ResponseInterface;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Integrations\Tmdb\Catalog;
+namespace App\Integrations\Tmdb\GetMovie;
 
 use IntegrationEngine\Core\Contract\Response\ResponseInterface;
 

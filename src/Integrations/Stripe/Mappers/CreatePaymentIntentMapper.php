@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Integrations\Stripe\Billing;
+namespace App\Integrations\Stripe\Mappers;
 
+use App\Integrations\Stripe\CreatePaymentIntent\CreatePaymentIntentAction;
+use App\Integrations\Stripe\CreatePaymentIntent\CreatePaymentIntentResponse;
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 use IntegrationEngine\Core\Contract\Mapper\AbstractMapper;
 use IntegrationEngine\Core\Contract\Response\ResponseInterface;

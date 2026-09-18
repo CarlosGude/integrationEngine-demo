@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Integrations\Supplier\Pricing;
+namespace App\Integrations\Supplier\GetPrices;
 
 use IntegrationEngine\Core\Contract\Response\ResponseInterface;
 
