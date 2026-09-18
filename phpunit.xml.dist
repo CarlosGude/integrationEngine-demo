@@ -31,8 +31,5 @@
         <env name="APP_ENV" value="test" force="true"/>
         <env name="APP_DEBUG" value="1" force="true"/>
         <env name="KERNEL_CLASS" value="App\Kernel"/>
-        <!-- symfony/dotenv isn't installed, so .env.test is never loaded -->
-        <env name="DATABASE_URL" value="sqlite:///:memory:"/>
-        <env name="STRIPE_WEBHOOK_SECRET" value="whsec_test"/>
     </php>
 </phpunit>

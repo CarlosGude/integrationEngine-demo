@@ -11,7 +11,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 final class StripeWebhookFlowTest extends WebTestCase
 {
-    // Matches STRIPE_WEBHOOK_SECRET in phpunit.xml.dist.
+    // Matches STRIPE_WEBHOOK_SECRET in .env.test.
     private const SECRET = 'whsec_test';
 
     /** @var list<StripePaymentIntentEvent> */

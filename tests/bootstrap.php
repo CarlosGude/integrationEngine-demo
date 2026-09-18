@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-if (!isset($_SERVER['APP_ENV'])) {
-    $_SERVER['APP_ENV'] = 'test';
-}
+use Symfony\Component\Dotenv\Dotenv;
+
+require_once dirname(__DIR__).'/vendor/autoload.php';
 
 if (!isset($_SERVER['KERNEL_CLASS'])) {
     $_SERVER['KERNEL_CLASS'] = 'App\Kernel';
 }
 
-require_once dirname(__DIR__).'/vendor/autoload.php';
+(new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
