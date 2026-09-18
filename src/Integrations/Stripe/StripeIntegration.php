@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Integrations;
+namespace App\Integrations\Stripe;
 
 use App\Integrations\Stripe\CreatePaymentIntent\CreatePaymentIntentRequest;
 use App\Integrations\Stripe\CreatePaymentIntent\CreatePaymentIntentResponse;

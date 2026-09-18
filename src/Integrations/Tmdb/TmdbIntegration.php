@@ -2,13 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Integrations;
+namespace App\Integrations\Tmdb;
 
-use App\Integrations\Tmdb\GetConfiguration\GetConfigurationAction;
 use App\Integrations\Tmdb\GetConfiguration\GetConfigurationResponse;
-use App\Integrations\Tmdb\GetMovie\GetMovieAction;
 use App\Integrations\Tmdb\GetMovie\GetMovieResponse;
-use App\Integrations\Tmdb\GetTvSeason\GetTvSeasonAction;
 use App\Integrations\Tmdb\GetTvSeason\GetTvSeasonResponse;
 use IntegrationEngine\Core\Contract\Action\DefaultActionContext;
 use IntegrationEngine\Core\Registry\IntegrationRegistry;
