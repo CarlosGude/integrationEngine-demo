@@ -1,6 +1,6 @@
 create_payment_intent:
-  action: 'App\Billing\Infrastructure\Integrations\Stripe\CreatePaymentIntentAction'
+  action: 'App\Integrations\Stripe\CreatePaymentIntent\CreatePaymentIntentAction'
   method: POST
   path: /v1/payment_intents
-  body: 'App\Billing\Infrastructure\Integrations\Stripe\CreatePaymentIntentBody'
-  mapper: 'App\Billing\Infrastructure\Integrations\Stripe\CreatePaymentIntentMapper'
+  body: 'App\Integrations\Stripe\CreatePaymentIntent\CreatePaymentIntentRequest'
+  mapper: 'App\Integrations\Stripe\Mappers\CreatePaymentIntentMapper'

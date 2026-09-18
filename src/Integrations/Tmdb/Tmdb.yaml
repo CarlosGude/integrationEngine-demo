@@ -1,17 +1,17 @@
 get_configuration:
-  action: 'App\Catalog\Infrastructure\Integrations\Tmdb\GetConfigurationAction'
+  action: 'App\Integrations\Tmdb\GetConfiguration\GetConfigurationAction'
   method: GET
   path: /3/configuration
-  mapper: 'App\Catalog\Infrastructure\Integrations\Tmdb\GetConfigurationMapper'
+  mapper: 'App\Integrations\Tmdb\Mappers\GetConfigurationMapper'
 
 get_movie:
-  action: 'App\Catalog\Infrastructure\Integrations\Tmdb\GetMovieAction'
+  action: 'App\Integrations\Tmdb\GetMovie\GetMovieAction'
   method: GET
   path: /3/movie/{movie_id}
-  mapper: 'App\Catalog\Infrastructure\Integrations\Tmdb\GetMovieMapper'
+  mapper: 'App\Integrations\Tmdb\Mappers\GetMovieMapper'
 
 get_tv_season:
-  action: 'App\Catalog\Infrastructure\Integrations\Tmdb\GetTvSeasonAction'
+  action: 'App\Integrations\Tmdb\GetTvSeason\GetTvSeasonAction'
   method: GET
   path: /3/tv/{tv_id}/season/{season_number}
-  mapper: 'App\Catalog\Infrastructure\Integrations\Tmdb\GetTvSeasonMapper'
+  mapper: 'App\Integrations\Tmdb\Mappers\GetTvSeasonMapper'

@@ -1,5 +1,5 @@
 get_countries:
-  action: 'App\Pricing\Infrastructure\Integrations\Countries\GetCountriesAction'
+  action: 'App\Integrations\Countries\GetCountries\GetCountriesAction'
   method: POST
   path: /
-  mapper: 'App\Pricing\Infrastructure\Integrations\Countries\GetCountriesMapper'
+  mapper: 'App\Integrations\Countries\Mappers\GetCountriesMapper'
