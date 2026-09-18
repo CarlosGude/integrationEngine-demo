@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Catalog\UI\Console;
+namespace App\Console;
 
 use App\Catalog\Application\MovieCatalogGateway;
 use App\Shared\Stats\Median;

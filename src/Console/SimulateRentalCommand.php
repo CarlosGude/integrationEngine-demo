@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Billing\UI\Console;
+namespace App\Console;
 
 use App\Billing\Application\RentalPaymentGateway;
 use Symfony\Component\Console\Attribute\AsCommand;

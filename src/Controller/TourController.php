@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tour\UI;
+namespace App\Controller;
 
 use App\Shared\Observability\TraceRecorderMiddleware;
 use App\Tour\Domain\TourRegistry;

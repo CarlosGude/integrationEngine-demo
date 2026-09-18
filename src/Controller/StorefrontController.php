@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Catalog\UI;
+namespace App\Controller;
 
 use App\Catalog\Application\MovieCatalogGateway;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
