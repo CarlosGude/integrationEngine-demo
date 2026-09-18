@@ -98,6 +98,7 @@ final class MovieCatalogGateway
     }
     // tour:end
 
+    /** @param list<string> $sizes */
     private function buildPosterUrl(string $posterPath, string $secureBaseUrl, array $sizes): string
     {
         if (empty($posterPath)) {

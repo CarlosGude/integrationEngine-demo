@@ -48,7 +48,6 @@ deptrac:
       - Tour
     Integrations:
       - Shared
-      - Pricing
     Catalog:
       - Shared
       - Integrations

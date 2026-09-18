@@ -18,7 +18,7 @@ final class CreatePaymentIntentMapper extends AbstractMapper
     }
 
     /**
-     * @param array<string, mixed> $response
+     * @param array<string, mixed>        $response
      * @param array<string, list<string>> $headers
      */
     protected static function transform(AbstractAction $action, array $response, array $headers): ResponseInterface

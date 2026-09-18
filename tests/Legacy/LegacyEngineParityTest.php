@@ -24,18 +24,20 @@ final class LegacyEngineParityTest extends TestCase
         $movieId = 299536;
 
         $movieFixture = \json_decode(
-            \file_get_contents(__DIR__.'/../Catalog/Infrastructure/Integrations/Tmdb/Fixtures/get-movie.json'),
+            (string) \file_get_contents(__DIR__.'/../Catalog/Infrastructure/Integrations/Tmdb/Fixtures/get-movie.json'),
             associative: true,
+            flags: \JSON_THROW_ON_ERROR,
         );
 
         $configFixture = \json_decode(
-            \file_get_contents(__DIR__.'/../Catalog/Infrastructure/Integrations/Tmdb/Fixtures/get-configuration.json'),
+            (string) \file_get_contents(__DIR__.'/../Catalog/Infrastructure/Integrations/Tmdb/Fixtures/get-configuration.json'),
             associative: true,
+            flags: \JSON_THROW_ON_ERROR,
         );
 
         $httpClient = new MockHttpClient([
-            new MockResponse(\json_encode($movieFixture), ['http_code' => 200]),
-            new MockResponse(\json_encode($configFixture), ['http_code' => 200]),
+            new MockResponse(\json_encode($movieFixture, \JSON_THROW_ON_ERROR), ['http_code' => 200]),
+            new MockResponse(\json_encode($configFixture, \JSON_THROW_ON_ERROR), ['http_code' => 200]),
         ]);
 
         $legacyService = new TmdbApiService($httpClient, self::BASE_URL, self::TOKEN);

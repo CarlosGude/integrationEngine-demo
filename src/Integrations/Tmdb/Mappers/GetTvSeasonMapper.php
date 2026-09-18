@@ -19,7 +19,7 @@ final class GetTvSeasonMapper extends AbstractMapper
 
     protected static function transform(AbstractAction $action, array $response, array $headers): ResponseInterface
     {
-        /** @var array{id: int, name: string, episodes: array<string, mixed>} $response */
+        /** @var array{id: int, name: string, episodes?: array<string, mixed>} $response */
         return new GetTvSeasonResponse(
             id: $response['id'],
             name: $response['name'],

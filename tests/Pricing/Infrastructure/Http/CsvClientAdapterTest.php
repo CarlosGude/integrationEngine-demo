@@ -13,7 +13,7 @@ final class CsvClientAdapterTest extends TestCase
     #[Test]
     public function parsesValidCSV(): void
     {
-        $adapter = new CsvClientAdapter($this->createMock(\Symfony\Contracts\HttpClient\HttpClientInterface::class));
+        $adapter = new CsvClientAdapter();
 
         $csv = <<<'CSV'
 sku,price,currency
@@ -33,7 +33,7 @@ CSV;
     #[Test]
     public function skipsEmptyLines(): void
     {
-        $adapter = new CsvClientAdapter($this->createMock(\Symfony\Contracts\HttpClient\HttpClientInterface::class));
+        $adapter = new CsvClientAdapter();
 
         $csv = <<<'CSV'
 sku,price,currency
@@ -51,7 +51,7 @@ CSV;
     #[Test]
     public function throwsOnMisalignedColumns(): void
     {
-        $adapter = new CsvClientAdapter($this->createMock(\Symfony\Contracts\HttpClient\HttpClientInterface::class));
+        $adapter = new CsvClientAdapter();
 
         $csv = <<<'CSV'
 sku,price,currency
@@ -65,7 +65,7 @@ CSV;
     #[Test]
     public function handlesEmptyCSV(): void
     {
-        $adapter = new CsvClientAdapter($this->createMock(\Symfony\Contracts\HttpClient\HttpClientInterface::class));
+        $adapter = new CsvClientAdapter();
 
         $result = $adapter->parseCSV('');
 

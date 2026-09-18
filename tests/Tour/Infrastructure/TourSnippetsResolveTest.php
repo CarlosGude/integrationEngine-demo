@@ -17,6 +17,7 @@ final class TourSnippetsResolveTest extends TestCase
     {
         $projectDir = __DIR__.'/../../../';
         $configPath = $projectDir.'config/tour.yaml';
+        /** @var array{steps: array<string, array{snippets?: list<array{id: string, file: string}>}>} $tourConfig */
         $tourConfig = Yaml::parseFile($configPath);
 
         $extractor = new SourceSnippetExtractor($projectDir, ['src', 'config']);

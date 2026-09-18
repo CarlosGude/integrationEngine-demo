@@ -30,14 +30,15 @@ final class SimulateRentalCommand extends Command
             'movie-id',
             InputArgument::OPTIONAL,
             'TMDB movie ID to rent',
-            550, // Fight Club
+            '550', // Fight Club
         );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $movieId = (int) $input->getArgument('movie-id');
+        $movieIdArgument = $input->getArgument('movie-id');
+        $movieId = \is_numeric($movieIdArgument) ? (int) $movieIdArgument : 0;
 
         $io->info("Simulating rental for movie #{$movieId}...");
 
@@ -52,7 +53,7 @@ final class SimulateRentalCommand extends Command
                     ['Movie ID', $payment->movieId],
                     ['Amount', sprintf('%d cents (%s)', $payment->amountCents, strtoupper($payment->currency))],
                     ['Status', $payment->status],
-                    ['Client Secret', '***' . substr($payment->clientSecret, -10)],
+                    ['Client Secret', '***'.substr($payment->clientSecret, -10)],
                 ],
             );
 

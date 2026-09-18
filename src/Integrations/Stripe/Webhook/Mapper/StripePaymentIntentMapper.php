@@ -17,11 +17,12 @@ final class StripePaymentIntentMapper extends AbstractWebhookMapper
     }
 
     /**
-     * @param array<string, mixed> $payload
+     * @param array<string, mixed>  $payload
      * @param array<string, string> $headers
      */
     public function map(array $payload, array $headers): WebhookEventInterface
     {
+        /** @var array{id?: string, type?: string, data?: array{object?: array{id?: string, status?: string, amount?: int, currency?: string, metadata?: array{movie_id?: int|string}}}} $payload */
         $obj = $payload['data']['object'] ?? [];
 
         return new StripePaymentIntentEvent(

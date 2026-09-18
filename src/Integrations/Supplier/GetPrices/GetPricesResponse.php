@@ -9,7 +9,7 @@ use IntegrationEngine\Core\Contract\Response\ResponseInterface;
 final class GetPricesResponse implements ResponseInterface
 {
     /**
-     * @param array<int, array{sku: string, price: string, currency: string}> $prices
+     * @param list<array<string, string>> $prices
      */
     public function __construct(
         private readonly array $prices,
@@ -23,7 +23,7 @@ final class GetPricesResponse implements ResponseInterface
     }
 
     /**
-     * @return array<int, array{sku: string, price: string, currency: string}>
+     * @return list<array<string, string>>
      */
     public function prices(): array
     {

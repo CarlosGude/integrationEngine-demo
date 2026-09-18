@@ -28,11 +28,16 @@ final class GetConfigurationResponse implements ResponseInterface
 
     public function posterSecureBaseUrl(): string
     {
-        return $this->images['secure_base_url'] ?? '';
+        $url = $this->images['secure_base_url'] ?? '';
+
+        return \is_string($url) ? $url : '';
     }
 
+    /** @return list<string> */
     public function posterSizes(): array
     {
-        return $this->images['poster_sizes'] ?? [];
+        $sizes = $this->images['poster_sizes'] ?? [];
+
+        return \is_array($sizes) ? array_values(array_filter($sizes, \is_string(...))) : [];
     }
 }

@@ -16,13 +16,13 @@ final class CreatePaymentIntentRequest implements ActionBodyInterface
     ) {
     }
 
-    /** @param array<string, mixed> $data */
+    /** @param array{amount: int, currency?: string, metadata?: array<string, mixed>} $data */
     public static function create(array $data): self
     {
         return new self(
-            amount: (int) ($data['amount'] ?? 0),
-            currency: (string) ($data['currency'] ?? 'usd'),
-            metadata: (array) ($data['metadata'] ?? []),
+            amount: $data['amount'],
+            currency: $data['currency'] ?? 'usd',
+            metadata: $data['metadata'] ?? [],
         );
     }
 

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Catalog\Infrastructure\Integrations\Tmdb;
 
 use App\Integrations\Tmdb\GetConfiguration\GetConfigurationAction;
-use App\Integrations\Tmdb\Mappers\GetConfigurationMapper;
 use App\Integrations\Tmdb\GetConfiguration\GetConfigurationResponse;
+use App\Integrations\Tmdb\Mappers\GetConfigurationMapper;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -16,9 +16,11 @@ final class GetConfigurationMapperTest extends TestCase
     public function mapsConfigurationResponse(): void
     {
         $fixture = \json_decode(
-            \file_get_contents(__DIR__.'/Fixtures/get-configuration.json'),
+            (string) \file_get_contents(__DIR__.'/Fixtures/get-configuration.json'),
             associative: true,
+            flags: \JSON_THROW_ON_ERROR,
         );
+        self::assertIsArray($fixture);
 
         $action = GetConfigurationAction::create('GET', '/3/configuration');
         $response = GetConfigurationMapper::map($action, $fixture, []);

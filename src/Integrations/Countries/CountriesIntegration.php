@@ -18,6 +18,7 @@ final readonly class CountriesIntegration
     {
         $engine = $this->registry->get('countries');
         $response = $engine->send('get_countries');
+        \assert($response instanceof GetCountriesResponse);
 
         return $response;
     }

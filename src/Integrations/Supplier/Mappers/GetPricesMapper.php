@@ -6,7 +6,6 @@ namespace App\Integrations\Supplier\Mappers;
 
 use App\Integrations\Supplier\GetPrices\GetPricesAction;
 use App\Integrations\Supplier\GetPrices\GetPricesResponse;
-use App\Pricing\Infrastructure\Http\CsvClientAdapter;
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 use IntegrationEngine\Core\Contract\Mapper\AbstractMapper;
 use IntegrationEngine\Core\Contract\Response\ResponseInterface;
@@ -29,19 +28,17 @@ final class GetPricesMapper extends AbstractMapper
     }
 
     /**
-     * @return array<int, array{sku: string, price: string, currency: string, stock?: string}>
+     * @return list<array<string, string>>
      */
     private static function parseCSV(string $csvContent): array
     {
-        $lines = \explode("\n", \trim($csvContent));
-        if (empty($lines) || (count($lines) === 1 && empty($lines[0]))) {
+        $csvContent = \trim($csvContent);
+        if ($csvContent === '') {
             return [];
         }
 
-        $header = \str_getcsv(\array_shift($lines));
-        if (empty($header)) {
-            throw new \InvalidArgumentException('CSV header is empty or missing');
-        }
+        $lines = \explode("\n", $csvContent);
+        $header = self::columns(\array_shift($lines));
 
         $rows = [];
 
@@ -50,7 +47,7 @@ final class GetPricesMapper extends AbstractMapper
                 continue;
             }
 
-            $values = \str_getcsv($line);
+            $values = self::columns($line);
             if (\count($values) !== \count($header)) {
                 throw new \InvalidArgumentException('CSV row has mismatched column count');
             }
@@ -59,5 +56,11 @@ final class GetPricesMapper extends AbstractMapper
         }
 
         return $rows;
+    }
+
+    /** @return list<string> */
+    private static function columns(string $line): array
+    {
+        return \array_map(static fn (?string $value): string => (string) $value, \str_getcsv($line));
     }
 }

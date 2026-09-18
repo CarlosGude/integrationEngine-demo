@@ -48,9 +48,9 @@ final readonly class StripeFormClientAdapter implements ClientAdapterInterface
     }
 
     /**
-     * @return array{body: array<mixed>, headers: array<string, list<string>>}
-     *
      * @throws RequestResponseException on HTTP 4xx/5xx or network errors
+     *
+     * @return array{body: array<mixed>, headers: array<string, list<string>>}
      */
     public function send(
         AbstractAction $action,
@@ -87,7 +87,7 @@ final readonly class StripeFormClientAdapter implements ClientAdapterInterface
         ];
 
         $body = $action->getBody();
-        if (null !== $body && \in_array($action->getMethod(), ['POST', 'PUT', 'PATCH'], strict: true)) {
+        if ($body !== null && \in_array($action->getMethod(), ['POST', 'PUT', 'PATCH'], strict: true)) {
             $options['headers']['Content-Type'] = 'application/x-www-form-urlencoded';
             $options['body'] = http_build_query($body->toArray());
         }
@@ -96,29 +96,20 @@ final readonly class StripeFormClientAdapter implements ClientAdapterInterface
     }
 
     /**
-     * @return array{body: array<mixed>, headers: array<string, list<string>>}
-     *
      * @throws RequestResponseException on HTTP 4xx/5xx
+     *
+     * @return array{body: array<mixed>, headers: array<string, list<string>>}
      */
     private function consume(HttpResponseInterface $response, string $method, string $path): array
     {
         $statusCode = $response->getStatusCode();
 
         if ($statusCode >= 400) {
-            throw new RequestResponseException(
-                statusCode: $statusCode,
-                context: \sprintf(
-                    '%s %s returned HTTP %d: %s',
-                    $method,
-                    $path,
-                    $statusCode,
-                    $response->getContent(throw: false)
-                )
-            );
+            throw new RequestResponseException(statusCode: $statusCode, context: \sprintf('%s %s returned HTTP %d: %s', $method, $path, $statusCode, $response->getContent(throw: false)));
         }
 
         $content = $response->getContent(throw: false);
-        $body = (204 === $statusCode || '' === trim($content)) ? [] : $response->toArray();
+        $body = ($statusCode === 204 || trim($content) === '') ? [] : $response->toArray();
 
         return ['body' => $body, 'headers' => $response->getHeaders(throw: false)];
     }
@@ -131,8 +122,8 @@ final readonly class StripeFormClientAdapter implements ClientAdapterInterface
                 'Network error on %s %s: %s',
                 $method,
                 $path,
-                $e->getMessage()
-            )
+                $e->getMessage(),
+            ),
         );
     }
 }

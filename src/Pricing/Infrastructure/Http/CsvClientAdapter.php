@@ -4,38 +4,17 @@ declare(strict_types=1);
 
 namespace App\Pricing\Infrastructure\Http;
 
-use IntegrationEngine\Core\Contract\Action\AbstractAction;
-use IntegrationEngine\Core\Entity\PreparedRequest;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Contracts\HttpClient\ResponseInterface;
-
 final class CsvClientAdapter implements CsvClientAdapterInterface
 {
-    public function __construct(
-        private readonly HttpClientInterface $httpClient,
-    ) {
-    }
-
-    public function send(PreparedRequest $request): ResponseInterface
-    {
-        return $this->httpClient->request(
-            $request->method(),
-            $request->url(),
-            ['headers' => $request->headers()],
-        );
-    }
-
     public function parseCSV(string $csvContent): array
     {
-        $lines = \explode("\n", \trim($csvContent));
-        if (empty($lines) || (count($lines) === 1 && empty($lines[0]))) {
+        $csvContent = \trim($csvContent);
+        if ($csvContent === '') {
             return [];
         }
 
-        $header = \str_getcsv(\array_shift($lines));
-        if (empty($header)) {
-            throw new \InvalidArgumentException('CSV header is empty or missing');
-        }
+        $lines = \explode("\n", $csvContent);
+        $header = self::columns(\array_shift($lines));
 
         $rows = [];
 
@@ -44,7 +23,7 @@ final class CsvClientAdapter implements CsvClientAdapterInterface
                 continue;
             }
 
-            $values = \str_getcsv($line);
+            $values = self::columns($line);
             if (\count($values) !== \count($header)) {
                 throw new \InvalidArgumentException('CSV row has mismatched column count');
             }
@@ -53,5 +32,11 @@ final class CsvClientAdapter implements CsvClientAdapterInterface
         }
 
         return $rows;
+    }
+
+    /** @return list<string> */
+    private static function columns(string $line): array
+    {
+        return \array_map(static fn (?string $value): string => (string) $value, \str_getcsv($line));
     }
 }

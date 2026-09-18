@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Catalog\Infrastructure\Integrations\Tmdb;
 
 use App\Integrations\Tmdb\GetMovie\GetMovieAction;
-use App\Integrations\Tmdb\Mappers\GetMovieMapper;
 use App\Integrations\Tmdb\GetMovie\GetMovieResponse;
+use App\Integrations\Tmdb\Mappers\GetMovieMapper;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -16,9 +16,11 @@ final class GetMovieMapperTest extends TestCase
     public function mapsMovieResponse(): void
     {
         $fixture = \json_decode(
-            \file_get_contents(__DIR__.'/Fixtures/get-movie.json'),
+            (string) \file_get_contents(__DIR__.'/Fixtures/get-movie.json'),
             associative: true,
+            flags: \JSON_THROW_ON_ERROR,
         );
+        self::assertIsArray($fixture);
 
         $action = GetMovieAction::create('GET', '/3/movie/299536');
         $response = GetMovieMapper::map($action, $fixture, []);

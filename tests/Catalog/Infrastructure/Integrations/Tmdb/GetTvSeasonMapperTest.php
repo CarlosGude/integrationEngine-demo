@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Catalog\Infrastructure\Integrations\Tmdb;
 
 use App\Integrations\Tmdb\GetTvSeason\GetTvSeasonAction;
-use App\Integrations\Tmdb\Mappers\GetTvSeasonMapper;
 use App\Integrations\Tmdb\GetTvSeason\GetTvSeasonResponse;
+use App\Integrations\Tmdb\Mappers\GetTvSeasonMapper;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -16,9 +16,11 @@ final class GetTvSeasonMapperTest extends TestCase
     public function mapsTvSeasonResponse(): void
     {
         $fixture = \json_decode(
-            \file_get_contents(__DIR__.'/Fixtures/get-tv-season.json'),
+            (string) \file_get_contents(__DIR__.'/Fixtures/get-tv-season.json'),
             associative: true,
+            flags: \JSON_THROW_ON_ERROR,
         );
+        self::assertIsArray($fixture);
 
         $action = GetTvSeasonAction::create('GET', '/3/tv/1/season/1');
         $response = GetTvSeasonMapper::map($action, $fixture, []);

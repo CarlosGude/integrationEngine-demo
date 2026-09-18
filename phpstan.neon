@@ -10,6 +10,9 @@ parameters:
         analyse:
             - var/
             - vendor/
+            # The "before" exhibit of the tour: a deliberately untyped god class.
+            # Typing it would change the snippet the tour shows as the antipattern.
+            - src/Legacy/
         analyseAndScan:
             - var/
             - vendor/

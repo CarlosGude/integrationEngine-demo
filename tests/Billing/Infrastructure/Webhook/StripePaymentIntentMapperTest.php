@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Billing\Infrastructure\Webhook;
 
-use App\Integrations\Stripe\Webhook\StripePaymentIntentEvent;
 use App\Integrations\Stripe\Webhook\Mapper\StripePaymentIntentMapper;
+use App\Integrations\Stripe\Webhook\StripePaymentIntentEvent;
 use PHPUnit\Framework\TestCase;
 
 final class StripePaymentIntentMapperTest extends TestCase
@@ -68,6 +68,7 @@ final class StripePaymentIntentMapperTest extends TestCase
 
         $event = $this->mapper->map($payload, []);
 
+        self::assertInstanceOf(StripePaymentIntentEvent::class, $event);
         self::assertNull($event->movieId);
     }
 }

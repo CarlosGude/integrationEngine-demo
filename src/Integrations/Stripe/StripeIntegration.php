@@ -15,6 +15,7 @@ final readonly class StripeIntegration
     ) {
     }
 
+    /** @param array<string, mixed> $metadata */
     public function createPaymentIntent(int $amountCents, string $currency = 'usd', array $metadata = []): CreatePaymentIntentResponse
     {
         $engine = $this->registry->get('stripe');
@@ -24,6 +25,7 @@ final readonly class StripeIntegration
             'metadata' => $metadata,
         ]);
         $response = $engine->send('create_payment_intent', body: $body);
+        \assert($response instanceof CreatePaymentIntentResponse);
 
         return $response;
     }

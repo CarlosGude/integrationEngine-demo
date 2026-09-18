@@ -18,6 +18,7 @@ final readonly class SupplierIntegration
     {
         $engine = $this->registry->get('supplier');
         $response = $engine->send('get_prices');
+        \assert($response instanceof GetPricesResponse);
 
         return $response;
     }

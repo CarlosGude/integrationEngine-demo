@@ -19,7 +19,7 @@ final class GetCountriesMapper extends AbstractMapper
 
     protected static function transform(AbstractAction $action, array $response, array $headers): ResponseInterface
     {
-        /** @var array{data?: array{countries?: array<int, array<string, mixed>>}} $response */
+        /** @var array{data?: array{countries?: list<array{code?: string, name?: string, continent?: array{name?: string}}>}} $response */
         $countries = [];
 
         if (isset($response['data']['countries'])) {
