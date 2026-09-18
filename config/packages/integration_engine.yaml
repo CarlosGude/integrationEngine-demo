@@ -3,7 +3,7 @@ integration_engine:
         tmdb:
             base_url: 'https://api.themoviedb.org'
             headers:
-                Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1MGRhMTc5MGVmNDI1N2FkNjJmYTUwNmYxMTExNzhjMCIsIm5iZiI6MTU0MDY1ODU1MC44MzcsInN1YiI6IjViZDQ5NTc0OTI1MTQxMDM5NjAxODAzMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Cecj3C2eLPZMFEVLbl9M5Y8IOdnZNiLWCdpo2c2D0wc'
+                Authorization: 'Bearer %env(TMDB_ACCESS_TOKEN)%'
             config_path: '%kernel.project_dir%/src/Integrations/Tmdb/Tmdb.yaml'
             # tour:start config/middleware-wiring
             # middlewares:
