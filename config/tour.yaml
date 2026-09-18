@@ -49,7 +49,21 @@ steps:
     title: Renting a Movie
     description: Outbound integrations with Stripe
     order: 5
+    snippets:
+      - id: solution/payment-integration
+        file: src/Billing/Application/RentalPaymentGateway.php
+        title: "Solution: Payment Integration via Stripe"
+      - id: solution/payment-action
+        file: src/Billing/Infrastructure/Integrations/Stripe/CreatePaymentIntentAction.php
+        title: "Stripe Action: CreatePaymentIntent"
   payment-confirmation:
     title: Payment Confirmation
     description: Webhooks and async processing
     order: 6
+    snippets:
+      - id: webhook/parser
+        file: src/Billing/Infrastructure/Webhook/StripeRequestParser.php
+        title: "Webhook: Stripe HMAC Validation"
+      - id: webhook/consumer
+        file: src/Billing/Infrastructure/Webhook/StripePaymentIntentConsumer.php
+        title: "Consumer: Payment Intent Events"

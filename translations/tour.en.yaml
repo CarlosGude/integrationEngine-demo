@@ -1,4 +1,53 @@
 tour:
+  renting-a-movie:
+    title: Renting a Movie
+    description: Outbound integrations with Stripe
+    content: |
+      **The Problem:** Movies are free to browse, but renting requires payment. How do we integrate a payment processor securely and cleanly?
+
+      Without structure, you'd mix HTTP, JSON parsing, auth tokens, and error handling into one messy service. With IntegrationEngine, Stripe is just another protocol — exactly like TMDB, CSV, or GraphQL.
+
+      **The Solution:** `RentalPaymentGateway` follows the same pattern as `MovieCatalogGateway`:
+      1. Dispatch via the engine's `send()` call
+      2. Get a typed `CreatePaymentIntentResponse` DTO back
+      3. Translate to domain: `RentalPayment::fromInfrastructure()`
+
+      One line change to the YAML config, one new action/mapper/response — and you're processing payments cleanly.
+
+      **Why Stripe Works Here:**
+      - Stripe API is HTTP + JSON like TMDB
+      - We built a `StripeFormClientAdapter` for form-encoded payloads (Stripe's requirement)
+      - Auth is Bearer token (same mechanism as TMDB)
+      - The integration stays outside domain logic — reusable, testable, mockable
+
+      **Next:** Webhooks confirm the payment status when the customer completes checkout.
+
+  payment-confirmation:
+    title: Payment Confirmation
+    description: Webhooks and async processing
+    content: |
+      **The Problem:** When a customer authorizes a payment on Stripe, we need to know about it — but we can't wait forever for their response. Stripe sends us webhook events instead.
+
+      Webhooks are **inbound**: Stripe calls *us* (not the other way around). Every webhook must validate its signature before we trust the data inside.
+
+      **The Solution:** Symfony's `symfony/webhook` + `symfony/remote-event` handles the machinery:
+      1. **StripeRequestParser** validates the HMAC signature (proves Stripe sent it)
+      2. Parses the JSON payload into a `RemoteEvent`
+      3. **StripePaymentIntentConsumer** receives the event and acts (logs, updates database, etc.)
+
+      All via a declarative attribute: `#[AsRemoteEventConsumer('stripe')]`.
+
+      **How the Flow Works:**
+      ```
+      POST /webhook/stripe (Stripe sends a signed event)
+        → StripeRequestParser validates signature via HMAC-SHA256
+        → RemoteEvent dispatched to Messenger (async or sync)
+        → StripePaymentIntentConsumer::consume(RemoteEvent) runs
+        → Your app responds 202 Accepted (webhook delivered)
+      ```
+
+      **Security:** Without signature validation, any attacker could fake payment events. The signature proves the webhook came from Stripe's servers.
+
   the-problem:
     title: The Problem
     description: Why integrations are hard

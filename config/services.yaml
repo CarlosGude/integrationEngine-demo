@@ -16,3 +16,11 @@ services:
         class: App\Shared\Infrastructure\Middleware\RateLimitMiddleware
         tags:
             - integration_engine.middleware
+
+    app.client.stripe:
+        class: App\Billing\Infrastructure\Http\StripeFormClientAdapter
+        arguments:
+            $httpClient: '@http_client'
+            $baseUrl: 'https://api.stripe.com'
+            $defaultHeaders:
+                Authorization: 'Bearer %env(STRIPE_SECRET_KEY)%'
