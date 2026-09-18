@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Billing\Infrastructure\Webhook;
+namespace App\Integrations\Stripe\Webhook\Mapper;
 
+use App\Integrations\Stripe\Webhook\StripePaymentIntentEvent;
 use IntegrationEngine\Core\Contract\Webhook\AbstractWebhookMapper;
 use IntegrationEngine\Core\Contract\Webhook\WebhookEventInterface;
 

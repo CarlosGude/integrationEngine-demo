@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Billing\Infrastructure\Webhook;
 
-use App\Billing\Infrastructure\Webhook\StripePaymentIntentEvent;
-use App\Billing\Infrastructure\Webhook\StripePaymentIntentMapper;
+use App\Integrations\Stripe\Webhook\StripePaymentIntentEvent;
+use App\Integrations\Stripe\Webhook\Mapper\StripePaymentIntentMapper;
 use PHPUnit\Framework\TestCase;
 
 final class StripePaymentIntentMapperTest extends TestCase

@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Billing\Infrastructure\Webhook;
+namespace App\Billing\Infrastructure\EventListener;
 
+use App\Integrations\Stripe\Webhook\StripePaymentIntentEvent;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 
-final readonly class StripePaymentIntentListener
+final readonly class StripePaymentIntentEventListener
 {
     public function __construct(
         private LoggerInterface $logger,
