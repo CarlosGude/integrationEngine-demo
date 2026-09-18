@@ -61,9 +61,9 @@ steps:
     description: Webhooks and async processing
     order: 6
     snippets:
-      - id: webhook/parser
-        file: src/Billing/Infrastructure/Webhook/StripeRequestParser.php
-        title: "Webhook: Stripe HMAC Validation"
-      - id: webhook/consumer
-        file: src/Billing/Infrastructure/Webhook/StripePaymentIntentConsumer.php
-        title: "Consumer: Payment Intent Events"
+      - id: webhook/verifier
+        file: src/Billing/Infrastructure/Webhook/StripeHmacVerifier.php
+        title: "Webhook: Stripe HMAC-SHA256 Verification"
+      - id: webhook/mapper
+        file: src/Billing/Infrastructure/Webhook/StripePaymentIntentMapper.php
+        title: "Webhook: Payload Mapping to Event DTO"

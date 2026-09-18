@@ -16,3 +16,10 @@ integration_engine:
         stripe:
             client_service: app.client.stripe
             config_path: '%kernel.project_dir%/src/Billing/Infrastructure/Integrations/Stripe/Stripe.yaml'
+            webhooks:
+                - event_type: payment_intent.succeeded
+                  mapper_class: App\Billing\Infrastructure\Webhook\StripePaymentIntentMapper
+                  signature:
+                      type: hmac_sha256
+                      header: Stripe-Signature
+                      verifier: App\Billing\Infrastructure\Webhook\StripeHmacVerifier
