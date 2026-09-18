@@ -34,10 +34,12 @@ A guided tour through external API integrations using the [IntegrationEngine](ht
 - [x] YAML configuration examples
 
 **Day 26: Payment Integration & Webhooks**
-- [x] Stripe outbound: CreatePaymentIntent (form-urlencoded body)
-- [x] Stripe inbound: webhook signature validation (HMAC-SHA256)
+- [x] Stripe outbound: CreatePaymentIntent (form-urlencoded body via StripeFormClientAdapter)
+- [x] Stripe inbound: webhook signature validation (HMAC-SHA256 via IntegrationEngine v5.2)
 - [x] Custom adapter for non-JSON request bodies
-- [x] Remote event consumer via Symfony webhook
+- [x] Webhook event mapping via AbstractWebhookMapper
+- [x] HMAC signature verification via SignatureVerifierInterface
+- [x] Event listener via Symfony EventDispatcher
 - [x] Tour steps 5-6: "Renting a Movie" + "Payment Confirmation" (bilingual)
 
 ### 📊 Final Metrics (Days 17-26)

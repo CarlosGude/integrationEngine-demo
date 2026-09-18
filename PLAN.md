@@ -49,12 +49,14 @@ A progressive demonstration of the **IntegrationEngine** Symfony bundle, showcas
 
 **Achievements (Day 26):**
 - First inbound endpoint (all previous were outbound)
-- Outbound payment intent creation via Stripe REST API (form-urlencoded)
-- Custom adapter for non-JSON request bodies (StripeFormClientAdapter)
-- Webhook signature validation (HMAC-SHA256)
-- Stripe webhook consumer via symfony/webhook + symfony/remote-event
+- Outbound payment intent creation via Stripe REST API (form-urlencoded via custom StripeFormClientAdapter)
+- Inbound webhooks via IntegrationEngine v5.2 infrastructure:
+  - WebhookEventInterface DTO (StripePaymentIntentEvent)
+  - AbstractWebhookMapper for payload transformation (StripePaymentIntentMapper)
+  - SignatureVerifierInterface for HMAC-SHA256 validation (StripeHmacVerifier)
+  - Symfony EventDispatcher listeners (#[AsEventListener])
 - Two complete tour steps (5-6) with live snippets
-- 8 new tests for mapper and webhook parser
+- 10 new tests (mapper, verifier for outbound + inbound)
 
 ### Architecture Highlights
 
