@@ -10,7 +10,7 @@
         "symfony/console": "^7.4",
         "symfony/routing": "^7.4",
         "symfony/twig-bundle": "^7.4",
-        "carlosgude/integration-engine": "^5.2",
+        "carlosgude/integration-engine": "^5.3.1",
         "twig/extra-bundle": "^3.8",
         "twig/string-extra": "^3.8",
         "doctrine/orm": "^3.0",
