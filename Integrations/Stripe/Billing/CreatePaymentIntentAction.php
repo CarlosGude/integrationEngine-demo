@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Catalog\Infrastructure\Integrations\Tmdb;
+namespace App\Integrations\Stripe\Billing;
 
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 
-final class GetMovieAction extends AbstractAction
+// tour:start solution/payment-action
+final class CreatePaymentIntentAction extends AbstractAction
 {
     public static function getName(): string
     {
-        return 'get_movie';
+        return 'create_payment_intent';
     }
 
     public static function hasResponse(): bool
@@ -20,6 +21,7 @@ final class GetMovieAction extends AbstractAction
 
     public static function mapper(): ?string
     {
-        return GetMovieMapper::class;
+        return CreatePaymentIntentMapper::class;
     }
 }
+// tour:end

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Catalog\Infrastructure\Integrations\Tmdb;
 
-use App\Catalog\Infrastructure\Integrations\Tmdb\GetTvSeasonAction;
-use App\Catalog\Infrastructure\Integrations\Tmdb\GetTvSeasonMapper;
-use App\Catalog\Infrastructure\Integrations\Tmdb\GetTvSeasonResponse;
+use App\Integrations\Tmdb\Catalog\GetTvSeasonAction;
+use App\Integrations\Tmdb\Catalog\GetTvSeasonMapper;
+use App\Integrations\Tmdb\Catalog\GetTvSeasonResponse;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Billing\Infrastructure\Integrations\Stripe;
+namespace App\Integrations\Stripe\Billing;
 
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 use IntegrationEngine\Core\Contract\Mapper\AbstractMapper;

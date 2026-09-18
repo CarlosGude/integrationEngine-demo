@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Billing\Infrastructure\Integrations\Stripe;
 
-use App\Billing\Infrastructure\Integrations\Stripe\CreatePaymentIntentAction;
-use App\Billing\Infrastructure\Integrations\Stripe\CreatePaymentIntentMapper;
-use App\Billing\Infrastructure\Integrations\Stripe\CreatePaymentIntentResponse;
+use App\Integrations\Stripe\Billing\CreatePaymentIntentAction;
+use App\Integrations\Stripe\Billing\CreatePaymentIntentMapper;
+use App\Integrations\Stripe\Billing\CreatePaymentIntentResponse;
 use PHPUnit\Framework\TestCase;
 
 final class CreatePaymentIntentMapperTest extends TestCase

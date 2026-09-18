@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Billing\Application;
 
 use App\Billing\Domain\RentalPayment;
-use App\Billing\Infrastructure\Integrations\Stripe\CreatePaymentIntentBody;
-use App\Billing\Infrastructure\Integrations\Stripe\CreatePaymentIntentResponse;
+use App\Integrations\Stripe\Billing\CreatePaymentIntentBody;
+use App\Integrations\Stripe\Billing\CreatePaymentIntentResponse;
 use IntegrationEngine\Core\Contract\Action\DefaultActionContext;
 use IntegrationEngine\Core\Registry\IntegrationRegistry;
 

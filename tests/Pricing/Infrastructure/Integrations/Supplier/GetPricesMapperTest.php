@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Pricing\Infrastructure\Integrations\Supplier;
 
-use App\Pricing\Infrastructure\Integrations\Supplier\GetPricesAction;
-use App\Pricing\Infrastructure\Integrations\Supplier\GetPricesMapper;
-use App\Pricing\Infrastructure\Integrations\Supplier\GetPricesResponse;
+use App\Integrations\Supplier\Pricing\GetPricesAction;
+use App\Integrations\Supplier\Pricing\GetPricesMapper;
+use App\Integrations\Supplier\Pricing\GetPricesResponse;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

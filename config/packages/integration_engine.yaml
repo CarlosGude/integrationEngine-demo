@@ -4,7 +4,7 @@ integration_engine:
             base_url: 'https://api.themoviedb.org'
             headers:
                 Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1MGRhMTc5MGVmNDI1N2FkNjJmYTUwNmYxMTExNzhjMCIsIm5iZiI6MTU0MDY1ODU1MC44MzcsInN1YiI6IjViZDQ5NTc0OTI1MTQxMDM5NjAxODAzMCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.Cecj3C2eLPZMFEVLbl9M5Y8IOdnZNiLWCdpo2c2D0wc'
-            config_path: '%kernel.project_dir%/src/Catalog/Infrastructure/Integrations/Tmdb/Tmdb.yaml'
+            config_path: '%kernel.project_dir%/Integrations/Tmdb/Catalog/Tmdb.yaml'
             # tour:start config/middleware-wiring
             # middlewares:
             #     - app.middleware.rate_limit
@@ -12,10 +12,10 @@ integration_engine:
         # countries:
         #     base_url: 'https://countries.trevorblades.com'
         #     client_service: integration_engine.client.graphql
-        #     config_path: '%kernel.project_dir%/src/Pricing/Infrastructure/Integrations/Countries/Countries.yaml'
+        #     config_path: '%kernel.project_dir%/Integrations/Countries/Pricing/Countries.yaml'
         stripe:
             client_service: app.client.stripe
-            config_path: '%kernel.project_dir%/src/Billing/Infrastructure/Integrations/Stripe/Stripe.yaml'
+            config_path: '%kernel.project_dir%/Integrations/Stripe/Billing/Stripe.yaml'
             webhooks:
                 - event_type: payment_intent.succeeded
                   mapper_class: App\Billing\Infrastructure\Webhook\StripePaymentIntentMapper

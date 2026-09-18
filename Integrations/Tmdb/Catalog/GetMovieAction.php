@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Pricing\Infrastructure\Integrations\Supplier;
+namespace App\Integrations\Tmdb\Catalog;
 
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 
-final class GetPricesAction extends AbstractAction
+final class GetMovieAction extends AbstractAction
 {
     public static function getName(): string
     {
-        return 'get_prices';
+        return 'get_movie';
     }
 
     public static function hasResponse(): bool
@@ -20,6 +20,6 @@ final class GetPricesAction extends AbstractAction
 
     public static function mapper(): ?string
     {
-        return GetPricesMapper::class;
+        return GetMovieMapper::class;
     }
 }

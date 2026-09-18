@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Billing\Infrastructure\Integrations\Stripe;
+namespace App\Integrations\Supplier\Pricing;
 
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 
-// tour:start solution/payment-action
-final class CreatePaymentIntentAction extends AbstractAction
+final class GetPricesAction extends AbstractAction
 {
     public static function getName(): string
     {
-        return 'create_payment_intent';
+        return 'get_prices';
     }
 
     public static function hasResponse(): bool
@@ -21,7 +20,6 @@ final class CreatePaymentIntentAction extends AbstractAction
 
     public static function mapper(): ?string
     {
-        return CreatePaymentIntentMapper::class;
+        return GetPricesMapper::class;
     }
 }
-// tour:end

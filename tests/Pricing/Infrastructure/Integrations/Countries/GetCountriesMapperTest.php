@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Pricing\Infrastructure\Integrations\Countries;
 
-use App\Pricing\Infrastructure\Integrations\Countries\GetCountriesAction;
-use App\Pricing\Infrastructure\Integrations\Countries\GetCountriesMapper;
-use App\Pricing\Infrastructure\Integrations\Countries\GetCountriesResponse;
+use App\Integrations\Countries\Pricing\GetCountriesAction;
+use App\Integrations\Countries\Pricing\GetCountriesMapper;
+use App\Integrations\Countries\Pricing\GetCountriesResponse;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

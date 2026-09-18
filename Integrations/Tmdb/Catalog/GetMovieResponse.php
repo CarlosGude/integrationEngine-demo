@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Catalog\Infrastructure\Integrations\Tmdb;
+namespace App\Integrations\Tmdb\Catalog;
 
 use IntegrationEngine\Core\Contract\Response\ResponseInterface;
 

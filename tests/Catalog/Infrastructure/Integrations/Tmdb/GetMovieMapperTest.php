@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Catalog\Infrastructure\Integrations\Tmdb;
 
-use App\Catalog\Infrastructure\Integrations\Tmdb\GetMovieAction;
-use App\Catalog\Infrastructure\Integrations\Tmdb\GetMovieMapper;
-use App\Catalog\Infrastructure\Integrations\Tmdb\GetMovieResponse;
+use App\Integrations\Tmdb\Catalog\GetMovieAction;
+use App\Integrations\Tmdb\Catalog\GetMovieMapper;
+use App\Integrations\Tmdb\Catalog\GetMovieResponse;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
