@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace App\Billing\Application;
 
 use App\Billing\Domain\RentalPayment;
-use App\Integrations\Stripe\CreatePaymentIntent\CreatePaymentIntentRequest;
-use App\Integrations\Stripe\CreatePaymentIntent\CreatePaymentIntentResponse;
-use IntegrationEngine\Core\Contract\Action\DefaultActionContext;
-use IntegrationEngine\Core\Registry\IntegrationRegistry;
+use App\Integrations\Stripe\StripeIntegration;
 
 final class RentalPaymentGateway
 {
     public function __construct(
-        private readonly IntegrationRegistry $integrationRegistry,
+        private readonly StripeIntegration $stripe,
     ) {
     }
 
@@ -23,18 +20,11 @@ final class RentalPaymentGateway
         int $amountCents = 500,
         string $currency = 'usd',
     ): RentalPayment {
-        $engine = $this->integrationRegistry->get('stripe');
-
-        $response = $engine->send(
-            'create_payment_intent',
-            body: CreatePaymentIntentRequest::create([
-                'amount' => $amountCents,
-                'currency' => $currency,
-                'metadata' => ['movie_id' => $movieId],
-            ]),
+        $response = $this->stripe->createPaymentIntent(
+            $amountCents,
+            $currency,
+            ['movie_id' => $movieId],
         );
-
-        \assert($response instanceof CreatePaymentIntentResponse);
 
         return RentalPayment::fromInfrastructure(
             paymentIntentId: $response->id(),

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Catalog\Application;
 
 use App\Catalog\Domain\Movie;
-use App\Integrations\Tmdb\GetConfiguration\GetConfigurationResponse;
 use App\Integrations\Tmdb\GetMovie\GetMovieResponse;
+use App\Integrations\Tmdb\TmdbIntegration;
 use IntegrationEngine\Core\Batch\EngineRequest;
 use IntegrationEngine\Core\Contract\Action\DefaultActionContext;
 use IntegrationEngine\Core\Registry\IntegrationRegistry;
@@ -15,6 +15,7 @@ use IntegrationEngine\Core\Registry\IntegrationRegistry;
 final class MovieCatalogGateway
 {
     public function __construct(
+        private readonly TmdbIntegration $tmdb,
         private readonly IntegrationRegistry $integrationRegistry,
     ) {
     }
@@ -22,17 +23,8 @@ final class MovieCatalogGateway
     // tour:start solution/loose-coupling
     public function getMovieById(int $movieId): Movie
     {
-        $engine = $this->integrationRegistry->get('tmdb');
-
-        $movieResponse = $engine->send(
-            'get_movie',
-            context: DefaultActionContext::create(['movie_id' => $movieId]),
-        );
-
-        \assert($movieResponse instanceof GetMovieResponse);
-
-        $configResponse = $engine->send('get_configuration');
-        \assert($configResponse instanceof GetConfigurationResponse);
+        $movieResponse = $this->tmdb->getMovie($movieId);
+        $configResponse = $this->tmdb->getConfiguration();
 
         $posterUrl = $this->buildPosterUrl(
             $movieResponse->posterPath(),
