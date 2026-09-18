@@ -2,9 +2,9 @@
 
 A guided tour through external API integrations using the [IntegrationEngine](https://github.com/carlosgude/integrationEngine) bundle. Demonstrates best practices for multi-protocol integration (REST, CSV, GraphQL) with parallel request benchmarking, middleware extensibility, and bilingual code tour.
 
-## Status: Phase 3 Complete - Days 17-25 ✅
+## Status: Phase 3 Complete - Days 17-26 ✅
 
-### ✅ Completed (Days 17-25)
+### ✅ Completed (Days 17-26)
 
 **Days 17-18: TMDB Infrastructure**
 - [x] GetConfiguration, GetMovie, GetTvSeason actions
@@ -33,23 +33,33 @@ A guided tour through external API integrations using the [IntegrationEngine](ht
 - [x] Bilingual tour (EN/ES) - 9 code snippets total
 - [x] YAML configuration examples
 
-### 📊 Final Metrics
+**Day 26: Payment Integration & Webhooks**
+- [x] Stripe outbound: CreatePaymentIntent (form-urlencoded body)
+- [x] Stripe inbound: webhook signature validation (HMAC-SHA256)
+- [x] Custom adapter for non-JSON request bodies
+- [x] Remote event consumer via Symfony webhook
+- [x] Tour steps 5-6: "Renting a Movie" + "Payment Confirmation" (bilingual)
+
+### 📊 Final Metrics (Days 17-26)
 
 | Métrica | Valor |
 |---------|-------|
-| Commits | 12 nuevos |
-| Tests | 40+ ✅ |
-| Protocolos | 3 (REST, CSV, GraphQL) |
-| Clases integración | 15 |
-| Tour steps | 3 completos |
-| Snippets | 9 (bilingual) |
+| Commits | 13 nuevos |
+| Tests | 48+ ✅ |
+| Protocolos | 4 (REST, CSV, GraphQL, Stripe + webhook) |
+| Clases integración | 20+ |
+| Bounded contexts | 4 (Catalog, Pricing, Tour, Billing) |
+| Tour steps | 5 of 6 completos |
+| Snippets | 13 (bilingual) |
 | Speedup paralelo | 5-13x |
+| Webhook validation | HMAC-SHA256 (Stripe-Signature) |
 
-### 📋 Pending (Days 26+)
+### 📋 Pending (Days 27+)
 
-- **Day 26**: Stripe webhook integration (outbound payment)
-- **Day 27**: VPS deployment + CD pipeline
-- **Day 28+**: v1.0.0 release & hardening
+- **Day 27**: Resilience patterns (retry, circuit-breaker, exponential backoff)
+- **Day 28**: Tour step 4: "When Suppliers Fail"
+- **Day 29+**: VPS deployment + CD pipeline
+- **Day 30+**: v1.0.0 release
 
 ## Project Structure
 
@@ -259,4 +269,4 @@ tests/
 
 ---
 
-**Status:** Days 17-25 ✅ | Ready for Days 26+ (Stripe, VPS, v1.0.0)
+**Status:** Days 17-26 ✅ | Ready for Days 27+ (Resilience, VPS, v1.0.0)

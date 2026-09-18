@@ -34,12 +34,27 @@ A progressive demonstration of the **IntegrationEngine** Symfony bundle, showcas
 | **24** | GraphQL + rate limiting middleware | GraphQL | ✅ DONE |
 | **25** | Tour step 3: "Behind the Counter" | Middleware | ✅ DONE |
 
-**Achievements:**
+### Phase 3: Payment Integration & Webhooks (Day 26)
+
+| Day | Feature | Flow | Status |
+|-----|---------|------|--------|
+| **26** | Stripe: outbound payment + webhook confirmation | Outbound (REST form-encoded) / Inbound (webhook signature validation) | ✅ DONE |
+
+**Achievements (Days 23-25):**
 - Three distinct protocols working with identical architecture
 - Middleware pipeline for cross-cutting concerns
 - Rate limiting with Symfony integration
 - Extensibility demonstrated via YAML configuration
 - Three complete tour steps (1-3) with live snippets
+
+**Achievements (Day 26):**
+- First inbound endpoint (all previous were outbound)
+- Outbound payment intent creation via Stripe REST API (form-urlencoded)
+- Custom adapter for non-JSON request bodies (StripeFormClientAdapter)
+- Webhook signature validation (HMAC-SHA256)
+- Stripe webhook consumer via symfony/webhook + symfony/remote-event
+- Two complete tour steps (5-6) with live snippets
+- 8 new tests for mapper and webhook parser
 
 ### Architecture Highlights
 
@@ -68,11 +83,12 @@ Domain Service
 
 ### Test Coverage
 
-**Current:** 40+ tests passing ✅
+**Current:** 48+ tests passing ✅
 - `tests/Catalog/` — TMDB integration, domain layer, storefront controller
 - `tests/Pricing/` — CSV adapter, Countries GraphQL, rate limiting
 - `tests/Tour/` — snippet resolution, tour configuration
 - `tests/Legacy/` — parity testing with legacy code
+- `tests/Billing/` — Stripe mapper, webhook parser (8 new)
 
 ### Files Structure
 
@@ -146,13 +162,15 @@ e7da039 feat(day24): GraphQL integration + rate limiting middleware
 | Bilingual tour | ✅ | EN/ES with 9 code snippets |
 | Tests | ✅ | 40+ tests passing |
 
-### Next Steps (Days 26+)
+### Next Steps (Days 27+)
 
-**Day 26: Hardening**
-- [ ] Stripe webhook integration (outbound payment)
-- [ ] Error recovery & resilience patterns
+**Day 27: Hardening (Resilience)**
+- [ ] Retry logic for failed requests
+- [ ] Circuit breaker pattern
+- [ ] Exponential backoff middleware
+- [ ] Tour step 4: "When Suppliers Fail"
 
-**Day 27+: Deployment**
+**Day 28+: Deployment**
 - [ ] Deploy to VPS
 - [ ] Set up CI/CD pipeline (GitHub Actions)
 - [ ] Release v1.0.0
@@ -204,21 +222,26 @@ The demo uses a test token from `.env.local` that has expired. To see live movie
 
 ## Summary
 
-**Total Work:**
-- 12 commits
-- 40+ tests passing
-- 3 protocols (REST, CSV, GraphQL)
-- 15 integration classes
-- 9 tour snippets (bilingual)
+**Total Work (Days 17-26):**
+- 13 commits
+- 48+ tests passing (8 new for Billing)
+- 4 bounded contexts (Catalog, Pricing, Tour, Billing)
+- 3 protocols for outbound + webhook inbound (REST, CSV, GraphQL + Stripe)
+- 20+ integration classes
+- 13 tour snippets (bilingual, steps 1-3 complete, 5-6 complete)
 - Complete middleware pipeline
-- 9 days of development (Days 17-25)
+- Form-encoded request adapter (custom client service)
+- HMAC-SHA256 webhook validation
+- 10 days of development (Days 17-26)
 
 **Architecture Proven:**
 ✅ Separates concerns (Domain/Application/Infrastructure)
-✅ Handles multiple protocols uniformly
+✅ Handles multiple protocols uniformly (outbound + inbound)
 ✅ Supports parallelism (5-13x speedup)
 ✅ Extensible via middleware
+✅ Extensible via custom adapters (form encoding vs JSON)
+✅ Webhook infrastructure (Symfony webhook + remote-event)
 ✅ Bilingual UI with live code
 ✅ Test coverage for all layers
 
-**Ready for:** Stripe webhooks, VPS deployment, v1.0.0 release
+**Ready for:** Resilience patterns (retry/circuit-breaker), VPS deployment, v1.0.0 release
