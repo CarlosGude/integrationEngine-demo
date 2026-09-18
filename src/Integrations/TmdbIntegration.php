@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Integration;
+namespace App\Integrations;
 
 use App\Integrations\Tmdb\GetConfiguration\GetConfigurationAction;
 use App\Integrations\Tmdb\GetConfiguration\GetConfigurationResponse;

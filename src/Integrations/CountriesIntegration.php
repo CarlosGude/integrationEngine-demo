@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Integration;
+namespace App\Integrations;
 
 use App\Integrations\Countries\GetCountries\GetCountriesResponse;
 use IntegrationEngine\Core\Registry\IntegrationRegistry;
