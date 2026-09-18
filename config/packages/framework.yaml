@@ -7,3 +7,8 @@ framework:
         handler_id: null
         cookie_secure: auto
         cookie_samesite: lax
+    webhook:
+        routing:
+            stripe:
+                service: App\Integrations\Stripe\Webhook\StripePaymentIntentParser
+                secret: '%env(STRIPE_WEBHOOK_SECRET)%'

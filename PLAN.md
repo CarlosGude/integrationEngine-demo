@@ -50,13 +50,13 @@ A progressive demonstration of the **IntegrationEngine** Symfony bundle, showcas
 **Achievements (Day 26):**
 - First inbound endpoint (all previous were outbound)
 - Outbound payment intent creation via Stripe REST API (form-urlencoded via custom StripeFormClientAdapter)
-- Inbound webhooks via IntegrationEngine v5.2 infrastructure:
-  - WebhookEventInterface DTO (StripePaymentIntentEvent)
-  - AbstractWebhookMapper for payload transformation (StripePaymentIntentMapper)
-  - SignatureVerifierInterface for HMAC-SHA256 validation (StripeHmacVerifier)
-  - Symfony EventDispatcher listeners (#[AsEventListener])
+- Inbound webhooks (`POST /webhook/stripe`) via Symfony Webhook + IntegrationEngine v5.2 pieces:
+  - IntegrationWebhookRequestParser subclass (StripePaymentIntentParser) with TimestampedHmacSignatureVerifier
+  - AbstractWebhookMapper for payload transformation (StripePaymentIntentMapper → StripePaymentIntentEvent)
+  - #[AsRemoteEventConsumer] (StripePaymentIntentConsumer) dispatching the typed event via WebhookEventDispatcher
+  - Symfony EventDispatcher listener in Billing (#[AsEventListener])
 - Two complete tour steps (5-6) with live snippets
-- 10 new tests (mapper, verifier for outbound + inbound)
+- Tests: outbound mapper, webhook mapper, end-to-end signed webhook flow
 
 ### Architecture Highlights
 
@@ -90,7 +90,7 @@ Domain Service
 - `tests/Pricing/` — CSV adapter, Countries GraphQL, rate limiting
 - `tests/Tour/` — snippet resolution, tour configuration
 - `tests/Legacy/` — parity testing with legacy code
-- `tests/Billing/` — Stripe mapper, webhook parser (8 new)
+- `tests/Billing/` — Stripe mappers, end-to-end webhook flow (signature, expiry, event filtering)
 
 ### Files Structure
 
@@ -233,7 +233,7 @@ The demo uses a test token from `.env.local` that has expired. To see live movie
 - 13 tour snippets (bilingual, steps 1-3 complete, 5-6 complete)
 - Complete middleware pipeline
 - Form-encoded request adapter (custom client service)
-- HMAC-SHA256 webhook validation
+- Timestamped HMAC-SHA256 webhook validation (Stripe-Signature)
 - 10 days of development (Days 17-26)
 
 **Architecture Proven:**

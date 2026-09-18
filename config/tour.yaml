@@ -54,16 +54,19 @@ steps:
         file: src/Billing/Application/RentalPaymentGateway.php
         title: "Solution: Payment Integration via Stripe"
       - id: solution/payment-action
-        file: src/Billing/Infrastructure/Integrations/Stripe/CreatePaymentIntentAction.php
+        file: src/Integrations/Stripe/CreatePaymentIntent/CreatePaymentIntentAction.php
         title: "Stripe Action: CreatePaymentIntent"
   payment-confirmation:
     title: Payment Confirmation
     description: Webhooks and async processing
     order: 6
     snippets:
-      - id: webhook/verifier
-        file: src/Billing/Infrastructure/Webhook/StripeHmacVerifier.php
-        title: "Webhook: Stripe HMAC-SHA256 Verification"
+      - id: webhook/parser
+        file: src/Integrations/Stripe/Webhook/StripePaymentIntentParser.php
+        title: "Webhook: Stripe Signature Verification"
       - id: webhook/mapper
-        file: src/Billing/Infrastructure/Webhook/StripePaymentIntentMapper.php
+        file: src/Integrations/Stripe/Webhook/Mapper/StripePaymentIntentMapper.php
         title: "Webhook: Payload Mapping to Event DTO"
+      - id: webhook/consumer
+        file: src/Integrations/Stripe/Webhook/StripePaymentIntentConsumer.php
+        title: "Webhook: Dispatching the Typed Event"

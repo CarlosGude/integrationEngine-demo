@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Shared\Observability\TraceRecorderMiddleware;
+use App\Tour\Domain\StepNotFoundException;
 use App\Tour\Domain\TourRegistry;
+use App\Tour\Domain\TourStep;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,7 +23,7 @@ final class TourController extends AbstractController
     #[Route('/{_locale}/tour/{stepId}', name: 'tour_step', requirements: ['_locale' => 'en|es'])]
     public function step(string $stepId): Response
     {
-        $step = $this->tourRegistry->getStep($stepId);
+        $step = $this->findStep($stepId);
 
         return $this->render('tour/step.html.twig', [
             'step' => $step,
@@ -33,7 +35,7 @@ final class TourController extends AbstractController
     #[Route('/{_locale}/tour/{stepId}/run', name: 'tour_run', methods: ['POST'], requirements: ['_locale' => 'en|es'])]
     public function run(string $stepId): JsonResponse
     {
-        $step = $this->tourRegistry->getStep($stepId);
+        $this->findStep($stepId);
 
         TraceRecorderMiddleware::startTrace();
         try {
@@ -48,5 +50,14 @@ final class TourController extends AbstractController
             'result' => $result,
             'trace' => $trace?->toArray() ?? ['calls' => [], 'total_duration_ms' => 0.0],
         ]);
+    }
+
+    private function findStep(string $stepId): TourStep
+    {
+        try {
+            return $this->tourRegistry->getStep($stepId);
+        } catch (StepNotFoundException $e) {
+            throw $this->createNotFoundException($e->getMessage(), $e);
+        }
     }
 }

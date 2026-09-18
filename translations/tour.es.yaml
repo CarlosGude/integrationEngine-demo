@@ -30,19 +30,20 @@ tour:
 
       Los webhooks son **entrantes**: Stripe nos llama *a nosotros* (no al revés). Cada webhook debe validar su firma antes de confiar en los datos dentro.
 
-      **La Solución:** El `symfony/webhook` + `symfony/remote-event` de Symfony maneja la maquinaria:
-      1. **StripeRequestParser** valida la firma HMAC (prueba que Stripe la envió)
-      2. Parsea el payload JSON en un `RemoteEvent`
-      3. **StripePaymentIntentConsumer** recibe el evento y actúa (registra, actualiza BD, etc.)
+      **La Solución:** `symfony/webhook` + `symfony/remote-event` de Symfony se encargan del transporte; IntegrationEngine aporta las piezas de alrededor:
+      1. **StripePaymentIntentParser** extiende el `IntegrationWebhookRequestParser` del engine y valida la firma HMAC con timestamp de Stripe mediante `TimestampedHmacSignatureVerifier` (prueba que Stripe la envió y rechaza reenvíos de más de 5 minutos)
+      2. **StripePaymentIntentMapper** (`AbstractWebhookMapper`) convierte el payload en un `StripePaymentIntentEvent` tipado
+      3. **StripePaymentIntentConsumer** pasa el evento al `WebhookEventDispatcher` del engine, que despacha el evento tipado al listener de Billing
 
       Todo vía un atributo declarativo: `#[AsRemoteEventConsumer('stripe')]`.
 
       **Cómo fluye:**
       ```
       POST /webhook/stripe (Stripe envía un evento firmado)
-        → StripeRequestParser valida firma vía HMAC-SHA256
+        → StripePaymentIntentParser verifica Stripe-Signature (t=…,v1=…)
         → RemoteEvent despachado a Messenger (async o sync)
-        → StripePaymentIntentConsumer::consume(RemoteEvent) ejecuta
+        → StripePaymentIntentConsumer lo mapea a StripePaymentIntentEvent
+        → StripePaymentIntentEventListener (Billing) lo procesa
         → Tu app responde 202 Aceptado (webhook entregado)
       ```
 

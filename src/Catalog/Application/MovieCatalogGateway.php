@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Catalog\Application;
 
 use App\Catalog\Domain\Movie;
+use App\Integrations\Tmdb\GetConfiguration\GetConfigurationResponse;
 use App\Integrations\Tmdb\GetMovie\GetMovieResponse;
 use App\Integrations\Tmdb\TmdbIntegration;
 use IntegrationEngine\Core\Batch\EngineRequest;

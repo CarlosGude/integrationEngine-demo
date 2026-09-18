@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integrations\Stripe\CreatePaymentIntent;
 
+use App\Integrations\Stripe\Mappers\CreatePaymentIntentMapper;
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 
 // tour:start solution/payment-action

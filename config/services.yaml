@@ -24,3 +24,12 @@ services:
             $baseUrl: 'https://api.stripe.com'
             $defaultHeaders:
                 Authorization: 'Bearer %env(STRIPE_SECRET_KEY)%'
+
+    # integration-engine v5.2.0 autodiscovers these bundle classes and they
+    # can't be autowired in an app (a Shopify secret string; DLQ and mapper
+    # resolver ports with no implementation), which breaks the container.
+    # Remove once the bundle stops registering them.
+    IntegrationEngine\Infrastructure\Webhook\Controller\ShopifyWebhookController:
+        autoconfigure: false
+    IntegrationEngine\Infrastructure\Webhook\Handler\ProcessWebhookHandler:
+        autoconfigure: false

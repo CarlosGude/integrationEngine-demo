@@ -35,11 +35,11 @@ A guided tour through external API integrations using the [IntegrationEngine](ht
 
 **Day 26: Payment Integration & Webhooks**
 - [x] Stripe outbound: CreatePaymentIntent (form-urlencoded body via StripeFormClientAdapter)
-- [x] Stripe inbound: webhook signature validation (HMAC-SHA256 via IntegrationEngine v5.2)
+- [x] Stripe inbound: `POST /webhook/stripe` via Symfony Webhook + IntegrationEngine's `IntegrationWebhookRequestParser`
 - [x] Custom adapter for non-JSON request bodies
 - [x] Webhook event mapping via AbstractWebhookMapper
-- [x] HMAC signature verification via SignatureVerifierInterface
-- [x] Event listener via Symfony EventDispatcher
+- [x] Stripe timestamped HMAC verification via `TimestampedHmacSignatureVerifier`
+- [x] Typed event dispatched via `WebhookEventDispatcher` to a Billing listener
 - [x] Tour steps 5-6: "Renting a Movie" + "Payment Confirmation" (bilingual)
 
 ### 📊 Final Metrics (Days 17-26)
@@ -54,7 +54,7 @@ A guided tour through external API integrations using the [IntegrationEngine](ht
 | Tour steps | 5 of 6 completos |
 | Snippets | 13 (bilingual) |
 | Speedup paralelo | 5-13x |
-| Webhook validation | HMAC-SHA256 (Stripe-Signature) |
+| Webhook validation | Timestamped HMAC-SHA256 (Stripe-Signature) |
 
 ### 📋 Pending (Days 27+)
 

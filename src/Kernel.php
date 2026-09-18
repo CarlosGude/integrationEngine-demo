@@ -31,7 +31,8 @@ final class Kernel extends BaseKernel
 
     protected function configureRoutes(\Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator $routes): void
     {
-        $routes->import('../config/routes/'.$this->environment.'/*.{php,yaml}');
+        $routes->import('../config/{routes}/'.$this->environment.'/*.{php,yaml}');
+        $routes->import('../config/{routes}/*.{php,yaml}');
         $routes->import('../config/routes.{php,yaml}');
     }
 }

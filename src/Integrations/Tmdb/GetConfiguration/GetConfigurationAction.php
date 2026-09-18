@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integrations\Tmdb\GetConfiguration;
 
+use App\Integrations\Tmdb\Mappers\GetConfigurationMapper;
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 
 final class GetConfigurationAction extends AbstractAction

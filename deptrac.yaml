@@ -10,20 +10,25 @@ deptrac:
           - type: className
             regex: ^App\\Shared\\.*
 
+    - name: Integrations
+      collectors:
+          - type: className
+            regex: ^App\\Integrations\\.*
+
     - name: Catalog
       collectors:
           - type: className
             regex: ^App\\Catalog\\.*
 
-    - name: Rental
+    - name: Billing
       collectors:
           - type: className
-            regex: ^App\\Rental\\.*
+            regex: ^App\\Billing\\.*
 
-    - name: Payments
+    - name: Pricing
       collectors:
           - type: className
-            regex: ^App\\Payments\\.*
+            regex: ^App\\Pricing\\.*
 
     - name: Legacy
       collectors:
@@ -38,21 +43,23 @@ deptrac:
   ruleset:
     Shared:
       - Catalog
-      - Rental
-      - Payments
+      - Billing
       - Legacy
       - Tour
+    Integrations:
+      - Shared
+      - Pricing
     Catalog:
       - Shared
-    Rental:
+      - Integrations
+    Billing:
       - Shared
-      - Catalog
-    Payments:
+      - Integrations
+    Pricing:
       - Shared
     Legacy:
       - Shared
     Tour:
       - Shared
       - Catalog
-      - Rental
-      - Payments
+      - Billing

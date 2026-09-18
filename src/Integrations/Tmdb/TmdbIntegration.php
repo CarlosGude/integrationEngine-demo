@@ -20,29 +20,23 @@ final readonly class TmdbIntegration
     public function getConfiguration(): GetConfigurationResponse
     {
         $engine = $this->registry->get('tmdb');
-        $response = $engine->send('get_configuration');
-
-        return $response;
+        return $engine->send('get_configuration');
     }
 
     public function getMovie(int $movieId): GetMovieResponse
     {
         $engine = $this->registry->get('tmdb');
-        $context = new DefaultActionContext(['movie_id' => $movieId]);
-        $response = $engine->send('get_movie', $context);
-
-        return $response;
+        $context = DefaultActionContext::create(['movie_id' => $movieId]);
+        return $engine->send('get_movie', $context);
     }
 
     public function getTvSeason(int $tvId, int $seasonNumber): GetTvSeasonResponse
     {
         $engine = $this->registry->get('tmdb');
-        $context = new DefaultActionContext([
+        $context = DefaultActionContext::create([
             'tv_id' => $tvId,
             'season_number' => $seasonNumber,
         ]);
-        $response = $engine->send('get_tv_season', $context);
-
-        return $response;
+        return $engine->send('get_tv_season', $context);
     }
 }

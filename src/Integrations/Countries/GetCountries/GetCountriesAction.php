@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integrations\Countries\GetCountries;
 
+use App\Integrations\Countries\Mappers\GetCountriesMapper;
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 use IntegrationEngine\Core\Contract\Action\ActionBodyInterface;
 

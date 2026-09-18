@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integrations\Supplier\GetPrices;
 
+use App\Integrations\Supplier\Mappers\GetPricesMapper;
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 
 final class GetPricesAction extends AbstractAction

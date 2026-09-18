@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Kernel;
+use IntegrationEngine\Core\Registry\IntegrationRegistry;
 use PHPUnit\Framework\TestCase;
 
 final class KernelBootTest extends TestCase
@@ -23,8 +24,10 @@ final class KernelBootTest extends TestCase
         $kernel->boot();
 
         $container = $kernel->getContainer();
+        $testContainer = $container->get('test.service_container');
+        \assert($testContainer instanceof \Symfony\Component\DependencyInjection\ContainerInterface);
 
         self::assertTrue($container->has('service_container'));
-        self::assertTrue($container->has('integration_engine.registry'));
+        self::assertTrue($testContainer->has(IntegrationRegistry::class));
     }
 }
