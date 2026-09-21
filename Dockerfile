@@ -31,7 +31,10 @@ RUN composer dump-autoload --optimize && \
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
-RUN mkdir -p /app/var && chmod 755 /app/var
+# www-data owns var/: php-fpm runs as www-data and has to create var/cache and
+# var/log. Root-owned 755 meant the first request to a fresh container could not
+# create the cache directory and returned 500.
+RUN mkdir -p /app/var/cache /app/var/log && chown -R www-data:www-data /app/var
 
 EXPOSE 80
 

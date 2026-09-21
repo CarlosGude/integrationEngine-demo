@@ -125,6 +125,34 @@ jobs:
       - name: Check architecture
         run: make deptrac
 
+  production-install:
+    runs-on: ubuntu-latest
+    name: Production Install (--no-dev)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_sqlite, intl, zip
+          coverage: none
+
+      # T-02: EasyAdmin sat in require-dev while config/bundles.php loaded it
+      # in every environment, so a production install did not boot. Nothing
+      # caught it because no job had ever run composer without dev packages.
+      - name: Install without dev dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
+      - name: Warm up the production cache
+        env:
+          APP_ENV: prod
+          APP_DEBUG: 0
+          APP_SECRET: ci-only-not-a-secret
+          DATABASE_URL: 'sqlite:///:memory:'
+          ADMIN_PASSWORD_HASH: '$2y$13$MaohGFFbP19Yy1EuT03go.ecWPw/NbAvyfVljFuvPfxrKHwkj86PS'
+        run: php bin/console cache:warmup
+
   compose-config:
     runs-on: ubuntu-latest
     name: Compose Config Valid

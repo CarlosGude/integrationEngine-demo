@@ -175,13 +175,52 @@ Revisar también `compose.override.yaml`, que declara `mercure.ports: ["80"]` y 
 
 ---
 
-### T-02 · EasyAdmin está en `require-dev` pero el bundle se carga en `all`: producción no arranca
+### T-02 · EasyAdmin está en `require-dev` pero el bundle se carga en `all`: producción no arranca ✅ ARREGLADO
 
 | | |
 |---|---|
 | **Severidad** | P0 |
+| **Estado** | ✅ Arreglado — Opción A; el job `production-install` del CI lo guarda |
 | **Esfuerzo** | S (20 min) |
-| **Ficheros** | `composer.json:36` (`require-dev`), `config/bundles.php:11`, `src/Controller/Admin/DashboardController.php` |
+| **Ficheros** | `composer.json`, `composer.lock`, `.github/workflows/ci.yml` |
+
+> **Resuelto por la Opción A**: EasyAdmin pasa a `require`.
+>
+> **El alcance era mayor de lo que decía esta tarea.** No solo faltaba
+> EasyAdmin: `symfony/security-bundle` y `symfony/ux-twig-component` llegaban al
+> proyecto **únicamente** como dependencias transitivas suyas, y ninguno de los
+> dos estaba declarado:
+>
+> ```console
+> $ composer why symfony/security-bundle
+> easycorp/easyadmin-bundle v4.29.16 requires symfony/security-bundle (^5.4|^6.0|^7.0|^8.0)
+> $ composer why symfony/ux-twig-component
+> easycorp/easyadmin-bundle v4.29.16 requires symfony/ux-twig-component (^2.21)
+> ```
+>
+> Es decir: con `--no-dev` **el arreglo de T-03 no habría existido en
+> producción**. El firewall, el `http_basic` y el `access_control` dependen de
+> `SecurityBundle`, que entraba de rebote por una dependencia de desarrollo. Los
+> tres paquetes están ahora en `require` de forma explícita.
+>
+> Medido antes y después, con `composer install --no-dev --optimize-autoloader`
+> seguido de `APP_ENV=prod bin/console cache:warmup`, en un contenedor
+> `php:8.4-cli` limpio:
+>
+> | | Resultado |
+> |---|---|
+> | Antes | ❌ `ClassNotFoundError: Class "Symfony\UX\TwigComponent\TwigComponentBundle" not found` |
+> | Ahora | ✅ `Cache for the "prod" environment (debug=false) was successfully warmed` |
+>
+> `composer validate --strict` pasa. Nota: mover un paquete entre secciones
+> requiere `composer update <paquetes>`, no `composer update --lock` — este
+> último deja el paquete en `packages-dev` del lock y `validate --strict` lo
+> rechaza.
+>
+> **Descartado del diagnóstico original:** esta tarea decía que conservar el
+> panel implica conservar Doctrine. No es así — `doctrine/orm` es un `require`
+> **directo** del proyecto, independiente de EasyAdmin. La decisión de T-11 sigue
+> abierta y es aparte.
 
 **Evidencia**
 
