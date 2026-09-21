@@ -125,6 +125,27 @@ jobs:
       - name: Check architecture
         run: make deptrac
 
+  compose-config:
+    runs-on: ubuntu-latest
+    name: Compose Config Valid
+    steps:
+      - uses: actions/checkout@v4
+
+      # T-01: compose.yaml was invalid YAML for a while and nothing caught it,
+      # because build-image below goes straight to the Dockerfile and never
+      # parses Compose. This job is the guard.
+      - name: Validate compose.yaml
+        run: docker compose config -q
+
+      - name: Both services are declared
+        run: |
+          services=$(docker compose config --services | sort | tr '\n' ' ')
+          echo "services: $services"
+          [ "$services" = "mercure php " ] || {
+            echo "::error::expected 'mercure php', got '$services'"
+            exit 1
+          }
+
   build-image:
     runs-on: ubuntu-latest
     name: Build Docker Image

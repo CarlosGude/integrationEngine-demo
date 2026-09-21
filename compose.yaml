@@ -25,27 +25,34 @@ services:
       retries: 3
       start_period: 30s
 
-volumes: {}
-
 ###> symfony/mercure-bundle ###
   mercure:
     image: dunglas/mercure
     restart: unless-stopped
     environment:
-      # Uncomment the following line to disable HTTPS,
-      #SERVER_NAME: ':80'
-      MERCURE_PUBLISHER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
-      MERCURE_SUBSCRIBER_JWT_KEY: '!ChangeThisMercureHubJWTSecretKey!'
+      # HTTPS is off: the hub is only reached over the internal compose network,
+      # and Caddy's automatic TLS would otherwise serve a cert the healthcheck
+      # cannot verify.
+      SERVER_NAME: ':80'
+      MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
       # Set the URL of your Symfony project (without trailing slash!) as value of the cors_origins directive
+      # 8080 is the port the php service publishes above; 8000 covers `symfony serve`.
       MERCURE_EXTRA_DIRECTIVES: |
-        cors_origins http://127.0.0.1:8000
-    # Comment the following line to disable the development mode
-    command: /usr/bin/caddy run --config /etc/caddy/dev.Caddyfile
+        cors_origins http://localhost:8080 http://127.0.0.1:8000
+    # No `command:` override on purpose. The Flex recipe pins
+    # `caddy run --config /etc/caddy/dev.Caddyfile`, but dunglas/mercure has
+    # shipped only /etc/caddy/Caddyfile since v2.x, so that override made the
+    # container crash-loop. The image's own default command is correct — if
+    # `composer recipes:update` puts the override back, delete it again.
     healthcheck:
-      test: ["CMD", "curl", "-f", "https://localhost/healthz"]
+      # Not /healthz: the recipe's endpoint does not exist in this image. Its
+      # Caddyfile serves a welcome page on / and answers 404 everywhere else,
+      # so / is the only thing that proves the hub is actually up.
+      test: ["CMD", "curl", "-f", "http://localhost/"]
       timeout: 5s
       retries: 5
-      start_period: 60s
+      start_period: 30s
     volumes:
       - mercure_data:/data
       - mercure_config:/config

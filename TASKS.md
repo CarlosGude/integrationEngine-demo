@@ -47,13 +47,53 @@
 
 ## 2. P0 — Bloqueantes
 
-### T-01 · `compose.yaml` es YAML inválido: `make up` falla
+### T-01 · `compose.yaml` es YAML inválido: `make up` falla ✅ ARREGLADO
 
 | | |
 |---|---|
 | **Severidad** | P0 |
-| **Esfuerzo** | S (15 min) |
-| **Ficheros** | `compose.yaml:28`, `compose.yaml:31-52`, `compose.yaml:54-58` |
+| **Estado** | ✅ Arreglado — `make up` sale con código 0 y ambos contenedores quedan `healthy`; el CI lo guarda con el job `compose-config` |
+| **Esfuerzo** | S (15 min) — real: el YAML eran 15 min, pero debajo había otros **cuatro** fallos |
+| **Ficheros** | `compose.yaml`, `docker/nginx.conf:33`, `Dockerfile:21-25` |
+
+> **Resuelto, pero el diagnóstico se quedaba corto.** Arreglar el YAML dejaba
+> `make up` igual de roto: había cuatro fallos encadenados, cada uno tapando al
+> siguiente. En orden de aparición:
+>
+> 1. **YAML inválido** (esto). Servicio `mercure` fuera de `services:` y clave
+>    `volumes:` duplicada. Corregido como proponía la tarea.
+> 2. **`command:` obsoleto en mercure.** La receta de Flex fija
+>    `caddy run --config /etc/caddy/dev.Caddyfile`, pero `dunglas/mercure` (hoy
+>    v2.11.4) solo trae `/etc/caddy/Caddyfile`. El contenedor entraba en
+>    crash-loop. El `Cmd` por defecto de la imagen ya es el correcto: override
+>    eliminado.
+> 3. **nginx devolvía 403 en `/`.** `try_files $uri $uri/ /index.php...` — el
+>    `$uri/` casa con el propio document root, así que nginx intentaba listar el
+>    directorio en vez de llegar al front controller
+>    (`directory index of "/app/public/" is forbidden`). La receta oficial de
+>    Symfony no lleva `$uri/`.
+> 4. **Dotenv no arrancaba dentro del contenedor.** `Dockerfile:21-25` generaba
+>    `vendor/autoload_runtime.php` a mano desde la plantilla sustituyendo
+>    `%runtime_options%` por `[]`. Sin `project_dir`, el runtime no localizaba
+>    los `.env` y **todos** los `%env()%` resolvían a `null` — el primero en
+>    reventar era `MERCURE_URL`. `composer dump-autoload` ya lo genera bien
+>    (`symfony/runtime` está en `allow-plugins`); el parche a mano sobraba, y
+>    ahora el build verifica que el fichero contiene `project_dir`.
+> 5. **Healthcheck de mercure contra un endpoint inexistente.** `/healthz` da
+>    404 en esta imagen; su Caddyfile sirve una página en `/` y 404 en el resto.
+>
+> **No es del todo un problema estructural de Compose:** `compose.override.yaml`
+> **sí es YAML válido** (su `mercure:` a 2 espacios cae bajo `services:` porque
+> no hay clave raíz de por medio), al contrario de lo que decía esta tarea. Su
+> problema es solo el de puertos, **T-18**.
+>
+> Verificación final: `make up` → exit 0, `php` y `mercure` ambos `healthy`,
+> `GET /` → 302, `/en/` y `/en/tour/the-problem` → 200.
+>
+> **Sigue fallando `/en/store` con 500** (necesita el token real de TMDB), y el
+> volumen anónimo de `/app/vendor` se queda obsoleto entre builds: tras cambiar
+> dependencias hace falta `docker compose up --renew-anon-volumes`. Ninguna de
+> las dos es de esta tarea.
 
 **Evidencia**
 

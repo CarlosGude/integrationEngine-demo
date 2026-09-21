@@ -18,10 +18,15 @@ ENV APP_DEBUG=1
 RUN composer install --no-progress --no-interaction --no-scripts
 
 COPY . .
+# `composer dump-autoload` fires post-autoload-dump, which is where
+# symfony/runtime's plugin writes vendor/autoload_runtime.php with the correct
+# options — `project_dir` above all. This used to copy the template by hand and
+# substitute an empty options array, so the runtime never learned the project
+# directory, Dotenv never loaded the .env files, and every %env()% resolved to
+# null inside the container (MERCURE_URL first, which fataled on boot).
 RUN composer dump-autoload --optimize && \
-    cp vendor/symfony/runtime/Internal/autoload_runtime.template vendor/autoload_runtime.php && \
-    sed -i "s/%runtime_class%/'Symfony\\\\Component\\\\Runtime\\\\SymfonyRuntime'/g" vendor/autoload_runtime.php && \
-    sed -i 's|%runtime_options%|\[\]|g' vendor/autoload_runtime.php && \
+    test -f vendor/autoload_runtime.php && \
+    grep -q "project_dir" vendor/autoload_runtime.php && \
     echo 'error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT\noutput_buffering = off\n' > /usr/local/etc/php/conf.d/symfony.ini
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
