@@ -73,10 +73,24 @@ steps:
       - id: resilience/chaos-testing-example
         file: src/Console/SimulateRentalCommand.php
         title: "Testing: Chaos Testing in Action"
+  graceful-degradation:
+    title: Graceful Degradation
+    description: When APIs fail, serve users anyway
+    order: 5
+    snippets:
+      - id: resilience/fallback-null
+        file: src/Shared/Infrastructure/Resilience/FallbackStrategy.php
+        title: "Strategy 1: Null Fallback (Data Unavailable)"
+      - id: resilience/fallback-cache
+        file: src/Shared/Infrastructure/Resilience/FallbackStrategy.php
+        title: "Strategy 2: Cache Fallback (Stale Data)"
+      - id: resilience/fallback-default
+        file: src/Shared/Infrastructure/Resilience/FallbackStrategy.php
+        title: "Strategy 3: Default Fallback (Safe Value)"
   renting-a-movie:
     title: Renting a Movie
     description: Outbound integrations with Stripe
-    order: 5
+    order: 6
     snippets:
       - id: solution/payment-integration
         file: src/Billing/Application/RentalPaymentGateway.php
@@ -87,7 +101,7 @@ steps:
   payment-confirmation:
     title: Payment Confirmation
     description: Webhooks and async processing
-    order: 6
+    order: 7
     snippets:
       - id: webhook/parser
         file: src/Integrations/Stripe/Webhook/StripePaymentIntentParser.php

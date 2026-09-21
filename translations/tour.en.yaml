@@ -49,6 +49,84 @@ tour:
 
       Until then, implement these patterns as custom middleware in your project — exactly what you see here.
 
+  graceful-degradation:
+    title: Graceful Degradation
+    description: When APIs fail, serve users anyway
+    content: |
+      **The Problem:** So you've built robust retry logic and circuit breakers. But what happens when they're all exhausted? The supplier API is completely down. The circuit is OPEN. Your customer is waiting.
+
+      Throwing an error is the easy answer. But it's a **bad** answer. Users abandon your app; they go to competitors. A better answer: **serve them something**.
+
+      **Three Fallback Strategies:**
+
+      ### Strategy 1: Null Fallback (Data Unavailable)
+      When you can't fetch data, return null and show a helpful message.
+
+      ```
+      GET supplier prices → FAIL (circuit breaker OPEN)
+      → Return: null
+      → UI: "Prices unavailable right now. Try again later."
+      ```
+
+      **Tradeoff:**
+      - ✓ Honest (user knows data is missing)
+      - ✗ Incomplete experience (missing prices on product page)
+
+      **Use when:** The data is not critical to the core flow.
+
+      ### Strategy 2: Cache Fallback (Stale Data)
+      Return the last known good value, even if it's hours old.
+
+      ```
+      GET supplier prices → FAIL
+      → Cache hit: prices from 2 hours ago
+      → Return: cached prices
+      → UI: "Showing prices from 2 hours ago"
+      ```
+
+      **Tradeoff:**
+      - ✓ Complete experience (all prices shown)
+      - ✗ Potentially stale (prices may have changed)
+
+      **Use when:** The data is read-only and occasional staleness is acceptable.
+
+      ### Strategy 3: Default Fallback (Safe Value)
+      Return a conservative default to prevent business logic errors.
+
+      ```
+      GET supplier inventory → FAIL
+      → Return: 0 (no inventory available)
+      → System prevents overselling
+      ```
+
+      **Tradeoff:**
+      - ✓ Prevents data corruption (no oversells)
+      - ✗ May disappoint users ("Out of stock" when it might not be)
+
+      **Use when:** Wrong data is dangerous and a safe default exists.
+
+      ---
+
+      **Production Reality:**
+
+      Real systems use **all three** depending on context:
+
+      - **User browsing:** Cache fallback (show yesterday's prices, better than blank)
+      - **User checking inventory:** Default fallback (say "out of stock" rather than risk overselling)
+      - **User viewing analytics:** Null fallback (missing metrics is okay, false metrics are worse)
+
+      **The Key Insight:**
+
+      Your user doesn't care that the supplier API is down. They care about getting what they came for. When an upstream fails, ask yourself:
+
+      1. Can I serve with stale data? → Use cache
+      2. Is there a safe default? → Use default
+      3. Is data optional? → Use null
+
+      If none apply, then fail. But be honest about why in your error message.
+
+      **See Also:** [Resilience Patterns Guide](../docs/RESILIENCE-PATTERNS.md) for testing and monitoring these strategies.
+
   renting-a-movie:
     title: Renting a Movie
     description: Outbound integrations with Stripe

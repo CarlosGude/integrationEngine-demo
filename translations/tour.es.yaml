@@ -49,6 +49,84 @@ tour:
 
       Hasta entonces, implementa estos patrones como middleware personalizado en tu proyecto — exactamente lo que ves aquí.
 
+  graceful-degradation:
+    title: Degradación Elegante
+    description: Cuando las APIs fallan, sirve a los usuarios de todas formas
+    content: |
+      **El Problema:** Así que has construido lógica de reintentos robusta y circuit breakers. Pero ¿qué pasa cuando se agotan? La API del proveedor está completamente caída. El circuit está OPEN. Tu cliente está esperando.
+
+      Lanzar un error es la respuesta fácil. Pero es una **mala** respuesta. Los usuarios abandonan tu app; van a competidores. Una respuesta mejor: **sírveles algo**.
+
+      **Tres Estrategias de Fallback:**
+
+      ### Estrategia 1: Fallback Nulo (Datos No Disponibles)
+      Cuando no puedas obtener datos, retorna null y muestra un mensaje útil.
+
+      ```
+      GET precios del proveedor → FALLA (circuit breaker OPEN)
+      → Return: null
+      → UI: "Precios no disponibles ahora. Intenta más tarde."
+      ```
+
+      **Tradeoff:**
+      - ✓ Honesto (usuario sabe que faltan datos)
+      - ✗ Experiencia incompleta (sin precios en la página)
+
+      **Usa cuando:** Los datos no son críticos para el flujo principal.
+
+      ### Estrategia 2: Fallback en Caché (Datos Obsoletos)
+      Retorna el último valor conocido, aunque sea de hace horas.
+
+      ```
+      GET precios del proveedor → FALLA
+      → Hit en caché: precios de hace 2 horas
+      → Return: precios cacheados
+      → UI: "Mostrando precios de hace 2 horas"
+      ```
+
+      **Tradeoff:**
+      - ✓ Experiencia completa (todos los precios mostrados)
+      - ✗ Potencialmente obsoleto (precios pueden haber cambiado)
+
+      **Usa cuando:** Los datos son de solo lectura y la obsolescencia ocasional es aceptable.
+
+      ### Estrategia 3: Fallback por Defecto (Valor Seguro)
+      Retorna un valor conservador para prevenir errores de lógica de negocio.
+
+      ```
+      GET inventario del proveedor → FALLA
+      → Return: 0 (sin inventario disponible)
+      → Sistema previene sobreventa
+      ```
+
+      **Tradeoff:**
+      - ✓ Previene corrupción de datos (sin sobreventa)
+      - ✗ Puede decepcionar usuarios ("Agotado" cuando podría no estarlo)
+
+      **Usa cuando:** Datos incorrectos son peligrosos y existe un valor por defecto seguro.
+
+      ---
+
+      **Realidad de Producción:**
+
+      Los sistemas reales usan **los tres** dependiendo del contexto:
+
+      - **Usuario navegando:** Fallback en caché (mostrar precios de ayer, mejor que en blanco)
+      - **Usuario verificando inventario:** Fallback por defecto (decir "agotado" en lugar de arriesgar sobreventa)
+      - **Usuario viendo analíticas:** Fallback nulo (métricas faltantes está bien, métricas falsas son peor)
+
+      **La Idea Clave:**
+
+      Tu usuario no le importa que la API del proveedor esté caída. Le importa obtener lo que vino a buscar. Cuando un upstream falla, pregúntate:
+
+      1. ¿Puedo servir con datos obsoletos? → Usa caché
+      2. ¿Existe un valor seguro por defecto? → Usa defecto
+      3. ¿Son los datos opcionales? → Usa null
+
+      Si ninguno aplica, entonces falla. Pero sé honesto sobre por qué en tu mensaje de error.
+
+      **Ver también:** [Guía de Patrones de Resiliencia](../docs/RESILIENCE-PATTERNS.md) para testing y monitoreo de estas estrategias.
+
   renting-a-movie:
     title: Alquilando una película
     description: Integraciones salientes con Stripe
