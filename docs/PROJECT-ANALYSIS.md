@@ -62,24 +62,45 @@ interface ResiliencePolicyInterface {
 }
 ```
 
-### 2. Built-in Protocol Adapters (HIGH)
+### 2. Built-in Protocol Adapters (HIGH - Form-encoded only)
 **Status:** Demo required custom implementations
 
-**Problem:** CSV and form-encoded are common but not in the engine.
+**Problem:** Form-encoded is a protocol; CSV is a format.
 
 **Current Workaround:**
-- CSV: 66-line parser in `GetPricesMapper`
-- Form-encoded: 129-line `StripeFormClientAdapter`
+- Form-encoded: 129-line `StripeFormClientAdapter` (reusable protocol)
+- CSV: 66-line parser in `GetPricesMapper` (domain-specific logic)
 
 **What's Needed:**
 ```php
 // Engine should provide:
-- FormEncodedClientAdapter (for Stripe, Shopify, etc.)
-- CsvClientAdapter (for supplier data, feeds)
-- XmlClientAdapter (for SOAP-style APIs)
+✅ FormEncodedClientAdapter (for Stripe, Shopify, Twilio - many APIs need this)
+❌ CsvClientAdapter (not in engine - see note below)
+❌ XmlClientAdapter (similar reasoning - format, not protocol)
 ```
 
-**Impact:** Would eliminate ~200 lines of custom code in demo.
+**Note on CSV:** While CSV is format-specific, a third-party server returning CSV is a valid scenario. The correct approach is **not** a built-in adapter, but rather:
+
+1. **Document in engine** how to build a custom CSV client for third-party CSV APIs
+2. **Provide utility class** `IntegrationEngine\Utils\CsvParser` for reuse
+3. **Show example** in docs: "Custom CSV client adapter"
+
+This way, someone integrating a supplier's CSV feed can do:
+```php
+// Custom client in their project:
+class SupplierCsvClientAdapter implements ClientAdapterInterface {
+    public function send(AbstractAction $action, ...): array {
+        $response = $this->httpClient->request(...);
+        $rows = CsvParser::parse($response->getContent());
+        return ['body' => $rows, 'headers' => $response->getHeaders()];
+    }
+}
+```
+
+**Impact:** 
+- FormEncodedClientAdapter: Eliminates 129 lines in demo
+- CsvParser utility: Eliminates 35 lines in mapper
+- Better documentation: Enables 100+ production projects to build custom CSV adapters correctly
 
 ### 3. Error Recovery & Partial Failures (HIGH)
 **Status:** Partially implemented
@@ -211,9 +232,10 @@ services:
 
 ### Priority 1 (Critical for Production)
 1. **Add `ResiliencePolicyInterface`** → Retry, circuit-breaker, fallback
-2. **Add `FormEncodedClientAdapter`** → Eliminate 129 lines of boilerplate
-3. **Add `CsvClientAdapter`** → Eliminate 66 lines of boilerplate
-4. **Improve error classification** → Know which errors are retryable
+2. **Add `FormEncodedClientAdapter`** → Eliminate 129 lines of boilerplate (Stripe, Shopify, Twilio, etc.)
+3. **Add `CsvParser` utility class** → Eliminate 35 lines of parsing logic in mappers
+4. **Document custom protocol adapters** → Guide for building domain-specific adapters (e.g., CSV feeds)
+5. **Improve error classification** → Know which errors are retryable
 
 ### Priority 2 (Important for Observability)
 5. **Built-in logging middleware** → Standardize request/response logging
@@ -335,13 +357,19 @@ Uncomment middleware to show real-time rate limit enforcement.
 ### 3. Remove Translation Messages (2 minutes)
 Delete `translations/messages.{en,es}.yaml` (unused, 170 lines).
 
-### 4. Extract CSV Adapter to Engine (4 hours)
-Move `GetPricesMapper::parseCSV()` to `IntegrationEngine\Infrastructure\Adapter\CsvClientAdapter`.
-Demo would go from 66 to 10 lines.
+### 4. Extract CsvParser Utility to Engine (2 hours)
+Move CSV parsing logic to `IntegrationEngine\Utils\CsvParser` utility class.
+Demo mapper would go from 66 to 15 lines (calls utility instead).
+Enables other projects to reuse the parser in custom adapters.
 
 ### 5. Extract Form Adapter to Engine (6 hours)
-Move `StripeFormClientAdapter` to engine.
+Move `StripeFormClientAdapter` to engine (it's a true protocol adapter).
 Demo would go from 129 to 20 lines (just config).
+
+### 6. Document Custom CSV Client Pattern (4 hours - engine docs)
+Add guide: "Building Custom Protocol Adapters for Third-Party CSV APIs"
+Show how to create a CSV client using the new `CsvParser` utility.
+Enable production projects to handle CSV feeds properly.
 
 ---
 
@@ -353,19 +381,21 @@ Demo would go from 129 to 20 lines (just config).
 - Engine coverage: 85%
 
 **After (Recommendations Implemented):**
-- Custom code: ~150 lines (remove adapters, simplify CSV)
+- Custom code: ~100 lines (FormEncodedClientAdapter moves to engine, CsvParser extracted)
 - Unused config: 0 lines (remove translation messages)
-- Engine coverage: 92%
+- Engine coverage: 93%
 - Resilience gap: Closed (new ResiliencePolicyInterface)
+- Documentation: Enhanced (custom adapter patterns documented in engine)
 
 ---
 
 ## 🗺️ Suggested Implementation Roadmap
 
 ### Engine v7.0 (Q4 2026)
-- [ ] `FormEncodedClientAdapter`
-- [ ] `CsvClientAdapter`
-- [ ] `ResiliencePolicyInterface`
+- [ ] `FormEncodedClientAdapter` (for Stripe, Shopify, Twilio patterns)
+- [ ] `CsvParser` utility class in `IntegrationEngine\Utils`
+- [ ] Documentation: "Building Custom Protocol Adapters" (CSV, XML, etc.)
+- [ ] `ResiliencePolicyInterface` (retry, circuit-breaker, fallback)
 - [ ] Error classification helpers
 - [ ] Logging middleware
 
