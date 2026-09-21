@@ -1,2 +1,127 @@
 parameters:
-    ignoreErrors: []
+	ignoreErrors:
+		-
+			message: '#^Method App\\Catalog\\Application\\MovieCatalogGateway\:\:getMoviesByIdBatch\(\) should return array\<int, App\\Catalog\\Domain\\Movie\|null\> but returns array\<App\\Catalog\\Domain\\Movie\|null\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Catalog/Application/MovieCatalogGateway.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$arg1 of function max expects non\-empty\-array, list\<float\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Console/BenchmarkCommand.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$arg1 of function min expects non\-empty\-array, list\<float\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Console/BenchmarkCommand.php
+
+		-
+			message: '#^Method App\\Integrations\\Countries\\GetCountries\\GetCountriesAction\:\:mapper\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Integrations/Countries/GetCountries/GetCountriesAction.php
+
+		-
+			message: '#^Method App\\Integrations\\Stripe\\CreatePaymentIntent\\CreatePaymentIntentAction\:\:mapper\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Integrations/Stripe/CreatePaymentIntent/CreatePaymentIntentAction.php
+
+		-
+			message: '#^Method App\\Integrations\\Supplier\\GetPrices\\GetPricesAction\:\:mapper\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Integrations/Supplier/GetPrices/GetPricesAction.php
+
+		-
+			message: '#^Method App\\Integrations\\Tmdb\\GetConfiguration\\GetConfigurationAction\:\:mapper\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Integrations/Tmdb/GetConfiguration/GetConfigurationAction.php
+
+		-
+			message: '#^Method App\\Integrations\\Tmdb\\GetMovie\\GetMovieAction\:\:mapper\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Integrations/Tmdb/GetMovie/GetMovieAction.php
+
+		-
+			message: '#^Method App\\Integrations\\Tmdb\\GetTvSeason\\GetTvSeasonAction\:\:mapper\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Integrations/Tmdb/GetTvSeason/GetTvSeasonAction.php
+
+		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: src/Kernel.php
+
+		-
+			message: '#^Cannot access offset ''all'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Kernel.php
+
+		-
+			message: '#^Cannot access offset string on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Kernel.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsFloat\(\) with float will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: tests/Catalog/UI/Console/BenchmarkCommandTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertNull\(\) with null will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 2
+			path: tests/Catalog/UI/StorefrontControllerTest.php
+
+		-
+			message: '#^Parameter \#2 \$string of static method PHPUnit\\Framework\\Assert\:\:assertStringStartsWith\(\) expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Legacy/LegacyEngineParityTest.php
+
+		-
+			message: '#^Call to function is_subclass_of\(\) with ''App\\\\Shared\\\\Infrastructure\\\\Middleware\\\\RateLimitMiddleware'' and ''IntegrationEngine\\\\Core\\\\Contract\\\\Client\\\\AbstractClientMiddleware'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/Shared/Infrastructure/Middleware/RateLimitMiddlewareTest.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''App\\\\Shared\\\\Infrastructure\\\\Middleware\\\\RateLimitMiddleware'' and ''process'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/Shared/Infrastructure/Middleware/RateLimitMiddlewareTest.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''App\\\\Shared\\\\Infrastructure\\\\Middleware\\\\RateLimitMiddleware'' and ''processMany'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/Shared/Infrastructure/Middleware/RateLimitMiddlewareTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: tests/Shared/Infrastructure/Middleware/RateLimitMiddlewareTest.php
+
+		-
+			message: '#^Method Tests\\Translation\\TranslationParityTest\:\:loadMessages\(\) should return array\<string, string\> but returns array\<mixed\>\.$#'
+			identifier: return.type
+			count: 1
+			path: tests/Translation/TranslationParityTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with Symfony\\Component\\DependencyInjection\\ContainerInterface will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: tests/Unit/KernelBootTest.php
