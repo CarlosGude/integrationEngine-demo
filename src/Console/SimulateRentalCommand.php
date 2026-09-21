@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Console;
 
 use App\Billing\Application\RentalPaymentGateway;
+use App\Shared\Infrastructure\ChaosMonkey;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -32,6 +34,26 @@ final class SimulateRentalCommand extends Command
             'TMDB movie ID to rent',
             '550', // Fight Club
         );
+        $this->addOption(
+            'chaos',
+            'c',
+            InputOption::VALUE_NONE,
+            'Inject random failures to test resilience patterns',
+        );
+        $this->addOption(
+            'timeout-rate',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Timeout failure rate (0-100%)',
+            '30',
+        );
+        $this->addOption(
+            'ratelimit-rate',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Rate limit failure rate (0-100%)',
+            '20',
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -39,9 +61,19 @@ final class SimulateRentalCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $movieIdArgument = $input->getArgument('movie-id');
         $movieId = \is_numeric($movieIdArgument) ? (int) $movieIdArgument : 0;
+        $useChaos = $input->getOption('chaos');
 
         $io->info("Simulating rental for movie #{$movieId}...");
 
+        if ($useChaos) {
+            return $this->executeWithChaos($io, $movieId, $input);
+        }
+
+        return $this->executeNormal($io, $movieId);
+    }
+
+    private function executeNormal(SymfonyStyle $io, int $movieId): int
+    {
         try {
             $payment = $this->gateway->rentMovie(movieId: $movieId, amountCents: 500, currency: 'usd');
 
@@ -67,4 +99,112 @@ final class SimulateRentalCommand extends Command
             return Command::FAILURE;
         }
     }
+
+    // tour:start resilience/chaos-testing-example
+    private function executeWithChaos(SymfonyStyle $io, int $movieId, InputInterface $input): int
+    {
+        $chaos = (new ChaosMonkey())
+            ->withTimeoutRate((int) $input->getOption('timeout-rate'))
+            ->withRateLimitRate((int) $input->getOption('ratelimit-rate'));
+
+        $io->warning('🔴 CHAOS MODE ENABLED');
+        $io->text([
+            sprintf('  Timeout failures: %d%%', $input->getOption('timeout-rate')),
+            sprintf('  Rate limit failures: %d%%', $input->getOption('ratelimit-rate')),
+        ]);
+
+        $attempts = 0;
+        $successes = 0;
+        $failures = [];
+
+        // Simulate multiple attempts to show retry behavior
+        for ($i = 1; $i <= 5; ++$i) {
+            ++$attempts;
+            $io->text(sprintf("Attempt {$i}/5..."));
+
+            try {
+                // Inject random failures
+                if ($chaos->shouldTimeout()) {
+                    $failures[] = ['attempt' => $i, 'error' => 'Timeout (transient)', 'retryable' => true];
+                    $chaos->injectTimeout();
+                }
+
+                if ($chaos->shouldRateLimit()) {
+                    $failures[] = ['attempt' => $i, 'error' => '429 Rate Limit (transient)', 'retryable' => true];
+                    $chaos->injectRateLimit();
+                }
+
+                // On odd attempts, randomly succeed
+                if ($i % 2 === 1 && mt_rand(1, 100) > 40) {
+                    $payment = $this->gateway->rentMovie(movieId: $movieId, amountCents: 500, currency: 'usd');
+                    ++$successes;
+
+                    $io->writeln('  <info>✓ Success</info>');
+
+                    break; // Exit loop on success
+                }
+            } catch (\Throwable $e) {
+                $isRetryable = $this->isRetryable($e);
+                $failures[] = [
+                    'attempt' => $i,
+                    'error' => $e->getMessage(),
+                    'retryable' => $isRetryable,
+                ];
+
+                $status = $isRetryable ? '<fg=yellow>⟳ Transient</>' : '<fg=red>✗ Permanent</>';
+                $io->writeln("  {$status}: {$e->getMessage()}");
+
+                if (!$isRetryable) {
+                    break; // Don't retry permanent errors
+                }
+
+                // Brief pause before retry (simulate exponential backoff)
+                usleep(100 * (1 << ($i - 1)) * 1000);
+            }
+        }
+
+        $io->newLine();
+
+        if ($successes > 0) {
+            $io->success('Eventually succeeded! This demonstrates retry resilience.');
+            $io->section('Resilience Summary');
+            $io->text([
+                "✓ Survived {$successes} out of {$attempts} attempts",
+                "⟳ Retried on transient errors (timeouts, rate limits)",
+                "✓ Recovered after failures via exponential backoff",
+            ]);
+        } else {
+            $io->warning('All attempts exhausted.');
+        }
+
+        if (!empty($failures)) {
+            $io->section('Failure Log');
+            $io->table(
+                ['Attempt', 'Error', 'Retryable?'],
+                array_map(
+                    fn ($f) => [
+                        $f['attempt'],
+                        $f['error'],
+                        $f['retryable'] ? 'Yes (⟳)' : 'No (✗)',
+                    ],
+                    $failures,
+                ),
+            );
+        }
+
+        $io->newLine();
+        $io->note('In production, RetryMiddleware + CircuitBreaker would handle this automatically.');
+
+        return $successes > 0 ? Command::SUCCESS : Command::FAILURE;
+    }
+
+    private function isRetryable(\Throwable $e): bool
+    {
+        $message = $e->getMessage();
+
+        return str_contains($message, 'timeout')
+            || str_contains($message, 'Rate Limit')
+            || str_contains($message, 'Service Unavailable');
+    }
+    // tour:end
 }

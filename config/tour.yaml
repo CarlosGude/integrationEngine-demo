@@ -67,6 +67,12 @@ steps:
       - id: resilience/fallback-default
         file: src/Shared/Infrastructure/Resilience/FallbackStrategy.php
         title: "Resilience: Default Fallback (Safe Value)"
+      - id: resilience/chaos-monkey-injection
+        file: src/Shared/Infrastructure/ChaosMonkey.php
+        title: "Testing: Chaos Monkey - Inject Failures"
+      - id: resilience/chaos-testing-example
+        file: src/Console/SimulateRentalCommand.php
+        title: "Testing: Chaos Testing in Action"
   renting-a-movie:
     title: Renting a Movie
     description: Outbound integrations with Stripe
