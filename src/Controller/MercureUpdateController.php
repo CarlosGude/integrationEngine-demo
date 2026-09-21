@@ -67,6 +67,21 @@ class MercureUpdateController extends AbstractController
             return new JsonResponse(['error' => 'Invalid JSON'], 400);
         }
 
+        $validation = $this->validateWebhookPayload($payload);
+        if ($validation !== null) {
+            return $validation;
+        }
+
+        $this->publishPaymentSucceeded($payload, $hub);
+
+        return new JsonResponse(['success' => true]);
+    }
+
+    /**
+     * @param array<mixed> $payload
+     */
+    private function validateWebhookPayload(array $payload): ?JsonResponse
+    {
         $eventType = $payload['type'] ?? null;
         if (!is_string($eventType)) {
             return new JsonResponse(['error' => 'Event type is required'], 400);
@@ -77,23 +92,35 @@ class MercureUpdateController extends AbstractController
             if (!is_array($data) || !isset($data['object']) || !is_array($data['object'])) {
                 return new JsonResponse(['error' => 'Invalid payload structure'], 400);
             }
-
-            $object = $data['object'];
-            $update = new Update(
-                topics: 'admin/payments',
-                data: (string) json_encode([
-                    'action' => 'payment_succeeded',
-                    'paymentIntentId' => $object['id'] ?? null,
-                    'amount' => $object['amount'] ?? null,
-                    'currency' => $object['currency'] ?? 'USD',
-                    'status' => 'succeeded',
-                    'timestamp' => date('c'),
-                ]),
-            );
-
-            $hub->publish($update);
         }
 
-        return new JsonResponse(['success' => true]);
+        return null;
+    }
+
+    /**
+     * @param array<mixed> $payload
+     */
+    private function publishPaymentSucceeded(array $payload, HubInterface $hub): void
+    {
+        $eventType = $payload['type'] ?? null;
+        if ($eventType === 'payment_intent.succeeded') {
+            $data = $payload['data'] ?? [];
+            if (is_array($data) && isset($data['object']) && is_array($data['object'])) {
+                $object = $data['object'];
+                $update = new Update(
+                    topics: 'admin/payments',
+                    data: (string) json_encode([
+                        'action' => 'payment_succeeded',
+                        'paymentIntentId' => $object['id'] ?? null,
+                        'amount' => $object['amount'] ?? null,
+                        'currency' => $object['currency'] ?? 'USD',
+                        'status' => 'succeeded',
+                        'timestamp' => date('c'),
+                    ]),
+                );
+
+                $hub->publish($update);
+            }
+        }
     }
 }

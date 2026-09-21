@@ -100,6 +100,7 @@ final class ChaosMonkey
 
                     public function cancel(): void
                     {
+                        // No-op: this is a simulated response and does not need cleanup
                     }
 
                     public function getInfo(?string $type = null): mixed
@@ -145,6 +146,7 @@ final class ChaosMonkey
 
                     public function cancel(): void
                     {
+                        // No-op: this is a simulated response and does not need cleanup
                     }
 
                     public function getInfo(?string $type = null): mixed
