@@ -24,7 +24,9 @@
 | Composer | `composer validate --strict` | ✅ válido |
 | **Docker Compose** | `docker compose config` | ❌ **YAML inválido — no arranca** |
 
-**Lectura:** el CI está verde, pero está verde en parte porque no mira donde están los problemas. Las puertas cubren `src/` y `tests/`; no cubren el arranque de `docker compose`, ni una instalación de producción real (`--no-dev`), ni la protección de rutas.
+**Lectura:** el CI estaba verde en parte porque no miraba donde estaban los problemas. Las puertas cubrían `src/` y `tests/`, pero no el arranque de `docker compose`, ni una instalación de producción real (`--no-dev`), ni la protección de rutas.
+
+**Actualización 2026-09-21:** esos tres huecos están tapados. El CI pasa de 5 a 7 jobs, con `Compose Config Valid` (**T-01**) y `Production Install (--no-dev)` (**T-02**), y `tests/Security/AdminAccessControlTest.php` cubre la protección de rutas (**T-03**). Cerradas **7 de 23**: los tres P0 (T-01, T-02, T-03) y cuatro P3 (T-15, T-18, T-19, T-23).
 
 ### 1.2 Inventario de tareas
 
