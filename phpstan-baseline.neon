@@ -109,18 +109,6 @@ parameters:
 			path: src/Shared/Infrastructure/Middleware/RetryMiddleware.php
 
 		-
-			message: '#^Constant App\\Shared\\Infrastructure\\Resilience\\CircuitBreaker\:\:FAILURE_WINDOW_SEC is unused\.$#'
-			identifier: classConstant.unused
-			count: 1
-			path: src/Shared/Infrastructure/Resilience/CircuitBreaker.php
-
-		-
-			message: '#^Property App\\Shared\\Infrastructure\\Resilience\\CircuitBreaker\:\:\$successCount is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: src/Shared/Infrastructure/Resilience/CircuitBreaker.php
-
-		-
 			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsFloat\(\) with float will always evaluate to true\.$#'
 			identifier: staticMethod.alreadyNarrowedType
 			count: 1

@@ -137,7 +137,7 @@ final class SimulateRentalCommand extends Command
                 }
 
                 // On odd attempts, randomly succeed
-                if ($i % 2 === 1 && mt_rand(1, 100) > 40) {
+                if ($i % 2 === 1 && random_int(1, 100) > 40) {
                     $payment = $this->gateway->rentMovie(movieId: $movieId, amountCents: 500, currency: 'usd');
                     ++$successes;
 

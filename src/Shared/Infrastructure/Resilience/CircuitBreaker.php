@@ -28,13 +28,11 @@ final class CircuitBreaker
     private const STATE_OPEN = 'open';
     private const STATE_HALF_OPEN = 'half_open';
 
-    private const FAILURE_THRESHOLD = 5;          // failures to trigger OPEN
-    private const FAILURE_WINDOW_SEC = 10;        // time window for threshold
-    private const TIMEOUT_SEC = 30;               // time in OPEN before HALF_OPEN
+    private const FAILURE_THRESHOLD = 5;   // failures to trigger OPEN
+    private const TIMEOUT_SEC = 30;        // time in OPEN before HALF_OPEN
 
     private string $state = self::STATE_CLOSED;
     private int $failureCount = 0;
-    private int $successCount = 0;
     private ?int $openedAt = null;
 
     public function __construct(private readonly ClockInterface $clock = new NativeClock())
@@ -107,7 +105,6 @@ final class CircuitBreaker
     {
         $this->state = self::STATE_CLOSED;
         $this->failureCount = 0;
-        $this->successCount = 0;
         $this->openedAt = null;
     }
 
@@ -120,6 +117,5 @@ final class CircuitBreaker
     private function transitionToHalfOpen(): void
     {
         $this->state = self::STATE_HALF_OPEN;
-        $this->successCount = 0;
     }
 }

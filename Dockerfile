@@ -26,7 +26,7 @@ RUN composer dump-autoload --optimize && \
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
-RUN mkdir -p /app/var && chmod 777 /app/var
+RUN mkdir -p /app/var && chmod 755 /app/var
 
 EXPOSE 80
 

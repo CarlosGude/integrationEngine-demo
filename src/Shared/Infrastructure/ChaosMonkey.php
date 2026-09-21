@@ -23,14 +23,10 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 final class ChaosMonkey
 {
     public function __construct(
-        private readonly int $seed = 42,
         private int $timeoutFailureRate = 0,        // 0-100: % timeout failures
         private int $rateLimitFailureRate = 0,      // 0-100: % rate limit (429)
         private int $serviceUnavailableRate = 0,    // 0-100: % service unavailable (503)
     ) {
-        if ($seed >= 0) {
-            mt_srand($seed);
-        }
     }
 
     /**
@@ -187,7 +183,7 @@ final class ChaosMonkey
             return $rate > 50; // Deterministic for edge cases
         }
 
-        return mt_rand(1, 100) <= $rate;
+        return random_int(1, 100) <= $rate;
     }
     // tour:end
 }
