@@ -2,13 +2,23 @@
 
 **Demo Project Upgrade Plan** — Remove custom code, use engine features
 
+> ## ✅ Completed
+>
+> This plan has been carried out. The bundle is on v7.0.2, `app.client.stripe`
+> uses the engine's `FormEncodedClientAdapter`, and `GetPricesMapper` uses the
+> engine's `CsvParser`. The paths below under "Current State" describe the code
+> **as it was before the migration** — they no longer exist.
+>
+> Kept as the record of what changed and why.
+
 ---
 
 ## Overview
 
-When IntegrationEngine v7.0 is released with `FormEncodedClientAdapter` and `CsvParser` utilities, the demo can remove ~160 lines of custom boilerplate and simplify to use engine features.
+IntegrationEngine v7.0 shipped the `FormEncodedClientAdapter` and the `CsvParser`
+utility, which let this demo drop ~160 lines of custom boilerplate.
 
-This document details exactly what will change.
+This document details exactly what changed.
 
 ---
 
@@ -356,3 +366,8 @@ After Phase 3:
 ---
 
 **Generated:** 2026-09-21 | IntegrationEngine Demo — Phase 3 Integration Plan
+
+---
+
+*Status claims in this document last verified against the code on 2026-09-21, at `d67f899`.*
+*Enforced for file paths by `tests/Documentation/DocumentedPathsExistTest.php`.*

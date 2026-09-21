@@ -422,15 +422,22 @@ class SupplierCsvClientAdapter implements ClientAdapterInterface {
 
 ## Migration Path
 
-### Today (v6.0.0)
-- Build custom adapters in your project
-- See: `src/Billing/Infrastructure/Http/StripeFormClientAdapter.php`
-- See: CSV parsing in `src/Integrations/Supplier/Mappers/GetPricesMapper.php`
+### ✅ Done — this demo already runs on the engine's built-ins
 
-### Tomorrow (v7.0.0)
-- Use built-in `FormEncodedClientAdapter`
-- Use `CsvParser` utility
-- Delete custom implementations
+The migration below has been carried out; this section is the record of it.
+`app.client.stripe` in `config/services.yaml` is the engine's
+`FormEncodedClientAdapter`, and `src/Integrations/Supplier/Mappers/GetPricesMapper.php`
+uses the engine's `CsvParser`. The custom adapter that used to live at
+`src/Billing/Infrastructure/Http/StripeFormClientAdapter.php` was deleted.
+
+### Before (bundle v6.0 and earlier)
+- Build custom adapters in your project
+- A custom form-encoding adapter, plus custom CSV parsing inside the mapper
+
+### After (bundle v7.0+)
+- Use the built-in `FormEncodedClientAdapter`
+- Use the `CsvParser` utility
+- Delete the custom implementations
 
 ### Migration Example
 
@@ -483,3 +490,8 @@ $rows = CsvParser::parse($response['body']);
 ---
 
 **Generated:** 2026-09-21 | IntegrationEngine Demo — Custom Adapter Patterns
+
+---
+
+*Status claims in this document last verified against the code on 2026-09-21, at `d67f899`.*
+*Enforced for file paths by `tests/Documentation/DocumentedPathsExistTest.php`.*

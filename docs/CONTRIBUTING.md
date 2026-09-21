@@ -48,7 +48,7 @@ Follow the [coding standards](#coding-standards).
 make test
 
 # Run specific test
-make test TEST=tests/Catalog/BenchmarkTest.php
+make test TEST=tests/Security/AdminAccessControlTest.php
 
 # Code quality
 make cs
@@ -210,9 +210,9 @@ public function processPayment(
 - ✅ Feature tests for workflows
 - ✅ Minimum 80% coverage
 
-```php
-// tests/Catalog/BenchmarkTest.php
+Illustrative example of the shape we expect — this file is not in the repo:
 
+```php
 class BenchmarkTest extends TestCase
 {
     public function testParallelLoadingIsFaster(): void
@@ -268,7 +268,7 @@ make test-watch
 make test-coverage
 
 # Specific test
-make test TEST=tests/Catalog/BenchmarkTest.php::testParallelLoadingIsFaster
+make test TEST=tests/Security/AdminAccessControlTest.php::testInboundWebhookStaysAnonymous
 ```
 
 ## Continuous Integration

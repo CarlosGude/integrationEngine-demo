@@ -28,7 +28,15 @@ A guided tour through external API integrations using the [IntegrationEngine](ht
 - **[Contributing](docs/CONTRIBUTING.md)** — Development workflow and git conventions
 - **[Wiki](docs/WIKI.md)** — Complete project wiki with all documentation indexed
 
-## Status: v1.0.0 PRODUCTION READY ✅ | Phase 1-4 Complete 🎉 | v7.0 Integration Done ✨
+## Status
+
+`v1.0.0` is tagged and `main` is ahead of it — there is no `v1.1.0` tag yet.
+Phases 1-4 are complete and the integration with engine v7.0 is done.
+
+**Not deployable as it stands.** [`TASKS.md`](TASKS.md) tracks 21 known issues,
+including two blockers: `compose.yaml` is invalid YAML so `make up` fails, and
+EasyAdmin sits in `require-dev` while being loaded in every environment, so a
+`composer install --no-dev` does not boot. Read it before deploying anywhere.
 
 ### ✅ Completed (Days 17-26)
 
@@ -72,13 +80,13 @@ A guided tour through external API integrations using the [IntegrationEngine](ht
 | Métrica | Valor |
 |---------|-------|
 | Total Commits | 16+ |
-| Tests | 55+ ✅ |
+| Tests | 66 ✅ (2 of them `markTestSkipped`, see TASKS.md T-08) |
 | Protocolos | 4 (REST, CSV, GraphQL, Stripe) |
 | Tour Steps | 7 (complete) |
 | Tour Snippets | 20+ (bilingual EN/ES) |
-| Resilience Patterns | 3 (retry, circuit breaker, fallback) |
+| Resilience Patterns | 3 written (retry, circuit breaker, fallback) — **not wired**; only the rate limiter runs today |
 | Documentation | 2000+ lines |
-| Code Quality | PHPStan max, 0 violations |
+| Code Quality | PHPStan max, 0 violations — with a 27-entry baseline (TASKS.md T-09) |
 | Parallelism Speedup | 5-13x |
 | Custom Code (Today) | 410 lines |
 | Custom Code (After v7.0) | ~100 lines (-76%) |
@@ -126,9 +134,10 @@ See: [Phase 3 Integration Plan](docs/PHASE3-INTEGRATION.md) for implementation d
 - [x] Performance optimization guide
 - [x] Release notes & roadmap
 
-### 🚀 Ready for Production
+### 🚀 Deployment
 
-The project is **production-ready** and can be deployed to VPS immediately using the deployment guide.
+The deployment guide is written and complete. Two blockers stand between it and
+an actual deploy — see the Status section above and [`TASKS.md`](TASKS.md).
 
 ## Project Structure
 
@@ -268,27 +277,8 @@ docker compose exec php make ci
 
 ## Git Status
 
-**Local commits (ready to push):** 12
-```
-1163f6e docs: update PLAN - days 17-25 complete
-34c9e40 fix: TMDB YAML config - proper HTTP methods and paths
-b9ade08 fix: namespace updates and demo preparation
-077426e feat(day25): tour step 3 - behind the counter
-e7da039 feat(day24): GraphQL integration + rate limiting
-45a1b55 feat(day23): CSV adapter + supplier service
-9ae132d feat(day22): Benchmark command + tour step 2
-cf11217 feat(day21): Parallel storefront
-828c046 feat(day20): Tour step 1 code snippets
-2effea4 feat(day19): Legacy parity test
-cfffe80 feat(day18): TMDB + domain layer
-30e0aa6 fix: routing & config setup
-```
-
-**To push:**
-```bash
-gh auth login
-git push origin main
-```
+`main` is pushed. Use `git log --oneline` for the current history — this file no
+longer carries a frozen snapshot of it.
 
 ## File Structure
 
@@ -338,4 +328,9 @@ tests/
 
 ---
 
-**Status:** Days 17-26 ✅ | Ready for Days 27+ (Resilience, VPS, v1.0.0)
+**Status:** see the [Status](#status) section at the top — `v1.0.0` tagged, `main` ahead, two blockers open in [`TASKS.md`](TASKS.md).
+
+---
+
+*Status claims in this document last verified against the code on 2026-09-21, at `d67f899`.*
+*Enforced for file paths by `tests/Documentation/DocumentedPathsExistTest.php`.*

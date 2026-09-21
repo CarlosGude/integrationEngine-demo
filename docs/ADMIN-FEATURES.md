@@ -1,17 +1,26 @@
-# 👨‍💼 Admin Dashboard Features
+# 👨‍💼 Admin Dashboard
 
-Comprehensive admin interface for managing IntegrationEngine Demo.
+> **What exists today, and what this document is.**
+>
+> The admin panel is an EasyAdmin dashboard with a single menu entry and no CRUD
+> controllers, because this project has **no Doctrine entities** (see `TASKS.md`,
+> T-11). Everything below the Overview table is a **recipe** — how to build these
+> features once there are entities to manage — not a description of shipped
+> functionality. Code blocks name files you would create; ✅ rows are the only
+> claims about the current state.
 
 ## Overview
 
-| Feature | Status | Location |
-|---------|--------|----------|
-| **Dashboard** | ✅ Ready | `/admin` |
-| **User Management** | 🔄 Ready to setup | `src/Controller/Admin/UserCrudController.php` |
-| **Transaction Management** | 🔄 Ready to setup | `src/Controller/Admin/TransactionCrudController.php` |
-| **Real-time Updates** | ✅ Installed | Mercure WebSockets |
-| **Analytics** | 🔄 Optional | Charts & statistics |
-| **Permissions** | ✅ Built-in | Role-based access |
+| Feature | Status | Where |
+|---------|--------|-------|
+| **Dashboard page** | ✅ Built | `src/Controller/Admin/DashboardController.php` — title and one `linkToDashboard` menu item |
+| **Authentication** | ✅ Built | `http_basic` + `ROLE_ADMIN` over `^/admin`, `config/packages/security.yaml` |
+| **Real-time transport** | ✅ Installed | Mercure hub wired; `src/Controller/MercureUpdateController.php` publishes updates |
+| **User management** | 📋 Planned | Needs a `User` entity first |
+| **Transaction management** | 📋 Planned | Needs a `Transaction` entity first |
+| **Quick stats / analytics** | 📋 Planned | Nothing is rendered on the dashboard today |
+| **Audit log** | 📋 Planned | No audit storage or command exists |
+| **Role hierarchy / voters** | 📋 Planned | Only the single `ROLE_ADMIN` above is wired |
 
 ## Dashboard
 
@@ -21,23 +30,28 @@ Comprehensive admin interface for managing IntegrationEngine Demo.
 http://localhost:8000/admin
 ```
 
-### Quick Stats
+Credentials come from `ADMIN_PASSWORD_HASH`; the username is `admin`. See
+[DEPLOYMENT.md](DEPLOYMENT.md) for generating a hash and overriding it in
+production.
 
-- **Users**: Total count, recent signups
-- **Transactions**: Daily totals, success rate
-- **Payments**: Stripe integration status
-- **API Health**: External service status
+### What it renders today
 
-## User Management
+The dashboard sets a title and one menu item. There are no widgets, counters or
+CRUD sections — adding them is what the rest of this document describes.
 
-### Features
+## 📋 User Management
 
-- ✅ Create/Edit/Delete users
-- ✅ Assign roles (ADMIN, USER)
-- ✅ Change passwords securely
-- ✅ View login history
-- ✅ Disable/enable accounts
-- ✅ Bulk actions
+Not built. There is no `User` entity and no CRUD controller. What follows is the
+recipe for adding one.
+
+### Features it would provide
+
+- Create/Edit/Delete users
+- Assign roles (ADMIN, USER)
+- Change passwords securely
+- View login history
+- Disable/enable accounts
+- Bulk actions
 
 ### Setup
 
@@ -69,16 +83,19 @@ php bin/console doctrine:migrations:migrate
 | `lastLogin` | DateTime | Last login time |
 | `isActive` | Boolean | Account status |
 
-## Transaction Management
+## 📋 Transaction Management
 
-### Features
+Not built. There is no `Transaction` entity. The Mercure transport below is real
+and already publishes; what is missing is anything to persist or render.
 
-- ✅ View all transactions
-- ✅ Filter by status/date/amount
-- ✅ Export to CSV
-- ✅ Search by payment ID
-- ✅ View transaction details
-- ✅ Real-time updates (Mercure)
+### Features it would provide
+
+- View all transactions
+- Filter by status/date/amount
+- Export to CSV
+- Search by payment ID
+- View transaction details
+- Real-time updates (Mercure)
 
 ### Setup
 
@@ -113,9 +130,11 @@ es.onmessage = (event) => {
 };
 ```
 
-## Payment Analytics
+## 📋 Payment Analytics
 
-### Dashboard Widgets
+Not built — the dashboard renders no widgets today.
+
+### Widgets it would provide
 
 - 💰 Total revenue (today, this month)
 - 📊 Transaction count (success rate)
@@ -135,19 +154,18 @@ Monitor payments in real-time:
 
 ### Reports
 
-Export data:
+Neither command exists yet. They would be invoked like this:
 
 ```bash
-# Export transactions to CSV
 php bin/console export:transactions --format=csv
-
-# Export users to CSV
 php bin/console export:users --start-date=2024-01-01
 ```
 
-## User Activity Log
+## 📋 User Activity Log
 
-### Audit Trail
+Not built — nothing records an audit trail.
+
+### Events it would record
 
 - 👤 User login/logout
 - ✏️ Data changes (who, what, when)
@@ -157,19 +175,24 @@ php bin/console export:users --start-date=2024-01-01
 
 ### Viewing Logs
 
-```php
-// src/Command/ViewAuditLogCommand.php
+Nothing records an audit trail today. A console command to read one would live
+at `src/Command/ViewAuditLogCommand.php` and be invoked like this — **the file
+does not exist yet**:
+
+```bash
 php bin/console audit:log --user=john@example.com --limit=50
 ```
 
-## Notifications
+## 📋 Notifications
 
-### In-Admin Notifications
+Not built. The Mercure transport exists, but nothing publishes these topics.
 
-- ✅ Payment received
-- ⚠️ Transaction failed
-- 📧 New user signup
-- 🔔 System alerts
+### Notifications it would deliver
+
+- Payment received
+- Transaction failed
+- New user signup
+- System alerts
 
 Delivered via:
 - **Real-time**: Mercure WebSockets
@@ -191,38 +214,79 @@ es.onmessage = (event) => {
 
 ## Settings & Configuration
 
-### Admin Settings
+### 📋 Admin Settings
 
-```
-/admin/settings
-```
+There is no `/admin/settings` route. A settings screen would manage:
 
-Manage:
-- 🌐 Site name & branding
-- 🔐 Security policies
-- 📧 Email settings
-- 💾 Database backups
-- 🔄 API integrations
+- Site name & branding
+- Security policies
+- Email settings
+- Database backups
+- API integrations
 
-### API Configuration
+### ✅ API Configuration
+
+Integrations are declared under `integrations:`, each with its own YAML action
+file. Credentials travel as headers or through a custom client service, not as
+top-level `token:` keys:
 
 ```yaml
 # config/packages/integration_engine.yaml
 integration_engine:
-    tmdb:
-        base_url: '%env(TMDB_BASE_URL)%'
-        token: '%env(TMDB_ACCESS_TOKEN)%'
-    stripe:
-        secret_key: '%env(STRIPE_SECRET_KEY)%'
-        webhook_secret: '%env(STRIPE_WEBHOOK_SECRET)%'
-    mercure:
-        url: '%env(MERCURE_PUBLIC_URL)%'
-        jwt_secret: '%env(MERCURE_JWT_SECRET)%'
+    integrations:
+        tmdb:
+            base_url: 'https://api.themoviedb.org'
+            headers:
+                Authorization: 'Bearer %env(TMDB_ACCESS_TOKEN)%'
+            config_path: '%kernel.project_dir%/src/Integrations/Tmdb/Tmdb.yaml'
+            middlewares:
+                - app.middleware.rate_limit
+        stripe:
+            client_service: app.client.stripe
+            config_path: '%kernel.project_dir%/src/Integrations/Stripe/Stripe.yaml'
 ```
+
+Mercure is configured separately, by `symfony/mercure-bundle`.
 
 ## Permissions
 
-### Role Hierarchy
+### ✅ What is wired today
+
+One in-memory user with `ROLE_ADMIN`, authenticated over HTTP Basic, guarding
+`/admin` and the Mercure publish endpoints. This is the whole of it:
+
+```yaml
+# config/packages/security.yaml
+security:
+    providers:
+        users_in_memory:
+            memory:
+                users:
+                    admin:
+                        password: '%env(ADMIN_PASSWORD_HASH)%'
+                        roles: ['ROLE_ADMIN']
+
+    firewalls:
+        main:
+            lazy: true
+            provider: users_in_memory
+            http_basic: ~
+
+    access_control:
+        - { path: ^/webhook, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/api/mercure, roles: ROLE_ADMIN }
+```
+
+`^/webhook` is pinned to `PUBLIC_ACCESS` on purpose: inbound webhooks
+authenticate by HMAC signature, so demanding credentials would break them.
+
+Covered by `tests/Security/AdminAccessControlTest.php`.
+
+### 📋 Planned: role hierarchy and voters
+
+Neither exists yet. There is no `ROLE_MODERATOR`, no `ROLE_USER` and no voter
+class. A richer setup would look like this:
 
 ```
 ROLE_ADMIN          (Full access)
@@ -230,10 +294,8 @@ ROLE_ADMIN          (Full access)
 └─ ROLE_USER        (View own data only)
 ```
 
-### Access Control
-
 ```php
-// src/Security/AdminVoter.php
+// src/Security/AdminVoter.php — does not exist yet
 public function vote(TokenInterface $token, $subject, array $attributes): int
 {
     if ('VIEW_TRANSACTIONS' === $attributes[0]) {
@@ -242,23 +304,14 @@ public function vote(TokenInterface $token, $subject, array $attributes): int
 }
 ```
 
-### Configuring Permissions
-
-```yaml
-# config/packages/security.yaml
-security:
-    access_control:
-        - { path: ^/admin, roles: ROLE_ADMIN }
-        - { path: ^/api/admin, roles: ROLE_ADMIN }
-        - { path: ^/admin/reports, roles: ROLE_MODERATOR }
-```
-
 ## Performance & Optimization
 
 ### Database Indexing
 
+There are no entities to index yet. Once a `Transaction` entity exists at
+`src/Entity/Transaction.php`, it would carry its indexes like this:
+
 ```php
-// src/Entity/Transaction.php
 #[ORM\Index(columns: ['status', 'createdAt'])]
 class Transaction
 {
@@ -360,13 +413,12 @@ http://localhost:8000/admin
 
 ## Backup & Recovery
 
-### Automated Backups
+### 📋 Automated Backups
+
+Neither command exists. A scheduled-backup feature would expose them like this:
 
 ```bash
-# Daily backups
 php bin/console backup:create --schedule=daily
-
-# View backups
 php bin/console backup:list
 ```
 
@@ -384,10 +436,16 @@ tar czf backup.tar.gz config/ templates/
 
 ### Common Issues
 
-**Admin page shows 403 Forbidden**
-- ✅ Check user has ROLE_ADMIN
-- ✅ Verify security.yaml config
-- ✅ Clear cache: `php bin/console cache:clear`
+**Admin page shows 401 Unauthorized**
+
+The firewall uses HTTP Basic, so an unauthenticated request gets `401`, not
+`403`. The browser should prompt for credentials.
+
+- Username is `admin`; the password must match `ADMIN_PASSWORD_HASH`
+- Regenerate the hash: `php bin/console security:hash-password 'your-password'`
+- If the app refuses to boot, `ADMIN_PASSWORD_HASH` is missing from the
+  environment — it has no default on purpose
+- Clear cache: `php bin/console cache:clear`
 
 **Real-time updates not working**
 - ✅ Check Mercure server running on port 3000
@@ -413,3 +471,8 @@ tar czf backup.tar.gz config/ templates/
 - **EasyAdmin Docs**: https://symfony.com/bundles/EasyAdminBundle/current/
 - **Symfony Security**: https://symfony.com/doc/current/security.html
 - **Mercure Real-time**: https://symfony.com/doc/current/mercure.html
+
+---
+
+*Status claims in this document last verified against the code on 2026-09-21, at `d67f899`.*
+*Enforced for file paths by `tests/Documentation/DocumentedPathsExistTest.php`.*

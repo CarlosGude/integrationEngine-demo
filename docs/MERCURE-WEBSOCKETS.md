@@ -231,8 +231,11 @@ const eventSource = new EventSource(url);
 
 **Backend (Publish):**
 
+No such listener exists yet — updates are published directly from
+`src/Controller/MercureUpdateController.php`. A listener would live at
+`src/EventListener/TransactionListener.php` and look like this:
+
 ```php
-// src/EventListener/TransactionListener.php
 class TransactionListener {
     public function __construct(private HubInterface $hub) {}
     
@@ -499,3 +502,8 @@ php bin/console mercure:debug
 4. ✅ Open demo page
 5. ✅ Integrate with your entities
 6. ✅ Add real-time UI updates
+
+---
+
+*Status claims in this document last verified against the code on 2026-09-21, at `d67f899`.*
+*Enforced for file paths by `tests/Documentation/DocumentedPathsExistTest.php`.*

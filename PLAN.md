@@ -1,8 +1,13 @@
 # IntegrationEngine Demo - Implementation Plan
 
-## Project Status: Days 17-25 Complete ✅
+## Project Status: Days 17-26 Complete ✅
 
-**Final Status:** Feature-complete, architecture validated, ready for Days 26+
+**Final Status:** Feature-complete, architecture validated, ready for Days 27+
+(Hardening/Resilience — the retry, circuit-breaker and fallback classes exist
+under `src/Shared/Infrastructure/`, but nothing wires them yet; only
+`app.middleware.rate_limit` is declared under `middlewares:`).
+
+Known issues are tracked in [`TASKS.md`](TASKS.md).
 
 ### Overview
 A progressive demonstration of the **IntegrationEngine** Symfony bundle, showcasing API integration patterns through a movie storefront demo. Spans 9 days of incremental development with 3 distinct protocols and middleware extensibility.
@@ -247,3 +252,8 @@ The demo uses a test token from `.env.local` that has expired. To see live movie
 ✅ Test coverage for all layers
 
 **Ready for:** Resilience patterns (retry/circuit-breaker), VPS deployment, v1.0.0 release
+
+---
+
+*Status claims in this document last verified against the code on 2026-09-21, at `d67f899`.*
+*Enforced for file paths by `tests/Documentation/DocumentedPathsExistTest.php`.*

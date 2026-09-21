@@ -1191,13 +1191,47 @@ El `Makefile` define `ci: qa mutation`, pero el workflow invoca los targets suel
 
 ## 5. P3 — Baja (documentación y despliegue)
 
-### T-15 · La documentación describe funcionalidad que no existe
+### T-15 · La documentación describe funcionalidad que no existe ✅ ARREGLADO
 
 | | |
 |---|---|
 | **Severidad** | P3 |
+| **Estado** | ✅ Arreglado — criterio 2 ahora lo enforza `tests/Documentation/DocumentedPathsExistTest.php` |
 | **Esfuerzo** | M (2–3 h) |
 | **Ficheros** | `README.md:8,31,119,341`, `docs/ADMIN-FEATURES.md`, `PLAN.md:3` |
+
+> **Resuelto.** Barrido mecánico de las 14 docs + README + PLAN buscando rutas
+> citadas que no existen: 13 reales (2 de las que yo mismo detecté al principio
+> eran falsos positivos — `/usr/local/bin/backup-db.sh` es ruta de sistema, y el
+> CSS de EasyAdmin ya decía "Create").
+>
+> - `docs/ADMIN-FEATURES.md` reescrito: cabecera que dice qué es el panel hoy
+>   (dashboard EasyAdmin con un solo menú, sin entidades), tabla de estado con
+>   ✅ solo para lo verificable y 📋 para lo planeado, y las secciones de User
+>   Management, Transacciones, Analytics, Audit Log y Notificaciones
+>   reencuadradas como recetas en vez de como funcionalidad entregada.
+> - El bloque de "API Configuration" mostraba un formato de YAML que no es el
+>   real (`token:` de primer nivel en vez de `integrations:` + `headers:`).
+>   Corregido contra el fichero de verdad.
+> - `docs/PHASE3-INTEGRATION.md` y la sección "Migration Path" de
+>   `docs/CUSTOM-ADAPTERS.md` estaban en futuro ("cuando se publique v7.0") pero
+>   la migración ya está hecha: marcadas como completadas.
+> - `README.md`: "v1.0.0 PRODUCTION READY" y "production-ready, deployable
+>   immediately" contradecían a T-01 y T-02. Sustituido por un estado honesto que
+>   apunta aquí. Quitado el listado congelado de 12 commits "ready to push".
+>   Tests `55+` → `66`. El pie contradictorio de la última línea, alineado.
+> - `PLAN.md:3`: "Days 17-25" → "Days 17-26", que es lo que el propio documento
+>   describe más abajo.
+>
+> **Hallazgo por el camino:** el README contaba "Resilience Patterns | 3" como
+> métrica entregada. Las clases existen (`RetryMiddleware`, `CircuitBreaker`,
+> `FallbackStrategy` en `src/Shared/Infrastructure/`) pero **no están cableadas**:
+> solo `app.middleware.rate_limit` está declarado bajo `middlewares:`, y el propio
+> `SimulateRentalCommand.php:223` dice "in production, RetryMiddleware +
+> CircuitBreaker *would* handle this". Anotado como tal en el README y en PLAN.
+>
+> Los seis documentos de estado llevan ahora pie con la fecha y el commit de
+> última verificación (criterio 3).
 
 **Evidencia — afirmaciones contra el estado real del código**
 
