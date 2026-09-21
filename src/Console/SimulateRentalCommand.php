@@ -123,7 +123,7 @@ final class SimulateRentalCommand extends Command
     }
 
     /**
-     * @return array<string, int|array<array<string, int|bool|string>>>
+     * @return array<string, array<array<string, bool|int|string>>|int>
      */
     private function simulateAttemptsWithChaos(SymfonyStyle $io, int $movieId, ChaosMonkey $chaos): array
     {
@@ -144,7 +144,7 @@ final class SimulateRentalCommand extends Command
     }
 
     /**
-     * @param array<array<string, int|bool|string>> $failures
+     * @param array<array<string, bool|int|string>> $failures
      */
     private function processAttempt(SymfonyStyle $io, int $i, int $movieId, ChaosMonkey $chaos, array &$failures, int &$successes): bool
     {
@@ -182,7 +182,7 @@ final class SimulateRentalCommand extends Command
     }
 
     /**
-     * @param array<string, int|array<array<string, int|bool|string>>> $results
+     * @param array<string, array<array<string, bool|int|string>>|int> $results
      */
     private function displayResults(SymfonyStyle $io, array $results): void
     {
