@@ -16,10 +16,17 @@ class MercureUpdateController extends AbstractController
     #[Route('/api/mercure/publish', name: 'mercure_publish', methods: ['POST'])]
     public function publish(Request $request, HubInterface $hub): JsonResponse
     {
-        $data = json_decode($request->getContent(), true) ?? [];
+        $data = json_decode($request->getContent(), true);
+        if (!is_array($data)) {
+            return new JsonResponse(['error' => 'Invalid JSON'], 400);
+        }
 
-        $topic = (string) ($data['topic'] ?? 'admin/updates');
-        $message = (array) ($data['message'] ?? []);
+        if (!isset($data['topic']) || !is_string($data['topic'])) {
+            return new JsonResponse(['error' => 'Topic is required and must be a string'], 400);
+        }
+
+        $topic = $data['topic'];
+        $message = is_array($data['message'] ?? null) ? $data['message'] : [];
 
         // Publish update to Mercure
         $update = new Update(
@@ -55,17 +62,30 @@ class MercureUpdateController extends AbstractController
     #[Route('/api/mercure/webhook', name: 'mercure_webhook', methods: ['POST'])]
     public function handleStripeWebhook(Request $request, HubInterface $hub): JsonResponse
     {
-        $payload = json_decode($request->getContent(), true) ?? [];
-        $eventType = (string) ($payload['type'] ?? '');
+        $payload = json_decode($request->getContent(), true);
+        if (!is_array($payload)) {
+            return new JsonResponse(['error' => 'Invalid JSON'], 400);
+        }
+
+        $eventType = $payload['type'] ?? null;
+        if (!is_string($eventType)) {
+            return new JsonResponse(['error' => 'Event type is required'], 400);
+        }
 
         if ($eventType === 'payment_intent.succeeded') {
+            $data = $payload['data'] ?? [];
+            if (!is_array($data) || !isset($data['object']) || !is_array($data['object'])) {
+                return new JsonResponse(['error' => 'Invalid payload structure'], 400);
+            }
+
+            $object = $data['object'];
             $update = new Update(
                 topics: 'admin/payments',
                 data: (string) json_encode([
                     'action' => 'payment_succeeded',
-                    'paymentIntentId' => $payload['data']['object']['id'] ?? null,
-                    'amount' => $payload['data']['object']['amount'] ?? null,
-                    'currency' => $payload['data']['object']['currency'] ?? 'USD',
+                    'paymentIntentId' => $object['id'] ?? null,
+                    'amount' => $object['amount'] ?? null,
+                    'currency' => $object['currency'] ?? 'USD',
                     'status' => 'succeeded',
                     'timestamp' => date('c'),
                 ]),

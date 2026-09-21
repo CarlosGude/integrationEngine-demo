@@ -45,8 +45,12 @@ class MercurePublishCommand extends Command
 
         // Parse JSON message
         $message = json_decode($messageArg, true);
-        if ($message === null && json_last_error() !== JSON_ERROR_NONE) {
+        if (json_last_error() !== JSON_ERROR_NONE) {
             $io->error('Invalid JSON message: '.json_last_error_msg());
+            return Command::FAILURE;
+        }
+        if (!is_array($message)) {
+            $io->error('Message must be a JSON object, not '.gettype($message));
             return Command::FAILURE;
         }
 
