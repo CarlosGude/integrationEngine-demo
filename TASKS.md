@@ -1606,13 +1606,33 @@ Dos detalles concretos: la clave JWT de Mercure está **escrita a fuego** en `co
 
 ---
 
-### T-23 · `config/reference.php` es un artefacto generado y está commiteado
+### T-23 · `config/reference.php` es un artefacto generado y está commiteado ✅ ARREGLADO
 
 | | |
 |---|---|
 | **Severidad** | P3 |
+| **Estado** | ✅ Arreglado — destrackeado e ignorado; decisión documentada en `docs/CONTRIBUTING.md` |
 | **Esfuerzo** | S (15 min) |
-| **Ficheros** | `config/reference.php` (98 KB), `.gitignore` |
+| **Ficheros** | `config/reference.php` (98 KB), `.gitignore`, `docs/CONTRIBUTING.md` |
+
+> **Resuelto: se quita.** La tarea pedía comprobar antes si PHPStan lo necesita.
+> Comprobado, y no:
+>
+> - `phpstan.neon` solo analiza `src` y `tests`; `config/` no entra.
+> - Los **17** ficheros de `config/packages/` son YAML. No hay configuración en
+>   PHP a la que dar array-shapes, que es para lo único que sirve este fichero.
+> - `make stan` da `[OK] No errors` **idéntico** con y sin él.
+>
+> Así que el matiz a favor de conservarlo no aplica en este proyecto.
+>
+> `git rm --cached config/reference.php` + entrada en `.gitignore`. El fichero
+> sigue en disco y Symfony lo regenera; simplemente deja de aparecer en los
+> diffs.
+>
+> Esta tarea salió de la propia revisión, y se confirmó sola durante ella: el
+> fichero apareció como modificado **seis veces** a lo largo de la sesión, cada
+> vez que algún comando de consola se ejecutaba con un `APP_ENV` distinto, y
+> hubo que revertirlo a mano en cada commit.
 
 **Evidencia**
 

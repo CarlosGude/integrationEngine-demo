@@ -41,6 +41,25 @@ composer install
 
 Follow the [coding standards](#coding-standards).
 
+#### Generated files you should not commit
+
+`config/reference.php` is written by Symfony's ConfigBuilder during cache
+warmup, and it comes out with a different shape depending on the `APP_ENV` of
+the last command you ran. It used to be in version control, so merely running
+`bin/console` produced a diff of a 98 KB file nobody edits.
+
+It is now git-ignored. If you see it in `git status`, your checkout predates
+that change — run:
+
+```bash
+git rm --cached config/reference.php
+```
+
+Nothing in this project consumes it: every file in `config/packages/` is YAML,
+so there is no PHP configuration for it to type, and PHPStan only analyses
+`src` and `tests`. `make stan` gives the identical result with and without it,
+which is what settled the question.
+
 ### 5. Test Your Changes
 
 ```bash

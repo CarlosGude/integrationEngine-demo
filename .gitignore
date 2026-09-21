@@ -36,3 +36,12 @@
 ###> qossmic/deptrac ###
 /.deptrac.cache
 ###< qossmic/deptrac ###
+
+###> generated config ###
+# Written by Symfony's ConfigBuilder on cache warmup, and rewritten with a
+# different shape depending on the APP_ENV the last command ran under — so it
+# produced a spurious diff every time anyone ran bin/console. Nothing consumes
+# it here: every file in config/packages/ is YAML, and PHPStan only analyses
+# src and tests. See docs/CONTRIBUTING.md.
+/config/reference.php
+###< generated config ###
