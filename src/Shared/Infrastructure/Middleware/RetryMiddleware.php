@@ -7,6 +7,7 @@ namespace App\Shared\Infrastructure\Middleware;
 use IntegrationEngine\Core\Contract\Action\AbstractAction;
 use IntegrationEngine\Core\Contract\Action\ActionContextInterface;
 use IntegrationEngine\Core\Contract\Client\AbstractClientMiddleware;
+use IntegrationEngine\Core\Contract\Client\RequestHeadersInterface;
 use Throwable;
 
 /**
@@ -28,7 +29,8 @@ final class RetryMiddleware extends AbstractClientMiddleware
 
     public function process(
         AbstractAction $action,
-        ActionContextInterface $context,
+        ?ActionContextInterface $context,
+        ?RequestHeadersInterface $headers,
         callable $next,
     ): array {
         $lastException = null;
@@ -36,7 +38,7 @@ final class RetryMiddleware extends AbstractClientMiddleware
         // tour:start resilience/retry-exponential-backoff
         for ($attempt = 1; $attempt <= self::MAX_ATTEMPTS; ++$attempt) {
             try {
-                return $next($action, $context);
+                return $next($action, $context, $headers);
             } catch (Throwable $e) {
                 $lastException = $e;
 
