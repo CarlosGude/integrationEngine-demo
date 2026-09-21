@@ -3,12 +3,21 @@ services:
     environment:
       APP_ENV: dev
       APP_DEBUG: 1
-    ports:
-      - "80:80"
-      - "443:443"
+    # No `ports:` here on purpose. Compose appends port lists across files
+    # rather than replacing them, so anything declared here is published *in
+    # addition to* compose.yaml's "127.0.0.1:8080:80". This used to add
+    # "80:80" and "443:443", which bound the app to every interface on
+    # privileged ports — publishing it to the LAN on a shared network — and
+    # 443 led nowhere, since nginx only serves HTTP and the image only
+    # EXPOSEs 80. For local HTTPS use `symfony server:start` or a proxy in
+    # front, not a 443 nobody is listening on.
 
 ###> symfony/mercure-bundle ###
   mercure:
     ports:
-      - "80"
+      # Loopback only, and a fixed port so MERCURE_PUBLIC_URL can name it.
+      # The recipe's bare "80" published the hub on every interface on a
+      # random host port, which is both unreachable by a fixed URL and open
+      # to the network.
+      - "127.0.0.1:3000:80"
 ###< symfony/mercure-bundle ###

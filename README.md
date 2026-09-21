@@ -33,10 +33,11 @@ A guided tour through external API integrations using the [IntegrationEngine](ht
 `v1.0.0` is tagged and `main` is ahead of it — there is no `v1.1.0` tag yet.
 Phases 1-4 are complete and the integration with engine v7.0 is done.
 
-**Not deployable as it stands.** [`TASKS.md`](TASKS.md) tracks 21 known issues,
-including two blockers: `compose.yaml` is invalid YAML so `make up` fails, and
-EasyAdmin sits in `require-dev` while being loaded in every environment, so a
-`composer install --no-dev` does not boot. Read it before deploying anywhere.
+[`TASKS.md`](TASKS.md) tracks 21 known issues and what has been done about
+them. The three blockers are closed: `make up` brings the stack up with both
+containers healthy, `composer install --no-dev` boots, and `/admin` and the
+Mercure publish endpoints require credentials. Read it before deploying — the
+remaining items are real, just not blocking.
 
 ### ✅ Completed (Days 17-26)
 

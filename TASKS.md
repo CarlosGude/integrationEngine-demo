@@ -1437,13 +1437,37 @@ Alternativa más limpia: separar `php` y `nginx` en dos servicios de Compose.
 
 ---
 
-### T-18 · `compose.override.yaml` reclama los puertos 80 y 443 del host
+### T-18 · `compose.override.yaml` reclama los puertos 80 y 443 del host ✅ ARREGLADO
 
 | | |
 |---|---|
 | **Severidad** | P3 |
+| **Estado** | ✅ Arreglado — todo enlazado a `127.0.0.1`, sin mapeos muertos |
 | **Esfuerzo** | S (15 min) |
-| **Ficheros** | `compose.override.yaml:6-8,11-13` |
+| **Ficheros** | `compose.override.yaml`, `docs/QUICKSTART.md` |
+
+> **Resuelto.** Medido con `docker compose config`:
+>
+> | Servicio | Antes | Ahora |
+> |---|---|---|
+> | `php` | `127.0.0.1:8080` **+ `0.0.0.0:80` + `0.0.0.0:443`** | `127.0.0.1:8080` |
+> | `mercure` | `0.0.0.0:(puerto aleatorio)` | `127.0.0.1:3000` |
+>
+> **Matiz sobre la solución propuesta:** decía poner `127.0.0.1:8000:80` en el
+> override. Eso habría **añadido** un puerto, no sustituido el existente —
+> Compose concatena las listas `ports:` entre ficheros en vez de reemplazarlas,
+> que es justo por lo que `80` y `443` se sumaban al `8080` seguro en vez de
+> pisarlo. La solución correcta es que el override **no declare puertos**: el de
+> `compose.yaml` ya es el bueno.
+>
+> `mercure` sí conserva un puerto, pero fijo y en loopback: el `"80"` de la
+> receta publicaba el hub en todas las interfaces con un puerto host aleatorio,
+> inservible para una URL fija y abierto a la red.
+>
+> **Criterio 3:** `docs/QUICKSTART.md` ofrecía tres formas de arrancar y luego un
+> único juego de URLs en `:8000` — correcto para Symfony CLI y el servidor
+> embebido, falso para Docker, que sirve en `:8080`. Ahora lo dice explícitamente,
+> incluido el hub en `127.0.0.1:3000` y las credenciales que pide `/admin`.
 
 **Evidencia**
 

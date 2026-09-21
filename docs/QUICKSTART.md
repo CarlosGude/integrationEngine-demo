@@ -41,7 +41,7 @@ Get a TMDB token:
 # Option A: Symfony CLI (simplest)
 symfony server:start
 
-# Option B: Docker Compose
+# Option B: Docker Compose  (serves on 8080, not 8000)
 docker compose up -d
 
 # Option C: PHP built-in
@@ -50,10 +50,16 @@ php -S localhost:8000 -t public
 
 ### 4. Access the Demo
 
-Open your browser:
+**The port depends on how you started it:** `8000` for the Symfony CLI and the
+built-in server (options A and C), `8080` for Docker Compose (option B, bound to
+`127.0.0.1` only). The Mercure hub is on `127.0.0.1:3000` under Docker.
+
+Open your browser — substituting the port for your option:
 - **Storefront**: http://localhost:8000/en/store
 - **Tour**: http://localhost:8000/en/tour
-- **Admin Dashboard**: http://localhost:8000/admin (after setup)
+- **Admin Dashboard**: http://localhost:8000/admin — asks for credentials;
+  username `admin`, password from `ADMIN_PASSWORD_HASH` (see
+  [DEPLOYMENT.md](DEPLOYMENT.md))
 - **Real-time Demo**: http://localhost:8000/mercure-demo.html
 
 ## Features to Try
