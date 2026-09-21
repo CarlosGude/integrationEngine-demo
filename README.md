@@ -5,6 +5,7 @@ A guided tour through external API integrations using the [IntegrationEngine](ht
 ## 📚 Documentation
 
 - **[Architecture & Patterns Guide](docs/ARCHITECTURE.md)** — Complete reference covering layers, patterns, integrations, parallelism, and configuration
+- **[Project Analysis & Recommendations](docs/PROJECT-ANALYSIS.md)** — What's working, what's missing, and what could be added to the engine
 
 ## Status: Phase 3 Complete - Days 17-26 ✅
 
