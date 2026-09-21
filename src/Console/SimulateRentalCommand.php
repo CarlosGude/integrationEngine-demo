@@ -115,57 +115,82 @@ final class SimulateRentalCommand extends Command
             sprintf('  Rate limit failures: %d%%', $rateLimitRate),
         ]);
 
+        $results = $this->simulateAttemptsWithChaos($io, $movieId, $chaos);
+
+        $this->displayResults($io, $results);
+
+        return $results['successes'] > 0 ? Command::SUCCESS : Command::FAILURE;
+    }
+
+    /**
+     * @return array<string, int|array<array<string, int|bool|string>>>
+     */
+    private function simulateAttemptsWithChaos(SymfonyStyle $io, int $movieId, ChaosMonkey $chaos): array
+    {
         $attempts = 0;
         $successes = 0;
         $failures = [];
 
-        // Simulate multiple attempts to show retry behavior
         for ($i = 1; $i <= 5; ++$i) {
             ++$attempts;
             $io->text(sprintf("Attempt {$i}/5..."));
 
-            try {
-                // Inject random failures
-                if ($chaos->shouldTimeout()) {
-                    $failures[] = ['attempt' => $i, 'error' => 'Timeout (transient)', 'retryable' => true];
-                    $chaos->injectTimeout();
-                }
-
-                if ($chaos->shouldRateLimit()) {
-                    $failures[] = ['attempt' => $i, 'error' => '429 Rate Limit (transient)', 'retryable' => true];
-                    $chaos->injectRateLimit();
-                }
-
-                // On odd attempts, randomly succeed
-                if ($i % 2 === 1 && random_int(1, 100) > 40) {
-                    $payment = $this->gateway->rentMovie(movieId: $movieId, amountCents: 500, currency: 'usd');
-                    ++$successes;
-
-                    $io->writeln('  <info>✓ Success</info>');
-
-                    break; // Exit loop on success
-                }
-            } catch (\Throwable $e) {
-                $isRetryable = $this->isRetryable($e);
-                $failures[] = [
-                    'attempt' => $i,
-                    'error' => $e->getMessage(),
-                    'retryable' => $isRetryable,
-                ];
-
-                $status = $isRetryable ? '<fg=yellow>⟳ Transient</>' : '<fg=red>✗ Permanent</>';
-                $io->writeln("  {$status}: {$e->getMessage()}");
-
-                if (!$isRetryable) {
-                    break; // Don't retry permanent errors
-                }
-
-                // Brief pause before retry (simulate exponential backoff)
-                usleep(100 * (1 << ($i - 1)) * 1000);
+            if ($this->processAttempt($io, $i, $movieId, $chaos, $failures, $successes)) {
+                break;
             }
         }
 
+        return ['attempts' => $attempts, 'successes' => $successes, 'failures' => $failures];
+    }
+
+    /**
+     * @param array<array<string, int|bool|string>> $failures
+     */
+    private function processAttempt(SymfonyStyle $io, int $i, int $movieId, ChaosMonkey $chaos, array &$failures, int &$successes): bool
+    {
+        try {
+            if ($chaos->shouldTimeout()) {
+                $failures[] = ['attempt' => $i, 'error' => 'Timeout (transient)', 'retryable' => true];
+                $chaos->injectTimeout();
+            }
+
+            if ($chaos->shouldRateLimit()) {
+                $failures[] = ['attempt' => $i, 'error' => '429 Rate Limit (transient)', 'retryable' => true];
+                $chaos->injectRateLimit();
+            }
+
+            if ($i % 2 === 1 && random_int(1, 100) > 40) {
+                $this->gateway->rentMovie(movieId: $movieId, amountCents: 500, currency: 'usd');
+                ++$successes;
+                $io->writeln('  <info>✓ Success</info>');
+                return true;
+            }
+        } catch (\Throwable $e) {
+            $isRetryable = $this->isRetryable($e);
+            $failures[] = ['attempt' => $i, 'error' => $e->getMessage(), 'retryable' => $isRetryable];
+            $status = $isRetryable ? '<fg=yellow>⟳ Transient</>' : '<fg=red>✗ Permanent</>';
+            $io->writeln("  {$status}: {$e->getMessage()}");
+
+            if (!$isRetryable) {
+                return true;
+            }
+
+            usleep(100 * (1 << ($i - 1)) * 1000);
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array<string, int|array<array<string, int|bool|string>>> $results
+     */
+    private function displayResults(SymfonyStyle $io, array $results): void
+    {
         $io->newLine();
+
+        $successes = (int) ($results['successes'] ?? 0);
+        $attempts = (int) ($results['attempts'] ?? 0);
+        $failures = (array) ($results['failures'] ?? []);
 
         if ($successes > 0) {
             $io->success('Eventually succeeded! This demonstrates retry resilience.');
@@ -181,23 +206,21 @@ final class SimulateRentalCommand extends Command
 
         if (!empty($failures)) {
             $io->section('Failure Log');
-            $io->table(
-                ['Attempt', 'Error', 'Retryable?'],
-                array_map(
-                    static fn ($f) => [
+            $rows = [];
+            foreach ($failures as $f) {
+                if (is_array($f) && isset($f['attempt'], $f['error'], $f['retryable'])) {
+                    $rows[] = [
                         $f['attempt'],
                         $f['error'],
                         $f['retryable'] ? 'Yes (⟳)' : 'No (✗)',
-                    ],
-                    $failures,
-                ),
-            );
+                    ];
+                }
+            }
+            $io->table(['Attempt', 'Error', 'Retryable?'], $rows);
         }
 
         $io->newLine();
         $io->note('In production, RetryMiddleware + CircuitBreaker would handle this automatically.');
-
-        return $successes > 0 ? Command::SUCCESS : Command::FAILURE;
     }
 
     private function isRetryable(\Throwable $e): bool
