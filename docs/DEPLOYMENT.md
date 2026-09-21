@@ -151,12 +151,28 @@ TMDB_ACCESS_TOKEN=your_token_here
 
 STRIPE_SECRET_KEY=sk_live_your_key_here
 STRIPE_WEBHOOK_SECRET=whsec_your_secret_here
+
+# Guards /admin and the /api/mercure/* publish endpoints.
+ADMIN_PASSWORD_HASH='$2y$13$replace-with-your-own-hash'
 ```
 
 **Generate APP_SECRET:**
 ```bash
 php bin/console secrets:generate-keys
 ```
+
+**Generate ADMIN_PASSWORD_HASH:**
+```bash
+php bin/console security:hash-password 'your-password'
+```
+
+⚠️ `.env` ships a hash for the development password `demo-admin-change-me`, which
+is public in this repository by design. **It must be overridden here.** The
+username is `admin` and is fixed in `config/packages/security.yaml` — Symfony
+does not resolve env placeholders in configuration keys.
+
+If the variable is missing the application refuses to boot rather than falling
+back to a default: a credential should fail closed, not open.
 
 ### Step 6: Nginx Configuration
 

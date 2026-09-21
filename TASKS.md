@@ -200,13 +200,40 @@ EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['dev' => true, 'test'
 
 ---
 
-### T-03 · `/admin` está accesible sin autenticación
+### T-03 · `/admin` está accesible sin autenticación ✅ ARREGLADO
 
 | | |
 |---|---|
 | **Severidad** | P0 |
+| **Estado** | ✅ Arreglado — `http_basic` + `access_control`, cubierto por `tests/Security/AdminAccessControlTest.php` |
 | **Esfuerzo** | M (2–3 h) |
 | **Ficheros** | `config/packages/security.yaml:15-28`, `src/Controller/Admin/DashboardController.php:12` |
+
+> **Resuelto.** Medido antes y después sobre el kernel real, con caché limpia:
+>
+> | Ruta | Antes | Ahora |
+> |---|---|---|
+> | `GET /admin` anónimo | **200** | **401** |
+> | `POST /api/mercure/publish` anónimo | **400** (procesaba la petición) | **401** |
+> | `POST /api/mercure/transactions` anónimo | **400** | **401** |
+> | `POST /api/mercure/webhook` anónimo | **400** | **401** |
+> | `POST /webhook/stripe` anónimo | 406 | 406 (sin cambio, correcto) |
+> | `GET /` y el tour | 302 / 200 | 302 / 200 (sin cambio) |
+>
+> El receptor de webhooks entrantes (`/webhook/{type}`, componente Webhook de
+> Symfony) queda explícitamente en `PUBLIC_ACCESS`: se autentica por firma HMAC,
+> no por credenciales, así que exigirle login lo rompería.
+>
+> El usuario es `admin`, fijo en el YAML — Symfony no resuelve placeholders de
+> entorno en **claves** de configuración, así que la propuesta original de usar
+> `'%env(ADMIN_USER)%'` como clave no habría funcionado. Solo el hash es
+> configurable, vía `ADMIN_PASSWORD_HASH`. Si falta la variable la app no
+> arranca, en vez de caer a un valor por defecto: una credencial debe fallar en
+> cerrado.
+>
+> Pendiente aparte: `docs/ADMIN-FEATURES.md` sigue documentando un
+> `src/Security/AdminVoter.php` y una jerarquía de roles que no existen — eso es
+> **T-15**, no esto.
 
 **Evidencia**
 
