@@ -2,6 +2,10 @@
 
 A guided tour through external API integrations using the [IntegrationEngine](https://github.com/carlosgude/integrationEngine) bundle. Demonstrates best practices for multi-protocol integration (REST, CSV, GraphQL) with parallel request benchmarking, middleware extensibility, and bilingual code tour.
 
+## 📚 Documentation
+
+- **[Architecture & Patterns Guide](docs/ARCHITECTURE.md)** — Complete reference covering layers, patterns, integrations, parallelism, and configuration
+
 ## Status: Phase 3 Complete - Days 17-26 ✅
 
 ### ✅ Completed (Days 17-26)
