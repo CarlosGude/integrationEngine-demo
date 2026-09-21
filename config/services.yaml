@@ -18,10 +18,16 @@ services:
             - integration_engine.middleware
 
     app.client.stripe:
-        class: App\Billing\Infrastructure\Http\StripeFormClientAdapter
+        class: IntegrationEngine\Infrastructure\Adapter\FormEncodedClientAdapter
         arguments:
             $httpClient: '@http_client'
             $baseUrl: 'https://api.stripe.com'
             $defaultHeaders:
                 Authorization: 'Bearer %env(STRIPE_SECRET_KEY)%'
+
+    integration_engine.client.graphql:
+        class: IntegrationEngine\Infrastructure\Http\GraphQLClientAdapter
+        arguments:
+            $httpClient: '@http_client'
+            $endpointUrl: 'https://countries.trevorblades.com'
 

@@ -6,7 +6,7 @@
     "description": "IntegrationEngine demo: TMDB + Stripe live tour",
     "require": {
         "php": ">=8.4",
-        "carlosgude/integration-engine": "^6.0",
+        "carlosgude/integration-engine": "dev-main",
         "doctrine/doctrine-bundle": "^2.10",
         "doctrine/migrations": "^3.6",
         "doctrine/orm": "^3.0",
@@ -24,6 +24,12 @@
         "twig/extra-bundle": "^3.8",
         "twig/string-extra": "^3.8"
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../integrationEngine"
+        }
+    ],
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.45",
         "infection/infection": "^0.27",

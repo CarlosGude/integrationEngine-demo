@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Middleware;
 
-use CarlosgudeSdk\IntegrationEngine\Action\AbstractAction;
-use CarlosgudeSdk\IntegrationEngine\ActionContext\ActionContextInterface;
-use CarlosgudeSdk\IntegrationEngine\Client\Middleware\AbstractClientMiddleware;
+use IntegrationEngine\Core\Contract\Action\AbstractAction;
+use IntegrationEngine\Core\Contract\Action\ActionContextInterface;
+use IntegrationEngine\Core\Contract\Client\AbstractClientMiddleware;
 use Throwable;
 
 /**
