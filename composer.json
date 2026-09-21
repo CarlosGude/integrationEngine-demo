@@ -1,5 +1,6 @@
 {
     "name": "carlosgude/integration-engine-demo",
+    "version": "1.0.0",
     "type": "project",
     "license": "MIT",
     "description": "IntegrationEngine demo: TMDB + Stripe live tour",
