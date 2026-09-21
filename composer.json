@@ -4,9 +4,15 @@
     "type": "project",
     "license": "MIT",
     "description": "IntegrationEngine demo: TMDB + Stripe live tour",
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/CarlosGude/integrationEngine.git"
+        }
+    ],
     "require": {
         "php": ">=8.4",
-        "carlosgude/integration-engine": "dev-main",
+        "carlosgude/integration-engine": "@dev",
         "doctrine/doctrine-bundle": "^2.10",
         "doctrine/migrations": "^3.6",
         "doctrine/orm": "^3.0",
@@ -27,12 +33,6 @@
         "twig/extra-bundle": "^3.8",
         "twig/string-extra": "^3.8"
     },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../integrationEngine"
-        }
-    ],
     "require-dev": {
         "easycorp/easyadmin-bundle": "^4.29",
         "friendsofphp/php-cs-fixer": "^3.45",
