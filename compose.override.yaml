@@ -6,3 +6,9 @@ services:
     ports:
       - "80:80"
       - "443:443"
+
+###> symfony/mercure-bundle ###
+  mercure:
+    ports:
+      - "80"
+###< symfony/mercure-bundle ###

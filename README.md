@@ -7,10 +7,16 @@ A guided tour through external API integrations using the [IntegrationEngine](ht
 **Getting Started:**
 - **[Release Notes](docs/RELEASE-NOTES.md)** — v1.0.0 features, metrics, roadmap
 - **[Deployment Guide](docs/DEPLOYMENT.md)** — Production VPS setup, CI/CD, monitoring
+- **[Quick Start Guide](docs/QUICKSTART.md)** — Get up and running in 5 minutes
 
 **Technical Guides:**
 - **[Architecture & Patterns Guide](docs/ARCHITECTURE.md)** — Complete reference covering layers, patterns, integrations, parallelism, and configuration
 - **[Project Analysis & Recommendations](docs/PROJECT-ANALYSIS.md)** — What's working, what's missing, and what could be added to the engine
+
+**Admin & Real-time:**
+- **[EasyAdmin Setup Guide](docs/EASYADMIN.md)** — Auto-generated admin CRUD dashboard
+- **[Mercure & WebSockets Guide](docs/MERCURE-WEBSOCKETS.md)** — Real-time updates with WebSockets
+- **[Admin Features](docs/ADMIN-FEATURES.md)** — Dashboard, analytics, user management
 
 **Resilience & Testing:**
 - **[Resilience Patterns Guide](docs/RESILIENCE-PATTERNS.md)** — Retry, circuit breaker, fallback strategies with production checklist
@@ -19,6 +25,8 @@ A guided tour through external API integrations using the [IntegrationEngine](ht
 **Integration & Deployment:**
 - **[Custom Adapters Guide](docs/CUSTOM-ADAPTERS.md)** — Building domain-specific protocol adapters
 - **[Phase 3 Integration Plan](docs/PHASE3-INTEGRATION.md)** — Upgrade plan for IntegrationEngine v7.0
+- **[Contributing](docs/CONTRIBUTING.md)** — Development workflow and git conventions
+- **[Wiki](docs/WIKI.md)** — Complete project wiki with all documentation indexed
 
 ## Status: v1.0.0 PRODUCTION READY ✅ | Phase 1-4 Complete 🎉 | v7.0 Integration Done ✨
 

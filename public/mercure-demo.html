@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercure Real-time Demo - TransactionEngine</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ccc;
+            animation: pulse 2s infinite;
+        }
+        .status-dot.connected {
+            background: #4CAF50;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .updates-list {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+        }
+        .update-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            word-break: break-all;
+            animation: slideIn 0.3s ease-out;
+        }
+        .update-item:last-child {
+            border-bottom: none;
+        }
+        .update-item.transaction {
+            background: #e8f5e9;
+        }
+        .update-item.payment {
+            background: #e3f2fd;
+        }
+        .update-item.admin {
+            background: #fff3e0;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .timestamp {
+            color: #999;
+            font-size: 11px;
+            margin-right: 10px;
+        }
+        .topic-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-right: 8px;
+        }
+        .topic-badge.transactions {
+            background: #4CAF50;
+        }
+        .topic-badge.payments {
+            background: #2196F3;
+        }
+        .topic-badge.admin {
+            background: #FF9800;
+        }
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-card .label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Mercure Real-time Updates</h1>
+            <p>WebSocket-based real-time communication demo with Symfony</p>
+        </div>
+
+        <div class="content">
+            <!-- Status -->
+            <div class="status">
+                <div class="status-dot"></div>
+                <span id="status-text">Conectando a Mercure...</span>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="number" id="total-updates">0</div>
+                    <div class="label">Actualizaciones Totales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="transaction-count">0</div>
+                    <div class="label">Transacciones</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="payment-count">0</div>
+                    <div class="label">Pagos</div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <button class="btn btn-primary" onclick="publishTransaction()">📊 Publicar Transacción</button>
+                <button class="btn btn-primary" onclick="publishPayment()">💳 Publicar Pago</button>
+                <button class="btn btn-primary" onclick="publishCustom()">📢 Publicar Custom</button>
+                <button class="btn btn-secondary" onclick="clearUpdates()">🗑️ Limpiar</button>
+            </div>
+
+            <!-- Updates Section -->
+            <div class="section">
+                <h3>📨 Actualizaciones en Tiempo Real</h3>
+                <div class="updates-list" id="updates-list">
+                    <div class="empty-state">
+                        Esperando actualizaciones en tiempo real...
+                        <br><br>
+                        Los eventos aparecerán aquí en cuanto se publiquen.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="section">
+                <h3>📖 Instrucciones</h3>
+                <p style="color: #666; font-size: 14px; line-height: 1.6;">
+                    <strong>1. Conectado:</strong> Esta página se conecta automáticamente al servidor Mercure.
+                    <br>
+                    <strong>2. Publicar:</strong> Usa los botones de arriba para publicar actualizaciones.
+                    <br>
+                    <strong>3. Recibir:</strong> Las actualizaciones aparecen en tiempo real en la lista de arriba.
+                    <br>
+                    <strong>4. Múltiples clientes:</strong> Abre esta página en varias pestañas para ver la comunicación en tiempo real.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let updateCount = 0;
+        let transactionCount = 0;
+        let paymentCount = 0;
+        const mercureUrl = 'http://localhost:3000/.well-known/mercure'; // Cambiar a tu URL de Mercure
+        const apiUrl = '/api/mercure';
+
+        // Función para conectar a Mercure
+        function connectToMercure() {
+            const url = new URL(mercureUrl);
+            url.searchParams.append('topic', 'admin/transactions');
+            url.searchParams.append('topic', 'admin/payments');
+            url.searchParams.append('topic', 'admin/updates');
+
+            const eventSource = new EventSource(url);
+
+            eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                addUpdate(data);
+            };
+
+            eventSource.onerror = (error) => {
+                console.error('Error conectando a Mercure:', error);
+                updateStatus('Desconectado', false);
+                // Reintentar conexión en 3 segundos
+                setTimeout(connectToMercure, 3000);
+            };
+
+            eventSource.onopen = () => {
+                updateStatus('Conectado', true);
+            };
+        }
+
+        // Actualizar estado
+        function updateStatus(text, connected) {
+            const dot = document.querySelector('.status-dot');
+            const statusText = document.getElementById('status-text');
+
+            statusText.textContent = text;
+
+            if (connected) {
+                dot.classList.add('connected');
+            } else {
+                dot.classList.remove('connected');
+            }
+        }
+
+        // Agregar actualización a la lista
+        function addUpdate(data) {
+            const list = document.getElementById('updates-list');
+
+            // Limpiar mensaje de "esperando" en la primera actualización
+            if (list.querySelector('.empty-state')) {
+                list.innerHTML = '';
+            }
+
+            const item = document.createElement('div');
+            item.className = 'update-item';
+
+            const topic = data.topic || 'unknown';
+            let topicClass = 'admin';
+            let topicLabel = 'Admin';
+
+            if (topic.includes('transaction')) {
+                topicClass = 'transactions';
+                topicLabel = 'Transacción';
+                transactionCount++;
+            } else if (topic.includes('payment')) {
+                topicClass = 'payments';
+                topicLabel = 'Pago';
+                paymentCount++;
+            }
+
+            item.classList.add(topicClass);
+
+            const timestamp = data.timestamp || new Date().toLocaleTimeString();
+            const message = JSON.stringify(data, null, 2);
+
+            item.innerHTML = `
+                <span class="timestamp">${timestamp}</span>
+                <span class="topic-badge ${topicClass}">${topicLabel}</span>
+                <pre style="margin-top: 8px; overflow-x: auto;">${escapeHtml(message)}</pre>
+            `;
+
+            list.insertBefore(item, list.firstChild);
+
+            // Limitar a 50 items
+            while (list.children.length > 50) {
+                list.removeChild(list.lastChild);
+            }
+
+            updateStats();
+        }
+
+        // Actualizar estadísticas
+        function updateStats() {
+            updateCount++;
+            document.getElementById('total-updates').textContent = updateCount;
+            document.getElementById('transaction-count').textContent = transactionCount;
+            document.getElementById('payment-count').textContent = paymentCount;
+        }
+
+        // Publicar transacción
+        async function publishTransaction() {
+            await fetch(apiUrl + '/transactions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: Math.random().toString(36).substr(2, 9),
+                    amount: Math.floor(Math.random() * 10000) / 100,
+                    currency: 'USD',
+                    status: 'completed',
+                    paymentMethod: 'credit_card'
+                })
+            });
+        }
+
+        // Publicar pago
+        async function publishPayment() {
+            await fetch(apiUrl + '/publish', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    topic: 'admin/payments',
+                    message: {
+                        action: 'payment_processed',
+                        amount: (Math.random() * 1000).toFixed(2),
+                        status: 'success',
+                        processor: 'stripe'
+                    }
+                })
+            });
+        }
+
+        // Publicar custom
+        async function publishCustom() {
+            const message = prompt('Ingresa tu mensaje personalizado:');
+            if (message) {
+                await fetch(apiUrl + '/publish', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        topic: 'admin/updates',
+                        message: { custom: message }
+                    })
+                });
+            }
+        }
+
+        // Limpiar lista
+        function clearUpdates() {
+            document.getElementById('updates-list').innerHTML =
+                '<div class="empty-state">Lista limpiada. Esperando nuevas actualizaciones...</div>';
+            updateCount = 0;
+            transactionCount = 0;
+            paymentCount = 0;
+            updateStats();
+        }
+
+        // Escapar HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Conectar al inicio
+        connectToMercure();
+    </script>
+</body>
+</html>
