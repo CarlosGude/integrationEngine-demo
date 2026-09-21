@@ -39,7 +39,7 @@ final class RetryMiddleware extends AbstractClientMiddleware
         for ($attempt = 1; $attempt <= self::MAX_ATTEMPTS; ++$attempt) {
             try {
                 return $next($action, $context, $headers);
-            } catch (Throwable $e) {
+            } catch (\Throwable $e) {
                 $lastException = $e;
 
                 // Distinguish transient vs permanent failures
@@ -63,7 +63,7 @@ final class RetryMiddleware extends AbstractClientMiddleware
      * Classify error as transient (retryable) or permanent.
      * tour:start resilience/error-classification
      */
-    private function isTransient(Throwable $e): bool
+    private function isTransient(\Throwable $e): bool
     {
         // Network errors → retryable
         if ($e instanceof \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface) {

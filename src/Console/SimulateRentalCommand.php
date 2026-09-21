@@ -103,14 +103,16 @@ final class SimulateRentalCommand extends Command
     // tour:start resilience/chaos-testing-example
     private function executeWithChaos(SymfonyStyle $io, int $movieId, InputInterface $input): int
     {
+        $timeoutRate = (int) ($input->getOption('timeout-rate') ?? '0');
+        $rateLimitRate = (int) ($input->getOption('ratelimit-rate') ?? '0');
         $chaos = (new ChaosMonkey())
-            ->withTimeoutRate((int) $input->getOption('timeout-rate'))
-            ->withRateLimitRate((int) $input->getOption('ratelimit-rate'));
+            ->withTimeoutRate($timeoutRate)
+            ->withRateLimitRate($rateLimitRate);
 
         $io->warning('🔴 CHAOS MODE ENABLED');
         $io->text([
-            sprintf('  Timeout failures: %d%%', $input->getOption('timeout-rate')),
-            sprintf('  Rate limit failures: %d%%', $input->getOption('ratelimit-rate')),
+            sprintf('  Timeout failures: %d%%', $timeoutRate),
+            sprintf('  Rate limit failures: %d%%', $rateLimitRate),
         ]);
 
         $attempts = 0;
@@ -182,7 +184,7 @@ final class SimulateRentalCommand extends Command
             $io->table(
                 ['Attempt', 'Error', 'Retryable?'],
                 array_map(
-                    fn ($f) => [
+                    static fn ($f) => [
                         $f['attempt'],
                         $f['error'],
                         $f['retryable'] ? 'Yes (⟳)' : 'No (✗)',

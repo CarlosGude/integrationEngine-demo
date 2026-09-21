@@ -6,6 +6,7 @@ namespace App\Shared\Infrastructure;
 
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * Chaos Monkey: Inject failures for testing resilience.
@@ -61,7 +62,7 @@ final class ChaosMonkey
      */
     public function injectTimeout(): never
     {
-        throw new class('Request timeout (simulated)') extends \RuntimeException implements TransportExceptionInterface {
+        throw new class ('Request timeout (simulated)') extends \RuntimeException implements TransportExceptionInterface {
             public function getCode(): int
             {
                 return 0;
@@ -74,11 +75,41 @@ final class ChaosMonkey
      */
     public function injectRateLimit(): never
     {
-        throw new class('Too Many Requests (simulated)', 429) extends \Exception implements HttpExceptionInterface {
-            public function getResponse()
+        throw new class ('Too Many Requests (simulated)', 429) extends \Exception implements HttpExceptionInterface {
+            public function getResponse(): ResponseInterface
             {
-                return new class {
-                    public function getStatusCode(): int { return 429; }
+                return new class () implements ResponseInterface {
+                    public function getStatusCode(): int
+                    {
+                        return 429;
+                    }
+
+                    public function getHeaders(bool $throw = true): array
+                    {
+                        return [];
+                    }
+
+                    public function getContent(bool $throw = true): string
+                    {
+                        return '';
+                    }
+
+                    /**
+                     * @return array<mixed>
+                     */
+                    public function toArray(bool $throw = true): array
+                    {
+                        return [];
+                    }
+
+                    public function cancel(): void
+                    {
+                    }
+
+                    public function getInfo(?string $type = null): mixed
+                    {
+                        return null;
+                    }
                 };
             }
         };
@@ -89,11 +120,41 @@ final class ChaosMonkey
      */
     public function injectServiceUnavailable(): never
     {
-        throw new class('Service Unavailable (simulated)', 503) extends \Exception implements HttpExceptionInterface {
-            public function getResponse()
+        throw new class ('Service Unavailable (simulated)', 503) extends \Exception implements HttpExceptionInterface {
+            public function getResponse(): ResponseInterface
             {
-                return new class {
-                    public function getStatusCode(): int { return 503; }
+                return new class () implements ResponseInterface {
+                    public function getStatusCode(): int
+                    {
+                        return 503;
+                    }
+
+                    public function getHeaders(bool $throw = true): array
+                    {
+                        return [];
+                    }
+
+                    public function getContent(bool $throw = true): string
+                    {
+                        return '';
+                    }
+
+                    /**
+                     * @return array<mixed>
+                     */
+                    public function toArray(bool $throw = true): array
+                    {
+                        return [];
+                    }
+
+                    public function cancel(): void
+                    {
+                    }
+
+                    public function getInfo(?string $type = null): mixed
+                    {
+                        return null;
+                    }
                 };
             }
         };

@@ -35,10 +35,11 @@ final class CircuitBreaker
     private string $state = self::STATE_CLOSED;
     private int $failureCount = 0;
     private int $successCount = 0;
-    private ?int $lastFailureTime = null;
     private ?int $openedAt = null;
 
-    public function __construct(private readonly ClockInterface $clock = new NativeClock()) {}
+    public function __construct(private readonly ClockInterface $clock = new NativeClock())
+    {
+    }
 
     /**
      * Check if request should be allowed.
@@ -48,13 +49,11 @@ final class CircuitBreaker
     {
         $now = $this->clock->now()->getTimestamp();
 
-        match ($this->state) {
-            self::STATE_CLOSED => true,
-            self::STATE_OPEN => $this->maybeHalfOpen($now),
-            self::STATE_HALF_OPEN => true,
-        };
+        if ($this->state === self::STATE_OPEN) {
+            $this->maybeHalfOpen($now);
+        }
 
-        return self::STATE_OPEN !== $this->state;
+        return $this->state !== self::STATE_OPEN;
     }
     // tour:end
 
@@ -63,11 +62,11 @@ final class CircuitBreaker
      */
     public function recordSuccess(): void
     {
-        match ($this->state) {
-            self::STATE_CLOSED => $this->failureCount = 0,
-            self::STATE_HALF_OPEN => $this->transitionToClosed(),
-            self::STATE_OPEN => null,
-        };
+        if ($this->state === self::STATE_CLOSED) {
+            $this->failureCount = 0;
+        } elseif ($this->state === self::STATE_HALF_OPEN) {
+            $this->transitionToClosed();
+        }
     }
 
     /**
@@ -77,9 +76,8 @@ final class CircuitBreaker
     public function recordFailure(): void
     {
         $now = $this->clock->now()->getTimestamp();
-        $this->lastFailureTime = $now;
 
-        if (self::STATE_HALF_OPEN === $this->state) {
+        if ($this->state === self::STATE_HALF_OPEN) {
             $this->transitionToOpen($now);
 
             return;
@@ -100,7 +98,7 @@ final class CircuitBreaker
 
     private function maybeHalfOpen(int $now): void
     {
-        if (null !== $this->openedAt && $now - $this->openedAt >= self::TIMEOUT_SEC) {
+        if ($this->openedAt !== null && $now - $this->openedAt >= self::TIMEOUT_SEC) {
             $this->transitionToHalfOpen();
         }
     }

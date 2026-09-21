@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -36,15 +38,15 @@ class MercurePublishCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $topic = $input->getArgument('topic');
-        $messageArg = $input->getArgument('message');
+        $topic = (string) $input->getArgument('topic');
+        $messageArg = (string) $input->getArgument('message');
         $repeat = (int) $input->getOption('repeat');
         $delay = (int) $input->getOption('delay');
 
         // Parse JSON message
         $message = json_decode($messageArg, true);
         if ($message === null && json_last_error() !== JSON_ERROR_NONE) {
-            $io->error('Invalid JSON message: ' . json_last_error_msg());
+            $io->error('Invalid JSON message: '.json_last_error_msg());
             return Command::FAILURE;
         }
 
@@ -57,8 +59,8 @@ class MercurePublishCommand extends Command
             }
 
             $update = new Update(
-                topic: $topic,
-                data: json_encode($message)
+                topics: $topic,
+                data: (string) json_encode($message),
             );
 
             $this->hub->publish($update);
@@ -67,7 +69,7 @@ class MercurePublishCommand extends Command
                 $topic,
                 $i + 1,
                 $repeat,
-                json_encode($message)
+                json_encode($message),
             ));
         }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,13 +18,13 @@ class MercureUpdateController extends AbstractController
     {
         $data = json_decode($request->getContent(), true) ?? [];
 
-        $topic = $data['topic'] ?? 'admin/updates';
-        $message = $data['message'] ?? [];
+        $topic = (string) ($data['topic'] ?? 'admin/updates');
+        $message = (array) ($data['message'] ?? []);
 
         // Publish update to Mercure
         $update = new Update(
-            topic: $topic,
-            data: json_encode(['timestamp' => date('c'), ...$message])
+            topics: $topic,
+            data: json_encode(['timestamp' => date('c'), ...$message]),
         );
 
         $hub->publish($update);
@@ -37,12 +39,12 @@ class MercureUpdateController extends AbstractController
 
         // Publish new transaction update
         $update = new Update(
-            topic: 'admin/transactions',
-            data: json_encode([
+            topics: 'admin/transactions',
+            data: (string) json_encode([
                 'action' => 'new_transaction',
                 'transaction' => $data,
                 'timestamp' => date('c'),
-            ])
+            ]),
         );
 
         $hub->publish($update);
@@ -54,19 +56,19 @@ class MercureUpdateController extends AbstractController
     public function handleStripeWebhook(Request $request, HubInterface $hub): JsonResponse
     {
         $payload = json_decode($request->getContent(), true) ?? [];
-        $eventType = $payload['type'] ?? null;
+        $eventType = (string) ($payload['type'] ?? '');
 
         if ($eventType === 'payment_intent.succeeded') {
             $update = new Update(
-                topic: 'admin/payments',
-                data: json_encode([
+                topics: 'admin/payments',
+                data: (string) json_encode([
                     'action' => 'payment_succeeded',
                     'paymentIntentId' => $payload['data']['object']['id'] ?? null,
                     'amount' => $payload['data']['object']['amount'] ?? null,
                     'currency' => $payload['data']['object']['currency'] ?? 'USD',
                     'status' => 'succeeded',
                     'timestamp' => date('c'),
-                ])
+                ]),
             );
 
             $hub->publish($update);
