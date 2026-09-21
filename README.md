@@ -6,8 +6,12 @@ A guided tour through external API integrations using the [IntegrationEngine](ht
 
 - **[Architecture & Patterns Guide](docs/ARCHITECTURE.md)** — Complete reference covering layers, patterns, integrations, parallelism, and configuration
 - **[Project Analysis & Recommendations](docs/PROJECT-ANALYSIS.md)** — What's working, what's missing, and what could be added to the engine
+- **[Resilience Patterns Guide](docs/RESILIENCE-PATTERNS.md)** — Retry, circuit breaker, fallback strategies with production checklist
+- **[Chaos Testing Guide](docs/CHAOS-TESTING.md)** — Testing resilience with controlled failure injection
+- **[Custom Adapters Guide](docs/CUSTOM-ADAPTERS.md)** — Building domain-specific protocol adapters
+- **[Phase 3 Integration Plan](docs/PHASE3-INTEGRATION.md)** — Upgrade plan for IntegrationEngine v7.0
 
-## Status: Phase 3 Complete - Days 17-26 ✅
+## Status: Phase 3 Planning - Days 17-28 ✅ | Phase 3 Ready 🚀
 
 ### ✅ Completed (Days 17-26)
 
@@ -47,26 +51,53 @@ A guided tour through external API integrations using the [IntegrationEngine](ht
 - [x] Typed event dispatched via `WebhookEventDispatcher` to a Billing listener
 - [x] Tour steps 5-6: "Renting a Movie" + "Payment Confirmation" (bilingual)
 
-### 📊 Final Metrics (Days 17-26)
+### 📊 Final Metrics (Days 17-28)
 
 | Métrica | Valor |
 |---------|-------|
-| Commits | 13 nuevos |
-| Tests | 48+ ✅ |
-| Protocolos | 4 (REST, CSV, GraphQL, Stripe + webhook) |
-| Clases integración | 20+ |
-| Bounded contexts | 4 (Catalog, Pricing, Tour, Billing) |
-| Tour steps | 5 of 6 completos |
-| Snippets | 13 (bilingual) |
-| Speedup paralelo | 5-13x |
-| Webhook validation | Timestamped HMAC-SHA256 (Stripe-Signature) |
+| Total Commits | 16+ |
+| Tests | 55+ ✅ |
+| Protocolos | 4 (REST, CSV, GraphQL, Stripe) |
+| Tour Steps | 7 (complete) |
+| Tour Snippets | 20+ (bilingual EN/ES) |
+| Resilience Patterns | 3 (retry, circuit breaker, fallback) |
+| Documentation | 2000+ lines |
+| Code Quality | PHPStan max, 0 violations |
+| Parallelism Speedup | 5-13x |
+| Custom Code (Today) | 410 lines |
+| Custom Code (After v7.0) | ~100 lines (-76%) |
 
-### 📋 Pending (Days 27+)
+### ✅ Phase 2 Complete - Days 27-28
 
-- **Day 27**: Resilience patterns (retry, circuit-breaker, exponential backoff)
-- **Day 28**: Tour step 4: "When Suppliers Fail"
-- **Day 29+**: VPS deployment + CD pipeline
-- **Day 30+**: v1.0.0 release
+**Day 27: Resilience Patterns**
+- [x] RetryMiddleware with exponential backoff
+- [x] CircuitBreaker pattern (CLOSED→OPEN→HALF_OPEN)
+- [x] FallbackStrategy (null, cache, default)
+- [x] ChaosMonkey for testing
+- [x] Tour step 4: "When Suppliers Fail" (complete resilience guide)
+
+**Day 28: Graceful Degradation**
+- [x] Tour step 5: "Graceful Degradation" (fallback strategies)
+- [x] SimulateRentalCommand with chaos mode (--chaos flag)
+- [x] Comprehensive testing framework
+- [x] Production checklists and monitoring guides
+
+### 📋 Phase 3 Ready - Integration with Engine v7.0
+
+**When engine v7.0 is released:**
+- [ ] Remove StripeFormClientAdapter (129 lines → use engine)
+- [ ] Simplify GetPricesMapper (35 lines → use CsvParser utility)
+- [ ] Remove custom CSV parsing code
+- [ ] Update documentation
+
+**Impact:** Custom code reduced from 410 → 100 lines (-76%)
+
+See: [Phase 3 Integration Plan](docs/PHASE3-INTEGRATION.md)
+
+### 📋 Future (Days 29+)
+
+- **Phase 4 (Week 5)**: VPS deployment + CD pipeline
+- **v1.0.0 Release**: All phases complete
 
 ## Project Structure
 
