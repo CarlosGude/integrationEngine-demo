@@ -6,13 +6,13 @@ integration_engine:
                 Authorization: 'Bearer %env(TMDB_ACCESS_TOKEN)%'
             config_path: '%kernel.project_dir%/src/Integrations/Tmdb/Tmdb.yaml'
             # tour:start config/middleware-wiring
-            # middlewares:
-            #     - app.middleware.rate_limit
+            middlewares:
+                - app.middleware.rate_limit
             # tour:end config/middleware-wiring
-        # countries:
-        #     base_url: 'https://countries.trevorblades.com'
-        #     client_service: integration_engine.client.graphql
-        #     config_path: '%kernel.project_dir%/src/Integrations/Countries/Pricing/Countries.yaml'
+        countries:
+            base_url: 'https://countries.trevorblades.com'
+            client_service: integration_engine.client.graphql
+            config_path: '%kernel.project_dir%/src/Integrations/Countries/Pricing/Countries.yaml'
         stripe:
             client_service: app.client.stripe
             config_path: '%kernel.project_dir%/src/Integrations/Stripe/Stripe.yaml'
