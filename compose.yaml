@@ -8,7 +8,11 @@ services:
     environment:
       APP_ENV: ${APP_ENV:-dev}
       APP_DEBUG: ${APP_DEBUG:-1}
-      APP_SECRET: ${APP_SECRET:-dev-secret}
+      # APP_SECRET is deliberately absent. A real environment variable beats
+      # every .env file in Symfony, so setting it here gave the container a
+      # different secret from the one `symfony server:start` picks up out of
+      # .env.dev — same app, two secrets, sessions invalidated by whichever way
+      # you happened to start it. The .env chain is the single source now.
       DATABASE_URL: sqlite:///%kernel.project_dir%/var/data.db
       DEFAULT_URI: http://localhost:8080/
     ports:
@@ -34,8 +38,11 @@ services:
       # and Caddy's automatic TLS would otherwise serve a cert the healthcheck
       # cannot verify.
       SERVER_NAME: ':80'
-      MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
-      MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+      # No literal fallback: Compose interpolates MERCURE_JWT_SECRET from .env,
+      # and `:?` makes it fail loudly rather than quietly booting a hub with a
+      # publicly known key.
+      MERCURE_PUBLISHER_JWT_KEY: ${MERCURE_JWT_SECRET:?set MERCURE_JWT_SECRET in .env or .env.local}
+      MERCURE_SUBSCRIBER_JWT_KEY: ${MERCURE_JWT_SECRET:?set MERCURE_JWT_SECRET in .env or .env.local}
       # Set the URL of your Symfony project (without trailing slash!) as value of the cors_origins directive
       # 8080 is the port the php service publishes above; 8000 covers `symfony serve`.
       MERCURE_EXTRA_DIRECTIVES: |

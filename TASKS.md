@@ -1514,13 +1514,55 @@ Eliminar el mapeo de 443 mientras no haya TLS en el contenedor. Si se quiere HTT
 
 ---
 
-### T-19 · Secretos por defecto propagados por varios ficheros
+### T-19 · Secretos por defecto propagados por varios ficheros ✅ ARREGLADO
 
 | | |
 |---|---|
 | **Severidad** | P3 |
+| **Estado** | ✅ Arreglado — cero secretos literales en `compose.yaml`, una sola fuente para `APP_SECRET`, checklist de rotación en `DEPLOYMENT.md` |
 | **Esfuerzo** | S (1 h) |
-| **Ficheros** | `.env`, `compose.yaml:11,37-38`, `docs/DEPLOYMENT.md` |
+| **Ficheros** | `compose.yaml`, `docs/DEPLOYMENT.md` |
+
+> **Resuelto, con el diagnóstico corregido.**
+>
+> **La divergencia de `APP_SECRET` no era la que decía la tarea.** Compose
+> **sí** interpola desde `.env`, así que el `${APP_SECRET:-dev-secret}` nunca
+> llegaba a usar su valor por defecto: resolvía a
+> `dev-secret-change-in-production`, el de `.env`. El choque real estaba entre
+> `compose.yaml` y **`.env.dev`**, que define
+> `APP_SECRET=401944761363cbdf346466138836dc1b`:
+>
+> | Forma de arrancar | `APP_SECRET` efectivo |
+> |---|---|
+> | Docker (antes) | `dev-secret-change-in-production` — compose lo inyectaba como variable real |
+> | `symfony server:start` | `401944761363cbdf346466138836dc1b` — de `.env.dev` |
+>
+> En Symfony una variable de entorno real **gana** a cualquier fichero `.env`,
+> así que la app tenía dos secretos según cómo se arrancara — que es justo el
+> síntoma de sesiones invalidadas que describía la tarea. La solución es que
+> `compose.yaml` **no declare `APP_SECRET`**: la cadena de `.env` queda como
+> fuente única, idéntica en las tres formas de arrancar.
+>
+> **Mercure:** la clave ya se parametrizó al arreglar **T-01**. Ahora además se
+> le quitó el valor por defecto literal: `${MERCURE_JWT_SECRET:?…}` hace que
+> `docker compose` falle con un mensaje útil en vez de arrancar el hub con una
+> clave conocida públicamente. Verificado — sin la variable:
+> `required variable MERCURE_JWT_SECRET is missing a value`.
+>
+> **Checklist de rotación** añadida a `docs/DEPLOYMENT.md`: las seis variables,
+> con qué valor viajan en el repo y el comando exacto para regenerarlas, más
+> dónde ponerlas (`.env.local`, nunca `.env`) y cuáles fallan en cerrado.
+>
+> **Dos fallos encontrados en el mismo documento y corregidos de paso:**
+>
+> 1. La configuración de nginx **de producción** repetía el
+>    `try_files $uri $uri/ /index.php…` que causaba el 403 de **T-01**. Cualquiera
+>    que copiase la guía se llevaba el bug al servidor.
+> 2. Decía generar `APP_SECRET` con `bin/console secrets:generate-keys`, que no
+>    hace eso — crea el par de claves del *vault* de secretos de Symfony.
+>
+> (`docker/supplier/nginx.conf` también usa `$uri/`, pero ahí es correcto: sirve
+> ficheros estáticos y termina en `=404`, no en un front controller.)
 
 **Punto de partida positivo:** la higiene básica está bien. No hay credenciales reales commiteadas. `.env` contiene marcadores (`TMDB_ACCESS_TOKEN=` vacío, `sk_test_placeholder`, `whsec_test_placeholder`), `.env.local` está en `.gitignore` (líneas 1 y 27), y el histórico está limpio.
 

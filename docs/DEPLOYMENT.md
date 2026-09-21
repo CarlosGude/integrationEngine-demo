@@ -158,8 +158,11 @@ ADMIN_PASSWORD_HASH='$2y$13$replace-with-your-own-hash'
 
 **Generate APP_SECRET:**
 ```bash
-php bin/console secrets:generate-keys
+php -r 'echo bin2hex(random_bytes(16)), PHP_EOL;'
 ```
+
+(`secrets:generate-keys` is a different thing — it creates the key pair for
+Symfony's encrypted secrets vault, not a value for `APP_SECRET`.)
 
 **Generate ADMIN_PASSWORD_HASH:**
 ```bash
@@ -173,6 +176,39 @@ does not resolve env placeholders in configuration keys.
 
 If the variable is missing the application refuses to boot rather than falling
 back to a default: a credential should fail closed, not open.
+
+### Secret rotation checklist
+
+Every value below ships with a placeholder that is public in this repository.
+None of them is a secret until you replace it. Work through the list before the
+first deploy, and again whenever someone with access leaves.
+
+| Variable | Ships as | Replace with |
+|---|---|---|
+| `APP_SECRET` | `dev-secret-change-in-production` in `.env` | `php -r 'echo bin2hex(random_bytes(16)), PHP_EOL;'` |
+| `MERCURE_JWT_SECRET` | `!ChangeThisMercureHubJWTSecretKey!` in `.env` | any long random string; the hub refuses to start without it |
+| `ADMIN_PASSWORD_HASH` | hash of `demo-admin-change-me` | `php bin/console security:hash-password 'your-password'` |
+| `STRIPE_SECRET_KEY` | `sk_test_placeholder` | your live key from the Stripe dashboard |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_test_placeholder` | the signing secret of the endpoint you registered |
+| `TMDB_ACCESS_TOKEN` | empty | a read access token from your TMDB account |
+
+Put the replacements in `.env.local` (git-ignored) or, better, in the real
+environment of the host. Do not edit `.env` itself — it is committed, and the
+next `git pull` will fight you for it.
+
+Two of these fail closed rather than falling back, on purpose:
+`ADMIN_PASSWORD_HASH` stops the application from booting, and
+`MERCURE_JWT_SECRET` stops `docker compose` from even resolving the file.
+
+**Where they are read from:**
+
+- `APP_SECRET` comes from the `.env` chain only. It is deliberately *not* set in
+  `compose.yaml`: a real environment variable overrides every `.env` file in
+  Symfony, so declaring it there gave Docker a different secret from
+  `symfony server:start`, and sessions broke depending on how the app was
+  started.
+- `MERCURE_JWT_SECRET` is read twice — by Symfony for signing, and by Docker
+  Compose to configure the hub. One value in `.env.local` covers both.
 
 ### Step 6: Nginx Configuration
 
@@ -209,7 +245,10 @@ server {
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
     location / {
-        try_files $uri $uri/ /index.php?$query_string;
+        # No `$uri/`: it matches the document root itself for `GET /`, so nginx
+        # serves a directory index and answers 403 instead of reaching the
+        # front controller. This is the shape Symfony documents.
+        try_files $uri /index.php$is_args$args;
     }
 
     location ~ \.php$ {
