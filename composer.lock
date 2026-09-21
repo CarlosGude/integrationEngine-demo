@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8b8cc67714d15d2fc1c627d63c485c99",
+    "content-hash": "b66ae6fba450d975d49c9b31d491eb9f",
     "packages": [
         {
             "name": "carlosgude/integration-engine",
@@ -12,7 +12,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/CarlosGude/integrationEngine.git",
-                "reference": "f825f6338379a714610dad25afe31d5c5eed46e5"
+                "reference": "7178f555f8e4319404a1ece6e99268da5a377d9c"
             },
             "require": {
                 "php": ">=8.2",
@@ -79,7 +79,7 @@
                 "issues": "https://github.com/CarlosGude/integrationEngine/issues",
                 "source": "https://github.com/CarlosGude/integrationEngine"
             },
-            "time": "2026-09-21T14:39:05+00:00"
+            "time": "2026-09-21T14:53:27+00:00"
         },
         {
             "name": "doctrine/collections",
@@ -3380,7 +3380,7 @@
         },
         {
             "name": "symfony/mercure",
-            "version": "dev-main",
+            "version": "v0.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/mercure.git",
@@ -3412,7 +3412,6 @@
                 "symfony/stopwatch": "Integration with the profiler performances",
                 "web-token/jwt-library": "To build Mercure protocol 1.0-compatible JSON Web Tokens with WebTokenFactory"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "thanks": {
@@ -3452,7 +3451,7 @@
             ],
             "support": {
                 "issues": "https://github.com/symfony/mercure/issues",
-                "source": "https://github.com/symfony/mercure/tree/main"
+                "source": "https://github.com/symfony/mercure/tree/v0.8.0"
             },
             "funding": [
                 {
@@ -3468,7 +3467,7 @@
         },
         {
             "name": "symfony/mercure-bundle",
-            "version": "dev-main",
+            "version": "v0.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/mercure-bundle.git",
@@ -3500,7 +3499,6 @@
                 "symfony/messenger": "To use the Messenger integration",
                 "web-token/jwt-library": "To build Mercure protocol 1.0-compatible JSON Web Tokens from a \"jwt.jwks_uri\" option"
             },
-            "default-branch": true,
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
@@ -3536,7 +3534,7 @@
             ],
             "support": {
                 "issues": "https://github.com/symfony/mercure-bundle/issues",
-                "source": "https://github.com/symfony/mercure-bundle/tree/main"
+                "source": "https://github.com/symfony/mercure-bundle/tree/v0.5.0"
             },
             "funding": [
                 {
@@ -12138,9 +12136,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "carlosgude/integration-engine": 20,
-        "symfony/mercure": 20,
-        "symfony/mercure-bundle": 20
+        "carlosgude/integration-engine": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

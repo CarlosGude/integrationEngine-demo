@@ -1,6 +1,5 @@
 {
     "name": "carlosgude/integration-engine-demo",
-    "version": "1.0.0",
     "type": "project",
     "license": "MIT",
     "description": "IntegrationEngine demo: TMDB + Stripe live tour",
@@ -12,7 +11,7 @@
     ],
     "require": {
         "php": ">=8.4",
-        "carlosgude/integration-engine": "@dev",
+        "carlosgude/integration-engine": "dev-main",
         "doctrine/doctrine-bundle": "^2.10",
         "doctrine/migrations": "^3.6",
         "doctrine/orm": "^3.0",
@@ -21,8 +20,8 @@
         "symfony/flex": "^2",
         "symfony/form": "^7.4",
         "symfony/framework-bundle": "^7.4",
-        "symfony/mercure": "@dev",
-        "symfony/mercure-bundle": "@dev",
+        "symfony/mercure": "^0.8",
+        "symfony/mercure-bundle": "^0.5",
         "symfony/messenger": "^7.4",
         "symfony/rate-limiter": "^7.4",
         "symfony/routing": "^7.4",
