@@ -1,4 +1,54 @@
 tour:
+  when-suppliers-fail:
+    title: Cuando los proveedores fallan
+    description: Resiliencia y reintentos
+    content: |
+      **El Problema:** Las APIs externas fallan. Las redes se desconectan. Los limitadores de velocidad se activan. Los servidores se bloquean. ¿Qué haces cuando la API del proveedor devuelve 503, o la solicitud tarda 30 segundos en responder?
+
+      Sin una estrategia, tu aplicación también falla. El usuario recibe un error. Tu negocio pierde dinero. Aquí es donde brillan los **patrones de resiliencia**.
+
+      **Tres Estrategias:**
+
+      1. **Reintentos con Backoff Exponencial**
+         - Cuando una solicitud falla con un error transitorio (429 límite de velocidad, 503 servicio no disponible, timeout), reintentar automáticamente
+         - Pero espera entre intentos: 100ms, 200ms, 400ms — backoff exponencial
+         - No reintentar errores permanentes: 400 (solicitud incorrecta), 401 (autenticación fallida), 404 (no encontrado)
+         - Rendirse después de 3 intentos; lanzar un error a la persona que llama
+
+      2. **Patrón Circuit Breaker**
+         - Si la API del proveedor falla 5 veces en 10 segundos, **deja de intentarlo inmediatamente**
+         - No bombardees la API que falla — déjala recuperarse
+         - Entra en estado "OPEN": rechazar solicitudes sin llamar al upstream
+         - Después de 30 segundos, entra en "HALF_OPEN": intenta 1 solicitud para probar recuperación
+         - Si tiene éxito, vuelve a "CLOSED" (operación normal)
+         - Si falla de nuevo, vuelve a "OPEN"
+
+      3. **Estrategias de Fallback**
+         - Cuando los reintentos se agotan y el circuit breaker está abierto, tienes opciones:
+           - **Fallback nulo**: Devolver null (mostrar "datos no disponibles" al usuario)
+           - **Fallback en caché**: Devolver último valor conocido (mostrar datos ligeramente obsoletos)
+           - **Fallback por defecto**: Devolver un valor seguro (p. ej., 0 inventario en lugar de error)
+
+      **Por qué importa:**
+      Un único proveedor que se agota NO debería bloquear tu tienda completa. Los patrones de resiliencia te permiten:
+      - Seguir sirviendo a los usuarios (con funcionalidad degradada)
+      - Proteger servicios que fallan de fallos en cascada
+      - Recuperarse automáticamente cuando el upstream está sano
+
+      **Cómo se ajusta IntegrationEngine:**
+      El engine proporciona la base; tú decides la política. En v7.0, `ResiliencePolicyInterface` te permitirá declarar comportamiento de reintento/fallback en tu configuración de acción:
+
+      ```yaml
+      supplier:
+          integrations:
+              supplier:
+                  retry_policy: exponential_backoff
+                  circuit_breaker: true
+                  fallback: last_cached_value
+      ```
+
+      Hasta entonces, implementa estos patrones como middleware personalizado en tu proyecto — exactamente lo que ves aquí.
+
   renting-a-movie:
     title: Alquilando una película
     description: Integraciones salientes con Stripe

@@ -45,6 +45,28 @@ steps:
     title: When Suppliers Fail
     description: Resiliency and retries
     order: 4
+    snippets:
+      - id: resilience/retry-exponential-backoff
+        file: src/Shared/Infrastructure/Middleware/RetryMiddleware.php
+        title: "Resilience: Exponential Backoff Retries"
+      - id: resilience/error-classification
+        file: src/Shared/Infrastructure/Middleware/RetryMiddleware.php
+        title: "Resilience: Transient vs Permanent Errors"
+      - id: resilience/circuit-breaker-check
+        file: src/Shared/Infrastructure/Resilience/CircuitBreaker.php
+        title: "Resilience: Circuit Breaker Pattern"
+      - id: resilience/circuit-breaker-failure
+        file: src/Shared/Infrastructure/Resilience/CircuitBreaker.php
+        title: "Resilience: Failure Recording & State Transitions"
+      - id: resilience/fallback-null
+        file: src/Shared/Infrastructure/Resilience/FallbackStrategy.php
+        title: "Resilience: Null Fallback (Graceful Degradation)"
+      - id: resilience/fallback-cache
+        file: src/Shared/Infrastructure/Resilience/FallbackStrategy.php
+        title: "Resilience: Cache Fallback (Stale Data)"
+      - id: resilience/fallback-default
+        file: src/Shared/Infrastructure/Resilience/FallbackStrategy.php
+        title: "Resilience: Default Fallback (Safe Value)"
   renting-a-movie:
     title: Renting a Movie
     description: Outbound integrations with Stripe

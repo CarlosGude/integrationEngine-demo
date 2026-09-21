@@ -1,4 +1,54 @@
 tour:
+  when-suppliers-fail:
+    title: When Suppliers Fail
+    description: Resiliency and retries
+    content: |
+      **The Problem:** External APIs fail. Networks time out. Rate limiters kick in. Servers crash. What do you do when the supplier API returns 503, or the request takes 30 seconds to respond?
+
+      Without a strategy, your app fails too. The user gets an error. Your business loses money. This is where **resilience patterns** shine.
+
+      **Three Strategies:**
+
+      1. **Retry with Exponential Backoff**
+         - When a request fails with a transient error (429 rate limit, 503 service unavailable, timeout), automatically retry
+         - But wait between attempts: 100ms, 200ms, 400ms — exponential backoff
+         - Don't retry permanent errors: 400 (bad request), 401 (auth failed), 404 (not found)
+         - Give up after 3 attempts; throw an error to the caller
+
+      2. **Circuit Breaker Pattern**
+         - If the supplier API fails 5 times in 10 seconds, **stop trying immediately**
+         - Don't hammer the failing API — let it recover
+         - Go into "OPEN" state: reject requests without calling upstream
+         - After 30 seconds, enter "HALF_OPEN": try 1 request to test recovery
+         - If it succeeds, go back to "CLOSED" (normal operation)
+         - If it fails again, back to "OPEN"
+
+      3. **Fallback Strategies**
+         - When retries are exhausted and the circuit is open, you have options:
+           - **Null fallback**: Return null (show "data unavailable" to user)
+           - **Cache fallback**: Return last known good value (show slightly stale data)
+           - **Default fallback**: Return a safe default (e.g., 0 inventory instead of error)
+
+      **Why This Matters:**
+      A single supplier timing out should NOT crash your entire store. Resilience patterns let you:
+      - Keep serving users (with degraded functionality)
+      - Protect failing services from cascading failures
+      - Recover automatically when upstream is healthy again
+
+      **How IntegrationEngine Fits:**
+      The engine provides the foundation; you decide the policy. In v7.0, `ResiliencePolicyInterface` will let you declare retry/fallback behavior in your action config:
+
+      ```yaml
+      supplier:
+          integrations:
+              supplier:
+                  retry_policy: exponential_backoff
+                  circuit_breaker: true
+                  fallback: last_cached_value
+      ```
+
+      Until then, implement these patterns as custom middleware in your project — exactly what you see here.
+
   renting-a-movie:
     title: Renting a Movie
     description: Outbound integrations with Stripe
