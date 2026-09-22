@@ -103,9 +103,6 @@ steps:
     description: Webhooks and async processing
     order: 7
     snippets:
-      - id: webhook/parser
-        file: src/Integrations/Stripe/Webhook/StripePaymentIntentParser.php
-        title: "Webhook: Stripe Signature Verification"
       - id: webhook/mapper
         file: src/Integrations/Stripe/Webhook/Mapper/StripePaymentIntentMapper.php
         title: "Webhook: Payload Mapping to Event DTO"
