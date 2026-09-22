@@ -81,29 +81,16 @@ php bin/console make:crud --entity=App\\Entity\\User UserCrudController
 php bin/console make:crud --entity=App\\Entity\\Transaction TransactionCrudController
 ```
 
-### 4. Configure EasyAdmin (YAML)
+### 4. Configure EasyAdmin (PHP)
 
-Edit `config/packages/easy_admin.yaml`:
+EasyAdmin v4 uses PHP-based configuration. Configure your dashboard in `src/Controller/Admin/DashboardController.php`:
 
-```yaml
-easy_admin:
-    site_name: 'IntegrationEngine Admin'
-    
-    dashboards:
-        admin:
-            class: App\Controller\Admin\DashboardController
-            title: 'Admin Dashboard'
-            
-    entities:
-        User:
-            class: App\Entity\User
-            label: 'Users'
-            controller: App\Controller\Admin\UserCrudController
-            
-        Transaction:
-            class: App\Entity\Transaction
-            label: 'Transactions'
-            controller: App\Controller\Admin\TransactionCrudController
+```php
+public function configureMenuItems(): iterable
+{
+    yield MenuItem::linkToCrud('Users', 'fas fa-users', User::class);
+    yield MenuItem::linkToCrud('Transactions', 'fas fa-exchange', Transaction::class);
+}
 ```
 
 ### 5. Access Admin
@@ -313,10 +300,10 @@ public function configureMenuItems(): iterable
 ## Troubleshooting
 
 ### "Service not found" errors
-→ Check `config/packages/easy_admin.yaml` syntax
+→ Verify all dependencies are properly injected into your dashboard controller
 
 ### Dashboard not loading
-→ Verify controller class exists and namespace is correct
+→ Verify `DashboardController` extends `AbstractDashboardController` and methods are public
 
 ### Authentication required
 → Setup `make:auth` and configure security.yaml

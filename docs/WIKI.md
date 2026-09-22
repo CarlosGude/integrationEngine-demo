@@ -244,7 +244,6 @@ integrationEngine-demo/
 │   ├── packages/
 │   │   ├── integration_engine.yaml  # API configs
 │   │   ├── mercure.yaml            # WebSockets
-│   │   ├── easy_admin.yaml         # Admin setup
 │   │   └── rate_limiter.yaml       # Rate limiting
 │   ├── routes/
 │   ├── services.yaml              # Service injection
