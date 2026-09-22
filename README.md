@@ -1,6 +1,23 @@
 # IntegrationEngine Demo
 
-A guided tour through external API integrations using the [IntegrationEngine](https://github.com/carlosgude/integrationEngine) bundle. Demonstrates best practices for multi-protocol integration (REST, CSV, GraphQL) with parallel request benchmarking, middleware extensibility, and bilingual code tour.
+A guided tour through external API integrations using the [IntegrationEngine](https://github.com/carlosgude/integrationEngine) bundle: real, working REST integration (TMDB) with parallel request benchmarking, plus CSV and GraphQL integrations implemented with the same architecture as reference code. Bilingual code tour with snippets extracted live from source. **The tour's "Run" button doesn't execute anything yet** — see "Known issues" below before assuming this is a click-and-see-it-run demo.
+
+## Scope of this demo
+
+This is a **tour of the engine**, not a real rental store. That shapes a few deliberate choices:
+
+- **No persistence.** Nothing is saved to a database — no rentals, no payment history, no webhook log. `RentalPaymentGateway` creates a real Stripe PaymentIntent; the webhook confirmation is verified, mapped, and dispatched as a typed event (`StripePaymentIntentEvent`) that a listener currently just logs. There's no live push to the browser on that path — Mercure exists in this repo, but only as its own standalone real-time demo (`/mercure-demo.html`, `MercureUpdateController`), unconnected to rentals or payments. See "Known issues" below.
+- **No admin panel, no payments/webhooks dashboard.** With no real traffic, a dashboard would just show one or two test rows — empty-looking statistics that undercut the point of the demo instead of supporting it. What matters here is the integration code itself, shown live in the tour, not a business back-office around it.
+- **No background workers or message queue.** There's no state for a worker to reconcile, so there's nothing for Messenger/RabbitMQ to do here.
+
+These aren't gaps to fill later — they're scope decisions. The original, broader roadmap (`docs/TAREAS.md`) explored a version of this demo *with* persistence, a payments panel, and a webhook inbox; that path was intentionally dropped in favor of staying a focused engine tour. See `docs/TAREAS.md`'s "Decisiones de alcance" section for the full reasoning.
+
+### Known issues
+
+- **The tour's "Run" button is a stub.** `TourController::run()` returns a fixed `{"success": true}` and an empty trace for *every* step, regardless of which one you click — read the comment in the source: `// This is a placeholder - actual step execution would happen here`. The code snippets shown in each step are real (extracted live from source, so they can't drift), but clicking Run does not execute them. This is the single biggest gap between what this demo appears to offer and what it currently does.
+- **CSV (Supplier) and GraphQL (Countries) integrations aren't reachable from the running app.** Both exist with the same Action/Mapper/Response architecture as TMDB and have unit tests, but `SupplierIntegration` isn't even registered under `integration_engine.yaml`'s `integrations:`, and nothing in `src/` ever calls the `countries` integration (which *is* registered). Tour step 3 ("Behind the Counter") only shows rate-limiting middleware, not CSV or GraphQL.
+- **You can't rent a movie from the browser.** `RentalPaymentGateway` — the class that creates a real Stripe PaymentIntent — is only called from `SimulateRentalCommand`, a CLI command (`bin/console billing:simulate-rental`). There's no rent button, no payment page; tour steps 5-6 show real snippets but nothing you click actually triggers them.
+- **`public/mercure-demo.html` and `MercureUpdateController` are orphaned.** They publish to topics like `admin/payments` and `admin/transactions` — leftovers from an earlier, unrelated prototype (the page's own `<title>` still says "TransactionEngine"). Nothing in the actual tour, storefront, or Stripe webhook flow links to or publishes through them. They're not wired into anything the tour demonstrates.
 
 ## 📚 Complete Documentation Suite
 
@@ -40,8 +57,9 @@ All CI jobs are green:
 - ✅ `make up` → both containers healthy
 - ✅ `composer install --no-dev` → production boot
 - ✅ Webhook endpoints unauthenticated
-- ✅ 65 tests passing, 225 assertions
+- ✅ 169 tests passing, 638 assertions
 - ✅ PHPStan level `max`, PHP CS Fixer, Deptrac — all clean
+- ✅ Infection: MSI ≥ 58%, covered-code MSI ≥ 63% (raised incrementally as coverage grows — see `infection.json5`)
 
 **Deferred by choice, not by gap:** upgrading `qossmic/deptrac-shim` (abandoned) to `deptrac/deptrac` 2.x needs a config migration; bumping to PHPUnit 13 is scheduled as its own PR.
 
@@ -86,12 +104,11 @@ All CI jobs are green:
 
 | Métrica | Valor |
 |---------|-------|
-| Total Commits | 20+ |
-| Tests | 65 ✅ (no skipped; admin tests removed in T-11) |
-| Test Coverage | 224 assertions |
+| Tests | 169 ✅ (no skipped; admin tests removed in T-11) |
+| Test Coverage | 638 assertions |
 | CI Jobs | 8 (tests, style, static-analysis, architecture, production-install, compose-config, build-image, mutation-testing) |
 | Protocolos | 4 (REST, CSV, GraphQL, Stripe form-urlencoded) |
-| Tour Steps | 7 (complete, bilingual EN/ES) |
+| Tour Steps | 7, bilingual EN/ES, real snippets — "Run" button not yet implemented (see Known issues) |
 | Integrations | TMDB (REST), Supplier (CSV), Countries (GraphQL), Stripe (webhooks) |
 | Code Quality | PHPStan max, 0 violations, baseline 7 entries (T-09) |
 | Architecture | Deptrac 0 violations, UI layer captured (T-10) |
@@ -131,48 +148,43 @@ All CI jobs are green:
 
 See: [Phase 3 Integration Plan](docs/PHASE3-INTEGRATION.md) for implementation details
 
-### ✅ Phase 4 Complete - Deployment Ready
+### 📄 Deployment guide (reference, not executed)
 
-**v1.0.0 Deployment Documentation:**
-- [x] Production VPS setup guide (AWS EC2 / DigitalOcean)
-- [x] Nginx + PHP-FPM configuration
-- [x] Database & Redis setup
-- [x] CI/CD pipeline (GitHub Actions)
-- [x] Monitoring & backup strategies
-- [x] Security hardening checklist
-- [x] Performance optimization guide
-- [x] Release notes & roadmap
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) sketches a production setup (Nginx + PHP-FPM, CI/CD, monitoring, security hardening) as a written exercise. It is **not** the actual architecture of this repo and has not been run against a live host: there is no database or Redis dependency in `composer.json`, and no VPS is currently serving this demo. Treat it as reference material, not a status claim.
 
-### 🚀 Deployment
+### 🚀 Running it
 
-The deployment guide is written and complete — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
-and the Status section above. No open blockers.
+The only supported way to run this demo today is locally via Docker Compose — see [Running the Demo](#running-the-demo) below. There is no hosted URL.
 
 ## Project Structure
 
 ```
 integrationEngine-demo/
 ├── config/
-│   ├── bundles.php              # Conditional bundle loading
-│   ├── packages/                 # Framework config
+│   ├── bundles.php               # Conditional bundle loading
+│   ├── packages/                 # Framework config (incl. integration_engine.yaml)
 │   ├── routes/                   # Route definitions
 │   ├── services.yaml             # Service injection
-│   └── tour.yaml                 # Tour step definitions
+│   └── tour.yaml                 # Tour step + snippet definitions
 ├── src/
-│   ├── Controller/               # HTTP endpoints
-│   ├── Catalog/                  # Movie catalog domain
-│   ├── Tour/                     # Tour motor infrastructure
-│   └── Shared/                   # Cross-cutting concerns
+│   ├── Controller/                # HTTP endpoints (storefront, tour, homepage, Mercure)
+│   ├── Command/, Console/         # CLI commands (e.g. catalog:benchmark)
+│   ├── Catalog/                   # Movie catalog domain (TMDB-backed)
+│   ├── Pricing/                   # Pricing domain (CSV + GraphQL integrations)
+│   ├── Billing/                   # Stripe payment gateway + webhook listener
+│   ├── Legacy/                    # Deliberately bad "before" code for the tour
+│   ├── Integrations/              # Tmdb, Countries, Stripe, Supplier clients (Action/Mapper/Response)
+│   ├── Tour/                      # Tour engine (YAML registry + snippet extractor)
+│   └── Shared/                    # Middleware, resilience patterns, observability
 ├── public/
-│   └── index.php                 # Symfony Runtime entry point
-├── templates/
-│   └── base.html.twig            # Main layout
+│   └── index.php                  # Symfony Runtime entry point
+├── templates/                     # Twig templates (base, store, tour)
+├── Dockerfile                     # PHP 8.4-FPM + Nginx, single container
 ├── docker/
-│   ├── Dockerfile                # PHP 8.4-FPM + Nginx
-│   ├── nginx.conf                # Web server config
-│   └── entrypoint.sh             # Container startup
-├── compose.yaml                  # Docker Compose setup
-└── .env.local                    # TMDB credentials (local only)
+│   ├── nginx.conf, entrypoint.sh  # Used by the root Dockerfile
+│   └── supplier/                  # Mock CSV supplier service
+├── compose.yaml                   # Docker Compose setup (app + Mercure hub)
+└── .env.local                     # TMDB credentials (local only)
 ```
 
 ## Running the Demo
@@ -221,33 +233,18 @@ docker compose exec php php bin/console debug:container | grep tour
 
 ## Architecture
 
-### Layer Separation
+### Integration Pattern (Replicated 4x)
 
-```
-Domain Layer
-  ├── Movie (readonly aggregate)
-  ├── Snippet, Tour entities
-  └── Value objects
-
-Application Layer
-  ├── MovieCatalogGateway (orchestration)
-  └── Use case services
-
-Infrastructure Layer
-  ├── Integrations (TMDB, Supplier, Countries)
-  ├── Middleware (rate limiting, caching)
-  └── Adapters (HTTP, CSV, GraphQL clients)
-```
-
-### Integration Pattern (Replicated 3x)
-
-Each protocol follows **Action → Mapper → Response**:
+Each protocol follows **Action → Mapper → Response**, under `src/Integrations/`:
 
 | Protocol | Action | Mapper | Response |
 |----------|--------|--------|----------|
-| REST/JSON | GetMovieAction | GetMovieMapper | GetMovieResponse |
-| CSV | GetPricesAction | GetPricesMapper | GetPricesResponse |
-| GraphQL | GetCountriesAction | GetCountriesMapper | GetCountriesResponse |
+| REST/JSON (TMDB) | GetMovieAction | GetMovieMapper | GetMovieResponse |
+| CSV (Supplier) | GetPricesAction | GetPricesMapper | GetPricesResponse |
+| GraphQL (Countries) | GetCountriesAction | GetCountriesMapper | GetCountriesResponse |
+| Form-urlencoded (Stripe) | CreatePaymentIntentAction | CreatePaymentIntentMapper | PaymentIntentResponse |
+
+Business logic lives in the bounded contexts (`Catalog`, `Pricing`, `Billing`) that consume these integrations through gateways — e.g. `Catalog\Application\MovieCatalogGateway`.
 
 ### Parallelism
 
@@ -269,75 +266,18 @@ TMDB_API_KEY=50da1790...              # Public API key
 TMDB_ACCESS_TOKEN=eyJhbGciOi...       # Bearer token
 APP_ENV=dev                            # dev|prod
 APP_DEBUG=1                            # 0|1
-DATABASE_URL=sqlite:///var/data.db    # SQLite
 ```
 
-## Quality Gates
-
-- **PHPUnit**: All tests green
-- **PHPStan**: Level max analysis
-- **Deptrac**: Layer isolation verified
-- **Infection**: 85%+ MSI mutation score
-
-Run all:
-```bash
-docker compose exec php make ci
-```
+No `DATABASE_URL` — see [Scope of this demo](#scope-of-this-demo) above for why.
 
 ## Git Status
 
 `main` is pushed. Use `git log --oneline` for the current history — this file no
 longer carries a frozen snapshot of it.
 
-## File Structure
-
-```
-src/
-├── Catalog/
-│   ├── Domain/Movie.php
-│   ├── Application/MovieCatalogGateway.php
-│   ├── Infrastructure/Integrations/Tmdb/
-│   │   ├── GetConfigurationAction.php
-│   │   ├── GetMovieAction.php
-│   │   └── *Mapper.php + *Response.php
-│   └── UI/
-│       ├── StorefrontController.php
-│       ├── Console/BenchmarkCommand.php
-│       └── ...
-├── Pricing/
-│   └── Infrastructure/
-│       ├── Http/CsvClientAdapter.php
-│       └── Integrations/
-│           ├── Supplier/ (CSV)
-│           └── Countries/ (GraphQL)
-├── Shared/
-│   └── Infrastructure/Middleware/RateLimitMiddleware.php
-└── Tour/
-    └── Infrastructure/
-        ├── YamlTourRegistry.php
-        └── SourceSnippetExtractor.php
-
-config/
-├── tour.yaml (3 steps, 9 snippets)
-├── packages/
-│   ├── integration_engine.yaml (TMDB, Countries)
-│   └── rate_limiter.yaml
-└── routes.yaml
-
-translations/
-├── tour.en.yaml (English)
-└── tour.es.yaml (Spanish)
-
-tests/
-├── Catalog/ (TMDB, storefront, benchmark)
-├── Pricing/ (CSV, GraphQL)
-├── Tour/ (snippet resolution)
-└── Legacy/ (parity testing)
-```
-
 ---
 
-**Status:** see the [Status](#status) section at the top — `v1.0.0` tagged, `main` ahead, all CI gates green.
+**Status:** see [Status & Versions](#status--versions) at the top — `v1.0.0` tagged, `main` ahead, all CI gates green.
 
 ---
 
