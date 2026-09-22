@@ -1,8 +1,6 @@
-FROM php:8.4-fpm
+FROM php:8.4-fpm AS vendor
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    nginx \
-    curl \
     unzip \
     git \
     && rm -rf /var/lib/apt/lists/*
@@ -11,29 +9,39 @@ COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 WORKDIR /app
 
-COPY composer.json ./
-ENV DATABASE_URL="sqlite:///:memory:"
-ENV APP_ENV="dev"
-ENV APP_DEBUG=1
-RUN composer install --no-progress --no-interaction --no-scripts
+COPY composer.json composer.lock symfony.lock ./
+
+RUN composer install \
+    --no-dev \
+    --no-scripts \
+    --no-progress \
+    --no-interaction \
+    --optimize-autoloader
 
 COPY . .
-# `composer dump-autoload` fires post-autoload-dump, which is where
-# symfony/runtime's plugin writes vendor/autoload_runtime.php with the correct
-# options — `project_dir` above all. This used to copy the template by hand and
-# substitute an empty options array, so the runtime never learned the project
-# directory, Dotenv never loaded the .env files, and every %env()% resolved to
-# null inside the container (MERCURE_URL first, which fataled on boot).
-RUN composer dump-autoload --optimize && \
-    test -f vendor/autoload_runtime.php && \
-    grep -q "project_dir" vendor/autoload_runtime.php && \
-    echo 'error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT\noutput_buffering = off\n' > /usr/local/etc/php/conf.d/symfony.ini
+
+RUN composer dump-autoload --no-dev --optimize --classmap-authoritative
+
+FROM php:8.4-fpm
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nginx \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=vendor /app/vendor ./vendor
+
+COPY . .
+
+RUN test -f vendor/autoload_runtime.php && \
+    grep -q "project_dir" vendor/autoload_runtime.php
+
+RUN echo 'error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT\noutput_buffering = off\n' > /usr/local/etc/php/conf.d/symfony.ini
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
-# www-data owns var/: php-fpm runs as www-data and has to create var/cache and
-# var/log. Root-owned 755 meant the first request to a fresh container could not
-# create the cache directory and returned 500.
 RUN mkdir -p /app/var/cache /app/var/log && chown -R www-data:www-data /app/var
 
 EXPOSE 80

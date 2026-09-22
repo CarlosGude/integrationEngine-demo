@@ -18,3 +18,16 @@ coverage/
 *~
 README.md
 CHANGELOG.md
+vendor/
+tests/
+docs/
+.php-cs-fixer.dist.php
+phpstan.neon
+phpstan-baseline.neon
+phpunit.xml.dist
+infection.json5
+deptrac.yaml
+TASKS.md
+PLAN.md
+SECURITY.md
+MEMORY.md
