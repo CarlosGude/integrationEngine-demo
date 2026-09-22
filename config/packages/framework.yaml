@@ -11,4 +11,4 @@ framework:
         routing:
             stripe:
                 service: integration_engine.webhook_parser.stripe
-                secret: ~ # ignored; IntegrationEngine uses its own secret from YAML config
+                secret: 'unused' # IntegrationEngine uses its own secret from YAML config
