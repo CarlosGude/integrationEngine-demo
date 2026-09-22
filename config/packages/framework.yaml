@@ -10,5 +10,5 @@ framework:
     webhook:
         routing:
             stripe:
-                service: App\Integrations\Stripe\Webhook\StripePaymentIntentConsumer
-                secret: '%env(STRIPE_WEBHOOK_SECRET)%'
+                service: integration_engine.webhook_parser.stripe
+                secret: ~ # ignored; IntegrationEngine uses its own secret from YAML config
