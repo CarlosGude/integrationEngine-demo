@@ -40,12 +40,25 @@ deptrac:
           - type: className
             regex: ^App\\Tour\\.*
 
+    - name: UI
+      collectors:
+          - type: className
+            regex: ^App\\(Controller|Command|Console)\\.*
+
+    - name: Kernel
+      collectors:
+          - type: className
+            regex: ^App\\Kernel$
+
   ruleset:
-    Shared:
+    UI:
+      - Shared
       - Catalog
       - Billing
-      - Legacy
+      - Pricing
       - Tour
+    Kernel: []
+    Shared: []
     Integrations:
       - Shared
     Catalog:

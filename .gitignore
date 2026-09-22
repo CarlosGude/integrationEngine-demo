@@ -32,11 +32,6 @@
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
-
-###> qossmic/deptrac ###
-/.deptrac.cache
-###< qossmic/deptrac ###
-
 ###> generated config ###
 # Written by Symfony's ConfigBuilder on cache warmup, and rewritten with a
 # different shape depending on the APP_ENV the last command ran under — so it
