@@ -136,24 +136,24 @@ sudo chmod -R 755 public/
 sudo -u www-data nano .env.local
 ```
 
-**Contents:**
+**Contents (required):**
 ```env
 APP_ENV=prod
 APP_DEBUG=0
 APP_SECRET=your-generated-secret-key
 
-DATABASE_URL="postgresql://app_user:password@localhost:5432/integration_engine"
+# Mercure real-time hub — required for /en/store live updates
+MERCURE_JWT_SECRET=your-long-random-string
 
-REDIS_URL=redis://localhost:6379
+# The Movie Database API — required for /en/store to display movies
+TMDB_ACCESS_TOKEN=your_read_token_here
 
-TMDB_BASE_URL=https://api.themoviedb.org
-TMDB_ACCESS_TOKEN=your_token_here
-
+# Stripe webhook signing — required for /webhook/stripe
 STRIPE_SECRET_KEY=sk_live_your_key_here
 STRIPE_WEBHOOK_SECRET=whsec_your_secret_here
 
-# Guards /admin and the /api/mercure/* publish endpoints.
-ADMIN_PASSWORD_HASH='$2y$13$replace-with-your-own-hash'
+# Public Mercure URL (browser connects here for real-time updates)
+MERCURE_PUBLIC_URL=https://your-domain.com/.well-known/mercure
 ```
 
 **Generate APP_SECRET:**
@@ -161,44 +161,28 @@ ADMIN_PASSWORD_HASH='$2y$13$replace-with-your-own-hash'
 php -r 'echo bin2hex(random_bytes(16)), PHP_EOL;'
 ```
 
-(`secrets:generate-keys` is a different thing — it creates the key pair for
-Symfony's encrypted secrets vault, not a value for `APP_SECRET`.)
-
-**Generate ADMIN_PASSWORD_HASH:**
-```bash
-php bin/console security:hash-password 'your-password'
-```
-
-⚠️ `.env` ships a hash for the development password `demo-admin-change-me`, which
-is public in this repository by design. **It must be overridden here.** The
-username is `admin` and is fixed in `config/packages/security.yaml` — Symfony
-does not resolve env placeholders in configuration keys.
-
-If the variable is missing the application refuses to boot rather than falling
-back to a default: a credential should fail closed, not open.
-
 ### Secret rotation checklist
 
 Every value below ships with a placeholder that is public in this repository.
 None of them is a secret until you replace it. Work through the list before the
 first deploy, and again whenever someone with access leaves.
 
-| Variable | Ships as | Replace with |
-|---|---|---|
-| `APP_SECRET` | `dev-secret-change-in-production` in `.env` | `php -r 'echo bin2hex(random_bytes(16)), PHP_EOL;'` |
-| `MERCURE_JWT_SECRET` | `!ChangeThisMercureHubJWTSecretKey!` in `.env` | any long random string; the hub refuses to start without it |
-| `ADMIN_PASSWORD_HASH` | hash of `demo-admin-change-me` | `php bin/console security:hash-password 'your-password'` |
-| `STRIPE_SECRET_KEY` | `sk_test_placeholder` | your live key from the Stripe dashboard |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_test_placeholder` | the signing secret of the endpoint you registered |
-| `TMDB_ACCESS_TOKEN` | empty | a read access token from your TMDB account |
+| Variable | Ships as | Required? | Replace with |
+|---|---|---|---|
+| `APP_SECRET` | `dev-secret-change-in-production` in `.env` | ✅ Yes | `php -r 'echo bin2hex(random_bytes(16)), PHP_EOL;'` |
+| `MERCURE_JWT_SECRET` | `!ChangeThisMercureHubJWTSecretKey!` in `.env` | ✅ Yes | any long random string; hub refuses to start without it |
+| `TMDB_ACCESS_TOKEN` | empty in `.env` | ✅ Yes (for /store) | a read access token from [themoviedb.org](https://www.themoviedb.org/settings/api) |
+| `STRIPE_SECRET_KEY` | `sk_test_placeholder` | ✅ Yes (for webhooks) | your live key from the [Stripe dashboard](https://dashboard.stripe.com/apikeys) |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_test_placeholder` | ✅ Yes | the signing secret from your [Stripe webhook endpoint](https://dashboard.stripe.com/webhooks) |
+| `MERCURE_PUBLIC_URL` | `https://example.com/.well-known/mercure` in `.env` | ✅ Yes | your actual domain + `/mercure` path; browsers use this |
 
 Put the replacements in `.env.local` (git-ignored) or, better, in the real
 environment of the host. Do not edit `.env` itself — it is committed, and the
 next `git pull` will fight you for it.
 
-Two of these fail closed rather than falling back, on purpose:
-`ADMIN_PASSWORD_HASH` stops the application from booting, and
-`MERCURE_JWT_SECRET` stops `docker compose` from even resolving the file.
+**Why Doctrine was removed:** This demo focuses on IntegrationEngine integrations, not
+data persistence. No database or `DATABASE_URL` needed. The app uses in-memory
+messenger transport for demo events. See [Architecture](./README.md#architecture) for details.
 
 **Where they are read from:**
 

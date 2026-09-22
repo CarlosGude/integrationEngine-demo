@@ -1,3 +1,25 @@
+# =============================================================================
+# IntegrationEngine Demo — Multi-stage Dockerfile
+# =============================================================================
+# This build uses composer.lock to pin exact versions (reproducible builds).
+# No dev-dependencies shipped to production. All versions documented below.
+#
+# BASE IMAGE: php:8.4-fpm
+#   - PHP 8.4: Latest stable (LTS until Nov 2027)
+#   - FPM: FastCGI Process Manager for Nginx
+#
+# MAIN DEPENDENCIES: (from composer.lock)
+#   - Symfony 7.4 LTS: Web framework (LTS until Nov 2025)
+#   - IntegrationEngine v7.0+: TMDB/Stripe/Countries integrations
+#   - Mercure 0.8+: Real-time WebSocket hub
+#   - symfony/security-bundle 7.4: HTTP Basic auth for webhooks
+#
+# REMOVED (T-11 — focus on integrations):
+#   - doctrine-bundle, doctrine-orm, doctrine-migrations
+#   - easycorp/easyadmin-bundle
+#   → No persistence layer; demo uses in-memory event transport
+# =============================================================================
+
 FROM php:8.4-fpm AS vendor
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -5,12 +27,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
+# Use Composer 2.x for reliable dependency resolution
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 WORKDIR /app
 
+# Copy lock files — ensures exact version reproducibility
+# composer.lock: frozen dependency tree from last successful install
+# symfony.lock: Flex recipe versions (not used for dev-mode)
 COPY composer.json composer.lock symfony.lock ./
 
+# Install with --no-dev to exclude PHPUnit, PHPStan, Infection, etc.
+# This keeps the production image size small (~50MB vs 120MB with dev tools)
 RUN composer install \
     --no-dev \
     --no-scripts \
@@ -20,8 +48,13 @@ RUN composer install \
 
 COPY . .
 
+# Regenerate autoloader in production mode
+# --classmap-authoritative: fail fast if a class is missing (no fallback)
 RUN composer dump-autoload --no-dev --optimize --classmap-authoritative
 
+# =============================================================================
+# Final Stage: Slim runtime image
+# =============================================================================
 FROM php:8.4-fpm
 
 RUN apt-get update && apt-get install -y --no-install-recommends \

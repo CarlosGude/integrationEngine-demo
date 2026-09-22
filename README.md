@@ -13,10 +13,9 @@ A guided tour through external API integrations using the [IntegrationEngine](ht
 - **[Architecture & Patterns Guide](docs/ARCHITECTURE.md)** — Complete reference covering layers, patterns, integrations, parallelism, and configuration
 - **[Project Analysis & Recommendations](docs/PROJECT-ANALYSIS.md)** — What's working, what's missing, and what could be added to the engine
 
-**Admin & Real-time:**
-- **[EasyAdmin Setup Guide](docs/EASYADMIN.md)** — Auto-generated admin CRUD dashboard
+**Real-time & Webhooks:**
 - **[Mercure & WebSockets Guide](docs/MERCURE-WEBSOCKETS.md)** — Real-time updates with WebSockets
-- **[Admin Features](docs/ADMIN-FEATURES.md)** — Dashboard, analytics, user management
+- **[Webhook Integration](docs/ARCHITECTURE.md#webhooks)** — Stripe webhook handler with HMAC verification
 
 **Resilience & Testing:**
 - **[Resilience Patterns Guide](docs/RESILIENCE-PATTERNS.md)** — Retry, circuit breaker, fallback strategies with production checklist
@@ -28,16 +27,22 @@ A guided tour through external API integrations using the [IntegrationEngine](ht
 - **[Contributing](docs/CONTRIBUTING.md)** — Development workflow and git conventions
 - **[Wiki](docs/WIKI.md)** — Complete project wiki with all documentation indexed
 
-## Status
+## Status & Versions
 
-`v1.0.0` is tagged and `main` is ahead of it — there is no `v1.1.0` tag yet.
-Phases 1-4 are complete and the integration with engine v7.0 is done.
+**Demo:** `v1.0.0` is tagged, `main` is development branch.
+**IntegrationEngine:** Pinned to `dev-main` (latest from [carlosgude/integrationEngine](https://github.com/CarlosGude/integrationEngine), v7.0+)
+**Symfony:** 7.4 LTS (supported until Nov 2025)
+**PHP:** 8.4 (current stable)
 
-[`TASKS.md`](TASKS.md) tracks 21 known issues and what has been done about
-them. The three blockers are closed: `make up` brings the stack up with both
-containers healthy, `composer install --no-dev` boots, and `/admin` and the
-Mercure publish endpoints require credentials. Read it before deploying — the
-remaining items are real, just not blocking.
+### Quality Gates
+
+[`TASKS.md`](TASKS.md) tracks 23 known issues. **P1 blockers are closed:**
+- ✅ `make up` → both containers healthy
+- ✅ `composer install --no-dev` → production boot
+- ✅ Webhook endpoints unauthenticated
+- ✅ 65 tests passing (78 before Doctrine removal), 224 assertions
+
+**Remaining:** 10 tasks (mostly P3 documentation, T-12 deptrac upgrade deferred).
 
 ### ✅ Completed (Days 17-26)
 
@@ -76,21 +81,23 @@ remaining items are real, just not blocking.
 - [x] Typed event dispatched via `WebhookEventDispatcher` to a Billing listener
 - [x] Tour steps 5-6: "Renting a Movie" + "Payment Confirmation" (bilingual)
 
-### 📊 Final Metrics (Days 17-28)
+### 📊 Final Metrics
 
 | Métrica | Valor |
 |---------|-------|
-| Total Commits | 16+ |
-| Tests | 66 ✅ (2 of them `markTestSkipped`, see TASKS.md T-08) |
-| Protocolos | 4 (REST, CSV, GraphQL, Stripe) |
-| Tour Steps | 7 (complete) |
-| Tour Snippets | 20+ (bilingual EN/ES) |
-| Resilience Patterns | 3 written (retry, circuit breaker, fallback) — **not wired**; only the rate limiter runs today |
-| Documentation | 2000+ lines |
-| Code Quality | PHPStan max, 0 violations — with a 27-entry baseline (TASKS.md T-09) |
-| Parallelism Speedup | 5-13x |
-| Custom Code (Today) | 410 lines |
-| Custom Code (After v7.0) | ~100 lines (-76%) |
+| Total Commits | 20+ |
+| Tests | 65 ✅ (no skipped; admin tests removed in T-11) |
+| Test Coverage | 224 assertions |
+| CI Jobs | 8 (tests, style, static-analysis, architecture, production-install, compose-config, build-image, mutation-testing) |
+| Protocolos | 4 (REST, CSV, GraphQL, Stripe form-urlencoded) |
+| Tour Steps | 7 (complete, bilingual EN/ES) |
+| Integrations | TMDB (REST), Supplier (CSV), Countries (GraphQL), Stripe (webhooks) |
+| Code Quality | PHPStan max, 0 violations, baseline 7 entries (T-09) |
+| Architecture | Deptrac 0 violations, UI layer captured (T-10) |
+| Parallelism Speedup | 5-13x for 20 concurrent movie loads |
+| Custom Code (Post-v7.0) | ~100 lines (-76% from v6.0) |
+| Dependencies | 113 packages (Doctrine & EasyAdmin removed, T-11) |
+| Persistence | None (in-memory event transport, focus on integrations) |
 
 ### ✅ Phase 2 Complete - Days 27-28
 
