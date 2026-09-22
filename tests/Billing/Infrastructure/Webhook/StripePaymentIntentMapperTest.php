@@ -10,12 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 final class StripePaymentIntentMapperTest extends TestCase
 {
-    private StripePaymentIntentMapper $mapper;
-
-    protected function setUp(): void
-    {
-        $this->mapper = new StripePaymentIntentMapper();
-    }
+}
 
     public function testMapStripePaymentIntentSucceededEvent(): void
     {
@@ -33,7 +28,7 @@ final class StripePaymentIntentMapperTest extends TestCase
             ],
         ];
 
-        $event = $this->mapper->map($payload, []);
+        $event = StripePaymentIntentMapper::map($payload, []);
 
         self::assertInstanceOf(StripePaymentIntentEvent::class, $event);
         self::assertSame('evt_test123', $event->eventId);
@@ -45,9 +40,9 @@ final class StripePaymentIntentMapperTest extends TestCase
         self::assertSame('usd', $event->currency);
     }
 
-    public function testGetDefinition(): void
+    public function testEventType(): void
     {
-        self::assertSame('payment_intent.succeeded', $this->mapper->getDefinition());
+        self::assertSame('payment_intent.succeeded', StripePaymentIntentMapper::eventType());
     }
 
     public function testMapWithoutMetadata(): void
@@ -66,7 +61,7 @@ final class StripePaymentIntentMapperTest extends TestCase
             ],
         ];
 
-        $event = $this->mapper->map($payload, []);
+        $event = StripePaymentIntentMapper::map($payload, []);
 
         self::assertInstanceOf(StripePaymentIntentEvent::class, $event);
         self::assertNull($event->movieId);
@@ -88,7 +83,7 @@ final class StripePaymentIntentMapperTest extends TestCase
             ],
         ];
 
-        $event = $this->mapper->map($payload, []);
+        $event = StripePaymentIntentMapper::map($payload, []);
         \assert($event instanceof StripePaymentIntentEvent);
 
         self::assertSame('12345', $event->eventId);
@@ -103,7 +98,7 @@ final class StripePaymentIntentMapperTest extends TestCase
 
     public function testMapDefaultsMissingTopLevelFieldsToEmptyValues(): void
     {
-        $event = $this->mapper->map([], []);
+        $event = StripePaymentIntentMapper::map([], []);
         \assert($event instanceof StripePaymentIntentEvent);
 
         self::assertSame('', $event->eventId);
