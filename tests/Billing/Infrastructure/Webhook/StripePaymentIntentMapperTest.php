@@ -26,7 +26,7 @@ final class StripePaymentIntentMapperTest extends TestCase
             ],
         ];
 
-        $event = StripePaymentIntentMapper::map($payload, []);
+        $event = StripePaymentIntentMapper::map('payment_intent.succeeded', $payload, []);
 
         self::assertInstanceOf(StripePaymentIntentEvent::class, $event);
         self::assertSame('evt_test123', $event->eventId);
@@ -59,7 +59,7 @@ final class StripePaymentIntentMapperTest extends TestCase
             ],
         ];
 
-        $event = StripePaymentIntentMapper::map($payload, []);
+        $event = StripePaymentIntentMapper::map('payment_intent.succeeded', $payload, []);
 
         self::assertInstanceOf(StripePaymentIntentEvent::class, $event);
         self::assertNull($event->movieId);
@@ -81,7 +81,7 @@ final class StripePaymentIntentMapperTest extends TestCase
             ],
         ];
 
-        $event = StripePaymentIntentMapper::map($payload, []);
+        $event = StripePaymentIntentMapper::map('payment_intent.succeeded', $payload, []);
         \assert($event instanceof StripePaymentIntentEvent);
 
         self::assertSame('12345', $event->eventId);
