@@ -17,3 +17,5 @@ webhooks:
   events:
     payment_intent.succeeded:
       mapper: 'App\Integrations\Stripe\Webhook\Mapper\StripePaymentIntentMapper'
+    payment_intent.payment_failed:
+      mapper: 'App\Integrations\Stripe\Webhook\Mapper\StripePaymentIntentFailedMapper'
