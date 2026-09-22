@@ -15,7 +15,7 @@ class DashboardController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('IntegrationEngine Demo');
+            ->setTitle('Movie Rental Admin');
     }
 
     public function configureMenuItems(): iterable

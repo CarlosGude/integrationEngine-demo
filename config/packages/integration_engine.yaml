@@ -11,8 +11,8 @@ integration_engine:
             # tour:end config/middleware-wiring
         countries:
             base_url: 'https://countries.trevorblades.com'
-            client_service: integration_engine.client.graphql
-            config_path: '%kernel.project_dir%/src/Integrations/Countries/Pricing/Countries.yaml'
+            client: graphql
+            config_path: '%kernel.project_dir%/src/Integrations/Countries/Countries.yaml'
         stripe:
             client_service: app.client.stripe
             config_path: '%kernel.project_dir%/src/Integrations/Stripe/Stripe.yaml'

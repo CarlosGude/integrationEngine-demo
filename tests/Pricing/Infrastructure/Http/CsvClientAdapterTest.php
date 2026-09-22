@@ -71,4 +71,19 @@ CSV;
 
         self::assertEmpty($result);
     }
+
+    #[Test]
+    public function backslashIsTreatedAsLiteralCharacter(): void
+    {
+        $adapter = new CsvClientAdapter();
+
+        $csv = <<<'CSV'
+sku,path
+A1,C:\tmp\file
+CSV;
+
+        $result = $adapter->parseCSV($csv);
+
+        self::assertSame('C:\tmp\file', $result[0]['path']);
+    }
 }

@@ -37,6 +37,9 @@ final class CsvClientAdapter implements CsvClientAdapterInterface
     /** @return list<string> */
     private static function columns(string $line): array
     {
-        return \array_map(static fn (?string $value): string => (string) $value, \str_getcsv($line));
+        return \array_map(
+            static fn (?string $value): string => (string) $value,
+            \str_getcsv($line, ',', '"', ''),
+        );
     }
 }
