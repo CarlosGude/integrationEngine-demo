@@ -40,12 +40,13 @@ final class DocumentedPathsExistTest extends TestCase
     ];
 
     /**
-     * TASKS.md is the backlog: it exists to describe things that are missing or
-     * wrong, so its paths are deliberately not checked here.
+     * TASKS.md and docs/TAREAS.md are backlogs: they exist to describe things
+     * that are missing, planned, or explicitly discarded, so their paths are
+     * deliberately not checked here.
      *
      * @var list<string>
      */
-    private const SKIPPED_DOCUMENTS = ['TASKS.md'];
+    private const SKIPPED_DOCUMENTS = ['TASKS.md', 'docs/TAREAS.md'];
 
     public function testEveryPathMentionedInDocumentationExists(): void
     {
