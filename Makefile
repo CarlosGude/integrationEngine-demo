@@ -19,7 +19,7 @@ install:
 	composer install
 
 test:
-	./vendor/bin/phpunit
+	./vendor/bin/phpunit $(if $(CI),--coverage-clover=coverage.xml --coverage-text,)
 
 cs:
 	./vendor/bin/php-cs-fixer fix --dry-run --diff
