@@ -10,8 +10,6 @@ use PHPUnit\Framework\TestCase;
 
 final class StripePaymentIntentMapperTest extends TestCase
 {
-}
-
     public function testMapStripePaymentIntentSucceededEvent(): void
     {
         $payload = [
