@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7873c0a1a1426364cde74de121176db2",
+    "content-hash": "b985288ac8721511acdf11f043bddfc7",
     "packages": [
         {
             "name": "carlosgude/integration-engine",
@@ -11493,16 +11493,16 @@
         },
         {
             "name": "symfony/phpunit-bridge",
-            "version": "v8.1.6",
+            "version": "v7.4.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/phpunit-bridge.git",
-                "reference": "abd3c4e35f06f98bc6e5e07c81f948bc77cd39bd"
+                "reference": "ff3a78aceb731b24b256a2845a8ad6e6851f942b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/abd3c4e35f06f98bc6e5e07c81f948bc77cd39bd",
-                "reference": "abd3c4e35f06f98bc6e5e07c81f948bc77cd39bd",
+                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/ff3a78aceb731b24b256a2845a8ad6e6851f942b",
+                "reference": "ff3a78aceb731b24b256a2845a8ad6e6851f942b",
                 "shasum": ""
             },
             "require": {
@@ -11554,7 +11554,7 @@
                 "testing"
             ],
             "support": {
-                "source": "https://github.com/symfony/phpunit-bridge/tree/v8.1.6"
+                "source": "https://github.com/symfony/phpunit-bridge/tree/v7.4.18"
             },
             "funding": [
                 {
@@ -11574,7 +11574,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-30T18:28:51+00:00"
+            "time": "2026-08-30T18:28:44+00:00"
         },
         {
             "name": "symfony/polyfill-php80",

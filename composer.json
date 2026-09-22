@@ -45,7 +45,7 @@
         "qossmic/deptrac-shim": "^1.0",
         "symfony/browser-kit": "^7.4",
         "symfony/css-selector": "^7.4",
-        "symfony/phpunit-bridge": "^8.1"
+        "symfony/phpunit-bridge": "^7.4"
     },
     "config": {
         "allow-plugins": {
