@@ -15,6 +15,7 @@ final class KernelBootTest extends TestCase
         $kernel = new Kernel('test', true);
         $kernel->boot();
 
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertNotNull($kernel->getContainer());
     }
 

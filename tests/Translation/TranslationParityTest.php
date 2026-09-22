@@ -32,7 +32,7 @@ final class TranslationParityTest extends TestCase
     }
 
     /**
-     * @return array<string, string>
+     * @return array<array-key, mixed>
      */
     private function loadMessages(string $locale): array
     {

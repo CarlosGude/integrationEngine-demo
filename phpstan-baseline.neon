@@ -33,11 +33,11 @@ parameters:
 		-
 			message: '#^Cannot access offset string on mixed\.$#'
 			identifier: offsetAccess.nonOffsetAccessible
-			count: 2
+			count: 1
 			path: src/Kernel.php
 
 		-
-			message: '#^Parameter \#1 \.\.\.\$arg1 of function min expects non\-empty\-array, list\<float\> given\.$#'
-			identifier: argument.type
+			message: '#^Cannot access offset ''all'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
 			count: 1
-			path: src/Console/BenchmarkCommand.php
+			path: src/Kernel.php

@@ -7,8 +7,6 @@
 under `src/Shared/Infrastructure/`, but nothing wires them yet; only
 `app.middleware.rate_limit` is declared under `middlewares:`).
 
-Known issues are tracked in [`TASKS.md`](TASKS.md).
-
 ### Overview
 A progressive demonstration of the **IntegrationEngine** Symfony bundle, showcasing API integration patterns through a movie storefront demo. Spans 9 days of incremental development with 3 distinct protocols and middleware extensibility.
 

@@ -30,7 +30,9 @@ final class StorefrontControllerTest extends TestCase
         ];
 
         self::assertSame($movie1, $batch[1]);
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertNull($batch[2]);
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertNull($batch[3]);
         self::assertCount(3, $batch);
     }

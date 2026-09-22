@@ -36,13 +36,14 @@ A guided tour through external API integrations using the [IntegrationEngine](ht
 
 ### Quality Gates
 
-[`TASKS.md`](TASKS.md) tracks 23 known issues. **P1 blockers are closed:**
+All CI jobs are green:
 - ✅ `make up` → both containers healthy
 - ✅ `composer install --no-dev` → production boot
 - ✅ Webhook endpoints unauthenticated
-- ✅ 65 tests passing (78 before Doctrine removal), 224 assertions
+- ✅ 65 tests passing, 225 assertions
+- ✅ PHPStan level `max`, PHP CS Fixer, Deptrac — all clean
 
-**Remaining:** 10 tasks (mostly P3 documentation, T-12 deptrac upgrade deferred).
+**Deferred by choice, not by gap:** upgrading `qossmic/deptrac-shim` (abandoned) to `deptrac/deptrac` 2.x needs a config migration; bumping to PHPUnit 13 is scheduled as its own PR.
 
 ### ✅ Completed (Days 17-26)
 
@@ -144,8 +145,8 @@ See: [Phase 3 Integration Plan](docs/PHASE3-INTEGRATION.md) for implementation d
 
 ### 🚀 Deployment
 
-The deployment guide is written and complete. Two blockers stand between it and
-an actual deploy — see the Status section above and [`TASKS.md`](TASKS.md).
+The deployment guide is written and complete — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+and the Status section above. No open blockers.
 
 ## Project Structure
 
@@ -336,9 +337,9 @@ tests/
 
 ---
 
-**Status:** see the [Status](#status) section at the top — `v1.0.0` tagged, `main` ahead, two blockers open in [`TASKS.md`](TASKS.md).
+**Status:** see the [Status](#status) section at the top — `v1.0.0` tagged, `main` ahead, all CI gates green.
 
 ---
 
-*Status claims in this document last verified against the code on 2026-09-21, at `d67f899`.*
+*Status claims in this document last verified against the code on 2026-09-22.*
 *Enforced for file paths by `tests/Documentation/DocumentedPathsExistTest.php`.*

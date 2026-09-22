@@ -47,6 +47,7 @@ final class LegacyEngineParityTest extends TestCase
         self::assertSame($movieId, $legacyResult['id']);
         self::assertSame('Avengers: Endgame', $legacyResult['title']);
         self::assertSame(8.3, $legacyResult['vote_average']);
+        self::assertIsString($legacyResult['poster_url']);
         self::assertStringStartsWith('https://image.tmdb.org/t/p/', $legacyResult['poster_url']);
     }
 }

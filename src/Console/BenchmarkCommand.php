@@ -52,6 +52,12 @@ final class BenchmarkCommand extends Command
         $movieCount = (int) $count;
         $runCount = (int) $runs;
 
+        if ($runCount < 1) {
+            $io->error('--runs must be at least 1.');
+
+            return Command::INVALID;
+        }
+
         $movieIds = \array_slice(
             [299536, 550, 278, 496243, 680, 109, 129, 238, 240, 424, 389, 505642, 338762, 346698, 16662],
             0,

@@ -14,7 +14,7 @@ final class RateLimitMiddlewareTest extends TestCase
     #[Test]
     public function rateLimitMiddlewareExtendsAbstractClientMiddleware(): void
     {
-        /** @phpstan-ignore function.alreadyNarrowedType */
+        /** @phpstan-ignore function.alreadyNarrowedType, staticMethod.alreadyNarrowedType */
         self::assertTrue(\is_subclass_of(RateLimitMiddleware::class, AbstractClientMiddleware::class));
     }
 

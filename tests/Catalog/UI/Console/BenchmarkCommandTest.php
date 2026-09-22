@@ -26,6 +26,7 @@ final class BenchmarkCommandTest extends TestCase
         $times = [100.5, 200.3, 150.7, 175.2, 125.9];
         $median = Median::calculate($times);
 
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType */
         self::assertIsFloat($median);
         self::assertGreaterThan(0, $median);
     }
