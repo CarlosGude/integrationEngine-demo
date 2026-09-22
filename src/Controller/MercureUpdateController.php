@@ -28,10 +28,14 @@ class MercureUpdateController extends AbstractController
         $topic = $data['topic'];
         $message = is_array($data['message'] ?? null) ? $data['message'] : [];
 
-        // Publish update to Mercure
+        $payload = json_encode(['timestamp' => date('c'), ...$message]);
+        if ($payload === false) {
+            return new JsonResponse(['error' => 'Failed to encode message'], 400);
+        }
+
         $update = new Update(
             topics: $topic,
-            data: json_encode(['timestamp' => date('c'), ...$message]),
+            data: $payload,
         );
 
         $hub->publish($update);
@@ -44,14 +48,18 @@ class MercureUpdateController extends AbstractController
     {
         $data = json_decode($request->getContent(), true) ?? [];
 
-        // Publish new transaction update
+        $payload = json_encode([
+            'action' => 'new_transaction',
+            'transaction' => $data,
+            'timestamp' => date('c'),
+        ]);
+        if ($payload === false) {
+            return new JsonResponse(['error' => 'Failed to encode transaction'], 400);
+        }
+
         $update = new Update(
             topics: 'admin/transactions',
-            data: (string) json_encode([
-                'action' => 'new_transaction',
-                'transaction' => $data,
-                'timestamp' => date('c'),
-            ]),
+            data: $payload,
         );
 
         $hub->publish($update);
@@ -107,19 +115,21 @@ class MercureUpdateController extends AbstractController
             $data = $payload['data'] ?? [];
             if (is_array($data) && isset($data['object']) && is_array($data['object'])) {
                 $object = $data['object'];
-                $update = new Update(
-                    topics: 'admin/payments',
-                    data: (string) json_encode([
-                        'action' => 'payment_succeeded',
-                        'paymentIntentId' => $object['id'] ?? null,
-                        'amount' => $object['amount'] ?? null,
-                        'currency' => $object['currency'] ?? 'USD',
-                        'status' => 'succeeded',
-                        'timestamp' => date('c'),
-                    ]),
-                );
-
-                $hub->publish($update);
+                $payload = json_encode([
+                    'action' => 'payment_succeeded',
+                    'paymentIntentId' => $object['id'] ?? null,
+                    'amount' => $object['amount'] ?? null,
+                    'currency' => $object['currency'] ?? 'USD',
+                    'status' => 'succeeded',
+                    'timestamp' => date('c'),
+                ]);
+                if ($payload !== false) {
+                    $update = new Update(
+                        topics: 'admin/payments',
+                        data: $payload,
+                    );
+                    $hub->publish($update);
+                }
             }
         }
     }

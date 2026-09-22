@@ -37,52 +37,10 @@ parameters:
 			path: src/Console/SimulateRentalCommand.php
 
 		-
-			message: '#^Parameter \$data of class Symfony\\Component\\Mercure\\Update constructor expects string, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Controller/MercureUpdateController.php
-
-		-
-			message: '#^Method App\\Integrations\\Countries\\GetCountries\\GetCountriesAction\:\:mapper\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Integrations/Countries/GetCountries/GetCountriesAction.php
-
-		-
-			message: '#^Method App\\Integrations\\Stripe\\CreatePaymentIntent\\CreatePaymentIntentAction\:\:mapper\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Integrations/Stripe/CreatePaymentIntent/CreatePaymentIntentAction.php
-
-		-
-			message: '#^Method App\\Integrations\\Supplier\\GetPrices\\GetPricesAction\:\:mapper\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Integrations/Supplier/GetPrices/GetPricesAction.php
-
-		-
 			message: '#^Parameter \#1 \$prices of class App\\Integrations\\Supplier\\GetPrices\\GetPricesResponse constructor expects list\<array\<string, string\>\>, array\<array\<string, string\>\> given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Integrations/Supplier/Mappers/GetPricesMapper.php
-
-		-
-			message: '#^Method App\\Integrations\\Tmdb\\GetConfiguration\\GetConfigurationAction\:\:mapper\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Integrations/Tmdb/GetConfiguration/GetConfigurationAction.php
-
-		-
-			message: '#^Method App\\Integrations\\Tmdb\\GetMovie\\GetMovieAction\:\:mapper\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Integrations/Tmdb/GetMovie/GetMovieAction.php
-
-		-
-			message: '#^Method App\\Integrations\\Tmdb\\GetTvSeason\\GetTvSeasonAction\:\:mapper\(\) never returns null so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Integrations/Tmdb/GetTvSeason/GetTvSeasonAction.php
 
 		-
 			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
@@ -149,6 +107,12 @@ parameters:
 			identifier: staticMethod.alreadyNarrowedType
 			count: 1
 			path: tests/Shared/Infrastructure/Middleware/RateLimitMiddlewareTest.php
+
+		-
+			message: '#^Parameter \$content of method Symfony\\Component\\BrowserKit\\AbstractBrowser\<Symfony\\Component\\HttpFoundation\\Request,Symfony\\Component\\HttpFoundation\\Response\>\:\:request\(\) expects string\|null, string\|false given\.$#'
+			identifier: argument.type
+			count: 5
+			path: tests/Shared/UI/MercureUpdateControllerTest.php
 
 		-
 			message: '#^Method Tests\\Translation\\TranslationParityTest\:\:loadMessages\(\) should return array\<string, string\> but returns array\<mixed\>\.$#'

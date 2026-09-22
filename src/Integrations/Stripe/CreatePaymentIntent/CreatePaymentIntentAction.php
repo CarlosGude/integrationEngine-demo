@@ -20,7 +20,7 @@ final class CreatePaymentIntentAction extends AbstractAction
         return true;
     }
 
-    public static function mapper(): ?string
+    public static function mapper(): string
     {
         return CreatePaymentIntentMapper::class;
     }

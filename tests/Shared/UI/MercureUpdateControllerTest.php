@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\User\InMemoryUser;
 
 final class MercureUpdateControllerTest extends WebTestCase
 {
-    private function createClientWithMockHub()
+    private function createClientWithMockHub(): \Symfony\Bundle\FrameworkBundle\KernelBrowser
     {
         $client = static::createClient();
         $container = static::getContainer();
@@ -25,14 +25,6 @@ final class MercureUpdateControllerTest extends WebTestCase
         $container->set(HubInterface::class, $hub);
 
         return $client;
-    }
-
-    private function authenticateAsAdmin(self $testCase): void
-    {
-        $user = new InMemoryUser('admin', 'password', ['ROLE_ADMIN']);
-        $testCase->getContainer()->get('security.token_storage')->setToken(
-            new \Symfony\Component\Security\Authentication\Token\UsernamePasswordToken($user, 'main', ['ROLE_ADMIN'])
-        );
     }
 
     #[Test]
