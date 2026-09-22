@@ -177,15 +177,14 @@ declare(strict_types=1);
 private readonly HubInterface $hub;
 
 // 4. Single responsibility principle
-class UserCrudController extends AbstractCrudController
+final class GetMovieAction extends AbstractAction
 {
-    // One entity per controller
+    // One integration action per class
 }
 
 // 5. Dependency injection via constructor
 public function __construct(
-    private TransactionService $service,
-    private HubInterface $hub,
+    private readonly MovieCatalogGateway $catalog,
 ) {}
 ```
 
@@ -255,18 +254,13 @@ class BenchmarkTest extends TestCase
 src/
 ├── Catalog/          # Movie catalog (TMDB)
 ├── Pricing/          # Pricing service (CSV + GraphQL)
-├── Payment/          # Payment processing (Stripe)
+├── Billing/          # Payment processing (Stripe)
+├── Integrations/     # Tmdb, Countries, Stripe, Supplier clients
 ├── Shared/           # Cross-cutting concerns
-├── Controller/
-│   ├── Admin/        # Admin CRUD controllers
-│   └── ...
+├── Controller/       # HTTP endpoints (flat, no per-context UI/)
 └── Tour/             # Interactive tour system
 
-tests/
-├── Catalog/
-├── Pricing/
-├── Payment/
-└── Tour/
+tests/               # mirrors src/
 
 config/
 ├── packages/         # Framework config
@@ -279,9 +273,6 @@ config/
 ```bash
 # All tests
 make test
-
-# Watch mode (requires watchman)
-make test-watch
 
 # Specific test
 make test TEST=tests/Shared/UI/MercureUpdateControllerTest.php::publishValidatesInput
@@ -313,9 +304,9 @@ Update docs when:
 docs/
 ├── QUICKSTART.md          # Get started in 5 min
 ├── ARCHITECTURE.md        # System design
-├── EASYADMIN.md           # Admin setup
-├── MERCURE-WEBSOCKETS.md  # Real-time updates
-├── DEPLOYMENT.md          # Production
+├── MERCURE-WEBSOCKETS.md  # Real-time updates guide (generic; not wired to rentals)
+├── DEPLOYMENT.md          # Bare-metal reference, not executed
+├── TAREAS.md              # Archived broader-scope draft plan
 └── WIKI.md                # Master index
 ```
 
@@ -375,15 +366,13 @@ When adding features:
 - ⚡ Parallel requests where possible
 - 🔄 Reuse existing services
 - 📊 Benchmark impacts (see `catalog:benchmark`)
-- 🗄️ Use database indexes
-- ⏱️ Cache expensive operations
+- ⏱️ Cache expensive operations (filesystem-backed `cache.app`, no Redis)
 
 ## Security Guidelines
 
 - 🔐 No credentials in code
 - ✅ Use environment variables
 - ✅ Validate all input
-- ✅ Use parameterized queries
 - ✅ Follow OWASP top 10
 
 ## Questions?

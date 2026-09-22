@@ -1,8 +1,17 @@
 # 📝 Release Notes - v1.0.0
 
-**IntegrationEngine Demo** — Production Release  
+**IntegrationEngine Demo** — Tagged Release  
 **Date:** September 2026  
-**Status:** ✅ Production Ready
+**Status:** Feature-complete for this demo's scope; never deployed to a live host
+
+> **Update (2026-09-22):** this is the historical record for the `v1.0.0` tag.
+> Since then: Doctrine ORM was **removed entirely** (it says "configured but no
+> entities defined" below — that's no longer true, there's no Doctrine at all);
+> persistence, an admin/payments panel, and RabbitMQ were explicitly **descoped**,
+> not just deferred (see `docs/TAREAS.md` § "Decisiones de alcance"); and the
+> engine v7.0 integration mentioned in the Roadmap below did ship. A few claims
+> in this file were inaccurate even at release time (no PostgreSQL or Redis were
+> ever part of this project) and are corrected inline below.
 
 ---
 
@@ -33,7 +42,7 @@
 ### 🚀 Performance
 
 - **Parallel request handling** with 5-13x speedup
-- **Redis caching** for authentication tokens
+- **Filesystem-backed caching** (Symfony Cache, no Redis) for authentication tokens
 - **Rate limiting middleware** example
 - **Batch request optimization** via `sendMany()`
 
@@ -112,7 +121,8 @@ None. All features are stable.
 
 ## Known Limitations
 
-1. **Doctrine ORM** — Configured but no entities defined (prepared for future use)
+1. **Doctrine ORM** — present at this tag, configured but unused; **removed entirely**
+   in a later commit once it was clear this demo would never need persistence
 2. **Symfony Translation** — Disabled (compatibility with PHPUnit/Infection)
 3. **Rate Limiting** — Middleware example (not yet built-in to engine)
 4. **Circuit Breaker** — Manual implementation (waiting for engine v7.0)
@@ -171,7 +181,8 @@ Expected changes:
 ## Security Advisories
 
 ### None
-No known security vulnerabilities in v1.0.0.
+No known security vulnerabilities in v1.0.0. No formal third-party security audit
+was performed — "best practices" below is a self-assessment, not an audit result.
 
 ### Security Best Practices
 - ✅ Webhook signature verification (HMAC-SHA256)
@@ -245,20 +256,14 @@ MIT License - See LICENSE file
 
 ## Roadmap (Future Releases)
 
-### v1.1 (Q4 2026)
-- [ ] IntegrationEngine v7.0 integration
-- [ ] Remove 160 lines of custom adapter code
-- [ ] Simplified error handling
+### v1.1 — done since this tag
+- [x] IntegrationEngine v7.0 integration (see `docs/PHASE3-INTEGRATION.md`, `PLAN.md`)
+- [x] Removed the custom `StripeFormClientAdapter` and CSV parsing boilerplate
 
-### v1.2 (Q1 2027)
-- [ ] VPS deployment template
-- [ ] Monitoring & alerting setup
-- [ ] Performance benchmarks in CI
-
-### v2.0 (Q2 2027)
-- [ ] GraphQL subscription support (engine v7.2)
-- [ ] OpenTelemetry integration
-- [ ] Multi-tenant support improvements
+### Later, explicitly descoped (not planned)
+VPS deployment, an admin/monitoring panel, and multi-tenant/RabbitMQ support were
+considered and then deliberately dropped — see `docs/TAREAS.md` § "Decisiones de
+alcance". This is a tour of the engine, not a product with a release roadmap.
 
 ---
 
@@ -266,9 +271,8 @@ MIT License - See LICENSE file
 
 - **PHP:** 8.4+
 - **Symfony:** 7.4
-- **IntegrationEngine:** 6.0.0 (→ 7.0 in v1.1)
-- **PostgreSQL:** 15+
-- **Redis:** 7.0+
+- **IntegrationEngine:** `dev-main` (post-v7.0, see `docs/PHASE3-INTEGRATION.md`)
+- **Database:** none — no PostgreSQL, no Redis, no persistence layer at all
 - **Node:** Not required
 
 ---
@@ -293,25 +297,21 @@ Built with:
 
 ---
 
-**Generated:** 2026-09-21  
-**Status:** ✅ Production Ready  
-**Next:** Phase 4 Complete - Deployment & Documentation
+**Generated:** 2026-09-21 (see the 2026-09-22 update banner at the top for what's changed since)
+**Status:** Feature-complete for this demo's scope — not deployed to a live host
 
 ---
 
 ### Checklist for v1.0.0 Release
 
-- [x] All tests passing (55/55)
+- [x] All tests passing at this tag
 - [x] Code quality verified (PHPStan max, Deptrac clean)
-- [x] Documentation complete (6 guides, 3000+ lines)
-- [x] Security audit passed
+- [x] Documentation written (later found to need a significant accuracy pass — see this file's update banner)
 - [x] Performance benchmarks documented
-- [x] Deployment guide written
+- [x] Deployment guide written (as a reference exercise — never executed against a live host)
 - [x] Release notes published
-- [x] Bilingual tour complete (7 steps, 20+ snippets)
-- [x] Resilience patterns implemented
+- [x] Bilingual tour complete (7 steps)
+- [x] Resilience patterns implemented (not yet wired into the live request pipeline)
 - [x] Chaos testing framework ready
 - [x] Custom adapter patterns documented
-- [x] Phase 3 integration plan ready (for v7.0)
-
-**Status: READY FOR PRODUCTION**
+- [x] Phase 3 integration plan ready (for v7.0) — since executed

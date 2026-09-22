@@ -6,8 +6,9 @@ Get IntegrationEngine Demo up and running in 5 minutes.
 
 - PHP 8.4+
 - Composer
-- Docker (optional)
-- Node.js 18+ (for frontend dev)
+- Docker (recommended — `compose.yaml` also runs the Mercure hub)
+
+No Node.js needed — assets are served via Symfony AssetMapper, no JS build step.
 
 ## Installation
 
@@ -22,9 +23,12 @@ composer install
 
 ### 2. Configure Environment
 
+There's no `.env.local.example` to copy — create `.env.local` directly (it's
+git-ignored) with at least your TMDB token; everything else already has a
+working default in `.env`:
+
 ```bash
-cp .env.local.example .env.local
-# Edit .env.local with your TMDB token
+echo 'TMDB_ACCESS_TOKEN=your_token_here' > .env.local
 ```
 
 Get a TMDB token:
@@ -57,10 +61,10 @@ built-in server (options A and C), `8080` for Docker Compose (option B, bound to
 Open your browser — substituting the port for your option:
 - **Storefront**: http://localhost:8000/en/store
 - **Tour**: http://localhost:8000/en/tour
-- **Admin Dashboard**: http://localhost:8000/admin — asks for credentials;
-  username `admin`, password from `ADMIN_PASSWORD_HASH` (see
-  [DEPLOYMENT.md](DEPLOYMENT.md))
 - **Real-time Demo**: http://localhost:8000/mercure-demo.html
+
+There's no admin dashboard — this demo has no persistence layer at all, see
+[README.md](../README.md) § "Scope of this demo".
 
 ## Features to Try
 
@@ -83,15 +87,7 @@ curl http://localhost:8000/es/tour
 php bin/console catalog:benchmark
 ```
 
-### 4. Admin Dashboard
-```bash
-# After database setup
-php bin/console make:entity User
-php bin/console make:admin:dashboard
-# Visit http://localhost:8000/admin
-```
-
-### 5. Real-time Updates
+### 4. Real-time Updates
 ```bash
 # Start Mercure (in another terminal)
 docker run -p 3000:80 -e MERCURE_PUBLISHER_JWT_SECRET=dev dunglas/mercure
@@ -139,8 +135,9 @@ integrationEngine-demo/
 ├── src/
 │   ├── Catalog/          # Movie catalog (TMDB integration)
 │   ├── Pricing/          # Pricing service (CSV + GraphQL)
-│   ├── Payment/          # Payment processing (Stripe)
-│   ├── Shared/           # Shared infrastructure
+│   ├── Billing/          # Stripe payment gateway + webhook listener
+│   ├── Integrations/     # Tmdb, Countries, Stripe, Supplier clients
+│   ├── Shared/           # Middleware, resilience patterns, observability
 │   └── Tour/             # Interactive tour system
 ├── config/
 │   ├── packages/
@@ -150,7 +147,7 @@ integrationEngine-demo/
 │   └── routes/
 ├── tests/
 ├── docs/                 # Full documentation
-├── docker/               # Docker setup
+├── docker/               # nginx.conf + entrypoint.sh (used by root Dockerfile)
 └── public/
     ├── mercure-demo.html # Real-time demo
     └── index.php         # Entry point
@@ -160,33 +157,21 @@ integrationEngine-demo/
 
 ### API Keys
 
-Create `.env.local`:
+Create or edit `.env.local`:
 ```env
 # TMDB (Required for live data)
 TMDB_ACCESS_TOKEN=your_token_here
 
-# Stripe (Optional - for payments)
+# Stripe (already has a working test placeholder in .env)
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 
-# Mercure (Optional - for real-time)
-MERCURE_URL=http://localhost:3000/.well-known/mercure
-MERCURE_PUBLIC_URL=http://localhost:3000/.well-known/mercure
+# Mercure (already has a working default in .env)
 MERCURE_JWT_SECRET=dev-secret
 ```
 
-### Database
-
-```bash
-# SQLite (default - no setup needed)
-DATABASE_URL="sqlite:///%kernel.project_dir%/var/data.db"
-
-# PostgreSQL (production)
-DATABASE_URL="postgresql://user:pass@localhost/demo"
-
-# MySQL
-DATABASE_URL="mysql://user:pass@localhost/demo"
-```
+No database, no `DATABASE_URL` — this demo has no persistence layer, see
+[README.md](../README.md) § "Scope of this demo".
 
 ## Docker Compose
 
@@ -213,15 +198,11 @@ php bin/console debug:router
 # Services
 php bin/console debug:container
 
-# Database
-php bin/console doctrine:database:create
-php bin/console doctrine:migrations:migrate
-
 # Cache
 php bin/console cache:clear
 
-# Test
-php bin/console test
+# Tests
+vendor/bin/phpunit
 
 # Lint
 php bin/console lint:yaml config/
@@ -235,11 +216,8 @@ php bin/console lint:yaml config/
 ### "Port 8000 already in use"
 → Use different port: `symfony server:start --port=8001`
 
-### Database connection error
-→ Check `DATABASE_URL` in `.env.local`
-
 ### Mercure connection fails
-→ Ensure Mercure server running: `docker run -p 3000:80 dunglas/mercure`
+→ Ensure the `mercure` container is up: `docker compose up -d mercure`
 
 ### Composer dependency conflicts
 → Clear cache: `rm -rf vendor composer.lock && composer install`
@@ -248,9 +226,8 @@ php bin/console lint:yaml config/
 
 1. **Read the [Architecture Guide](ARCHITECTURE.md)** — Understand the design patterns
 2. **Explore [Resilience Patterns](RESILIENCE-PATTERNS.md)** — Retry, fallback, circuit breaker
-3. **Setup [Admin Dashboard](EASYADMIN.md)** — Create management interface
-4. **Configure [Real-time Updates](MERCURE-WEBSOCKETS.md)** — WebSocket communication
-5. **Deploy to [Production](DEPLOYMENT.md)** — VPS setup guide
+3. **Configure [Real-time Updates](MERCURE-WEBSOCKETS.md)** — WebSocket communication
+4. **Read [Deployment reference](DEPLOYMENT.md)** — a written exercise, not an executed live setup
 
 ## Support
 

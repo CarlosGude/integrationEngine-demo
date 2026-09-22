@@ -1,17 +1,17 @@
 # 🚀 Deployment Guide
 
-**IntegrationEngine Demo v1.0.0** — Production deployment instructions
+**IntegrationEngine Demo v1.0.0** — a written deployment exercise, **not executed**. There is no live host running this demo. See `README.md` § "Scope of this demo" for why: this is a tour of the engine, not a real app, and it has no database or Redis dependency at all — `composer.json` doesn't include a DBAL/ORM package or a Redis client. The actual repo already runs as a single Docker container (root `Dockerfile`, `php:8.4-fpm` + Nginx via `docker/nginx.conf` + `docker/entrypoint.sh`) plus a `mercure` hub container (`compose.yaml`) — that's the real, tested way to run this. What follows is a bare-metal alternative for reference only.
 
 ---
 
 ## Prerequisites
 
 - PHP 8.4+ with FPM
-- PostgreSQL 15+ or MySQL 8.0+
-- Redis 7.0+ (for caching)
 - Nginx 1.25+
 - Symfony 7.4+
 - Git (for CI/CD)
+
+No database, no Redis — this demo persists nothing (see `README.md` § "Scope of this demo").
 
 ---
 
@@ -23,19 +23,17 @@
 └────────┬────────┘
          │
 ┌────────▼────────┐
-│  PHP 8.4 FPM    │  (Symfony 7.4 app)
+│  PHP 8.4 FPM    │  (Symfony 7.4 app, no persistence)
 └────────┬────────┘
          │
-    ┌────┴────┐
-    │          │
-┌───▼──┐  ┌──▼────┐
-│ DB   │  │ Redis │  (PostgreSQL + cache)
-└──────┘  └───────┘
+┌────────▼────────┐
+│  Mercure hub    │  (real-time push, separate container/process)
+└─────────────────┘
 ```
 
 ---
 
-## VPS Deployment (AWS EC2 / DigitalOcean)
+## VPS Deployment (AWS EC2 / DigitalOcean) — bare-metal alternative to Docker
 
 ### Step 1: Provision Server
 
@@ -71,21 +69,10 @@ sudo add-apt-repository ppa:ondrej/php
 sudo apt install -y \
   php8.4-fpm \
   php8.4-cli \
-  php8.4-pdo \
   php8.4-mbstring \
   php8.4-xml \
   php8.4-curl \
-  php8.4-gd \
-  php8.4-redis \
   composer
-
-# Database
-sudo apt install -y postgresql postgresql-contrib
-sudo systemctl enable postgresql
-
-# Cache
-sudo apt install -y redis-server
-sudo systemctl enable redis-server
 
 # Web server
 sudo apt install -y nginx
@@ -95,24 +82,7 @@ sudo systemctl enable nginx
 sudo apt install -y certbot python3-certbot-nginx
 ```
 
-### Step 3: Database Setup
-
-```bash
-# Connect to PostgreSQL
-sudo -u postgres psql
-
-# Create database and user
-CREATE DATABASE integration_engine;
-CREATE USER app_user WITH PASSWORD 'strong_password_here';
-ALTER ROLE app_user SET client_encoding TO 'utf8';
-ALTER ROLE app_user SET default_transaction_isolation TO 'read committed';
-ALTER ROLE app_user SET default_transaction_deferrable TO on;
-ALTER ROLE app_user SET default_timezone TO 'UTC';
-GRANT ALL PRIVILEGES ON DATABASE integration_engine TO app_user;
-\q
-```
-
-### Step 4: Deploy Application
+### Step 3: Deploy Application
 
 ```bash
 # As ubuntu user
@@ -129,7 +99,7 @@ sudo chmod -R 755 var/
 sudo chmod -R 755 public/
 ```
 
-### Step 5: Environment Configuration
+### Step 4: Environment Configuration
 
 **Create `.env.local`:**
 ```bash
@@ -180,9 +150,10 @@ Put the replacements in `.env.local` (git-ignored) or, better, in the real
 environment of the host. Do not edit `.env` itself — it is committed, and the
 next `git pull` will fight you for it.
 
-**Why Doctrine was removed:** This demo focuses on IntegrationEngine integrations, not
-data persistence. No database or `DATABASE_URL` needed. The app uses in-memory
-messenger transport for demo events. See [Architecture](./README.md#architecture) for details.
+**Why there's no database:** this demo focuses on IntegrationEngine integrations, not
+data persistence — it's a tour, not a real rental business. No `DATABASE_URL` needed.
+Messenger uses the `sync://` transport (no queue). See `../README.md` § "Scope of this
+demo" for the full reasoning.
 
 **Where they are read from:**
 
@@ -194,7 +165,7 @@ messenger transport for demo events. See [Architecture](./README.md#architecture
 - `MERCURE_JWT_SECRET` is read twice — by Symfony for signing, and by Docker
   Compose to configure the hub. One value in `.env.local` covers both.
 
-### Step 6: Nginx Configuration
+### Step 5: Nginx Configuration
 
 **Create `/etc/nginx/sites-available/integration-engine`:**
 ```nginx
@@ -270,7 +241,7 @@ sudo systemctl reload nginx
 sudo certbot certonly --nginx -d your-domain.com -d www.your-domain.com
 ```
 
-### Step 7: PHP-FPM Configuration
+### Step 6: PHP-FPM Configuration
 
 **Edit `/etc/php/8.4/fpm/pool.d/www.conf`:**
 ```ini
@@ -290,7 +261,7 @@ php_admin_value[disable_functions] = exec,passthru,shell_exec,system,proc_open,p
 sudo systemctl restart php8.4-fpm
 ```
 
-### Step 8: Cache & Background Jobs
+### Step 7: Cache & Background Jobs
 
 **Warm up cache (production):**
 ```bash
@@ -298,34 +269,17 @@ cd /var/www/integrationEngine-demo
 sudo -u www-data php bin/console cache:warmup --env=prod
 ```
 
-**Messenger worker (optional, for async jobs):**
-```bash
-# Create systemd service at /etc/systemd/system/integration-engine-worker.service
-[Unit]
-Description=IntegrationEngine Messenger Worker
-After=network.target
-
-[Service]
-Type=simple
-User=www-data
-WorkingDirectory=/var/www/integrationEngine-demo
-ExecStart=/usr/bin/php bin/console messenger:consume async -vv
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-**Enable:**
-```bash
-sudo systemctl enable integration-engine-worker
-sudo systemctl start integration-engine-worker
-```
+No Messenger worker is needed: `config/packages/messenger.yaml` only configures the
+`sync://` transport, so there's no queue to consume.
 
 ---
 
 ## CI/CD Pipeline (GitHub Actions)
+
+This is an illustrative example of a *deploy* workflow for the bare-metal setup
+above. It's separate from, and does not match, the actual `.github/workflows/ci.yml`
+already in this repo, which runs tests/style/static-analysis/architecture/mutation
+jobs but does not deploy anywhere.
 
 **Create `.github/workflows/deploy.yml`:**
 
@@ -347,7 +301,6 @@ jobs:
         run: |
           composer install
           php bin/console cache:clear --env=test
-          php bin/console doctrine:schema:create --env=test
           vendor/bin/phpunit
 
       - name: Code Quality
@@ -368,7 +321,6 @@ jobs:
             composer install --no-dev --optimize-autoloader
             php bin/console cache:clear --env=prod
             php bin/console cache:warmup --env=prod
-            php bin/console doctrine:migrations:migrate --no-interaction
             sudo systemctl reload php8.4-fpm
             sudo systemctl reload nginx
 ```
@@ -400,9 +352,6 @@ sudo tail -f /var/log/php8.4-fpm.log
 # Check app status
 curl -s https://your-domain.com/en/store | grep -q "IntegrationEngine" && echo "OK" || echo "FAIL"
 
-# Check database
-sudo -u www-data php bin/console doctrine:query:sql "SELECT 1"
-
 # Check cache
 sudo -u www-data php bin/console cache:pool:clear cache.app
 ```
@@ -420,22 +369,8 @@ sudo systemctl enable prometheus-node-exporter
 
 ## Backup Strategy
 
-### Database Backups
-```bash
-# Create backup script at /usr/local/bin/backup-db.sh
-#!/bin/bash
-BACKUP_DIR="/backups/database"
-mkdir -p $BACKUP_DIR
-DATE=$(date +%Y%m%d_%H%M%S)
-sudo -u postgres pg_dump integration_engine | gzip > $BACKUP_DIR/backup_$DATE.sql.gz
-find $BACKUP_DIR -mtime +30 -delete  # Keep 30 days
-```
-
-**Schedule daily:**
-```bash
-sudo crontab -e
-# Add: 0 2 * * * /usr/local/bin/backup-db.sh
-```
+Nothing here holds state to back up — no database, no uploaded files. The only
+thing worth preserving off-server is the secrets in `.env.local`.
 
 ### Code Backups
 ```bash
@@ -450,8 +385,6 @@ sudo cp /var/www/integrationEngine-demo/.env.local /backups/.env.local.backup
 
 - [ ] HTTPS enabled (Let's Encrypt certificate)
 - [ ] APP_DEBUG=0 in production
-- [ ] Strong database password
-- [ ] Redis requires authentication
 - [ ] SSH key-only access (no passwords)
 - [ ] Firewall configured (only ports 80, 443, 22)
 - [ ] Regular backups scheduled
@@ -488,13 +421,6 @@ realpath_cache_ttl=3600
 # - HTTP/2 support
 ```
 
-### Database
-```sql
--- Create indexes for frequently queried columns
-CREATE INDEX idx_rental_user ON rentals(user_id);
-CREATE INDEX idx_rental_status ON rentals(status);
-```
-
 ---
 
 ## Rollback Procedure
@@ -528,13 +454,10 @@ sudo systemctl reload nginx
 curl -I https://your-domain.com/en/store
 # Should return 200
 
-# 2. Database connectivity
-curl https://your-domain.com/en/store | grep -q "movies"
-
-# 3. API integration (TMDB)
+# 2. TMDB integration is actually reachable and rendering movies
 curl https://your-domain.com/en/store | grep -q "Fight Club"
 
-# 4. Run health checks
+# 3. Routes are registered
 php bin/console debug:router | head -20
 ```
 
@@ -555,4 +478,4 @@ php bin/console debug:router | head -20
 
 ---
 
-**Generated:** 2026-09-21 | Ready for production deployment
+**Reviewed:** 2026-09-22 | Reference only — not executed against a live host.

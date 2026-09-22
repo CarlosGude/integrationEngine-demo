@@ -2,6 +2,13 @@
 
 Real-time bidirectional communication using Mercure protocol and WebSockets.
 
+> **Note:** in this repo, Mercure already runs via `compose.yaml` (`docker compose up -d`)
+> — the manual `docker run`/`docker-compose.yml` setup steps below are for running it
+> standalone, outside this project. Also, the `MercureUpdateController` / `admin/*`
+> topic examples here are a **standalone demo** (`public/mercure-demo.html`), not wired
+> into the tour, storefront, or the real Stripe webhook flow — see `README.md` § "Known
+> issues".
+
 ## Installation Status
 
 ✅ **Installed:** 
@@ -278,8 +285,8 @@ eventSource.onmessage = (event) => {
 ### 2. Stripe Webhook Updates
 
 ```php
-// Receive Stripe webhook
-// Publish to admin dashboard in real-time
+// Illustrative only — not how this demo's real webhook flow works today
+// (see the note at the top of this file).
 
 class StripeWebhookListener {
     public function __construct(private HubInterface $hub) {}

@@ -2,6 +2,12 @@
 
 Master index of all IntegrationEngine Demo documentation.
 
+> **Note (2026-09-22):** this file previously described features that don't exist in
+> this project — an EasyAdmin admin dashboard, PostgreSQL/Redis, a multi-tenant
+> roadmap. That content has been removed. See `README.md` § "Scope of this demo" for
+> why: this is a tour of the IntegrationEngine bundle, not a real rental business, and
+> it deliberately has no persistence layer, no admin panel, and no database.
+
 ## 🚀 Getting Started
 
 ### For New Developers
@@ -20,47 +26,22 @@ Master index of all IntegrationEngine Demo documentation.
 
 ### For DevOps / Deployment
 
-1. **[Deployment Guide](DEPLOYMENT.md)**
-   - VPS setup (AWS EC2, DigitalOcean)
-   - Docker configuration
-   - CI/CD pipeline
-   - Monitoring & logging
-   - Backup strategy
+1. **[Deployment Guide](DEPLOYMENT.md)** — a written reference exercise, **not executed**
+   against a live host. There is no hosted instance of this demo.
 
 2. **[Release Notes](RELEASE-NOTES.md)**
    - v1.0.0 features
    - Changelog
-   - Roadmap for future versions
 
 ---
 
 ## 🎯 Feature Documentation
 
-### Admin Dashboard
-
-- **[EasyAdmin Setup](EASYADMIN.md)** — Auto-generated CRUD interface
-  - Installation
-  - Creating entities
-  - CRUD controllers
-  - Customization
-  - Security setup
-
-- **[Admin Features](ADMIN-FEATURES.md)** — Dashboard capabilities
-  - User management
-  - Transaction analytics
-  - Real-time updates
-  - Permissions & roles
-  - Backup & recovery
-
 ### Real-time Updates
 
-- **[Mercure & WebSockets](MERCURE-WEBSOCKETS.md)** — WebSocket communication
-  - Installation & setup
-  - Publishing updates
-  - Subscribing to topics
-  - Security & JWT
-  - Performance tips
-  - Production deployment
+- **[Mercure & WebSockets](MERCURE-WEBSOCKETS.md)** — WebSocket communication protocol
+  guide. In this repo it powers a standalone demo page (`/mercure-demo.html`), not the
+  rental/payment flow — see the note at the top of that file.
 
 ### API Integrations
 
@@ -73,8 +54,7 @@ Master index of all IntegrationEngine Demo documentation.
 - **[Stripe Webhooks](ARCHITECTURE.md#stripe-integration)** — Payment processing
   - Webhook setup
   - Event mapping
-  - Verification
-  - Error handling
+  - Signature verification
 
 - **[CSV & GraphQL](ARCHITECTURE.md#csv--graphql-integrations)** — Alternative protocols
   - CSV parsing
@@ -91,21 +71,19 @@ Master index of all IntegrationEngine Demo documentation.
   - Retry middleware (exponential backoff)
   - Circuit breaker pattern
   - Fallback strategies
-  - Production checklist
+  - Built, demonstrated in tour step 4 — **not yet wired** into the live request
+    pipeline (see `PLAN.md` § Next Steps)
 
 - **[Chaos Testing](CHAOS-TESTING.md)** — Testing resilience
   - Controlled failure injection
   - ChaosMonkey utility
-  - Simulation commands
-  - Metrics analysis
+  - `bin/console app:simulate-rental --chaos`
 
 ### Parallelism & Performance
 
 - **[Benchmark Guide](ARCHITECTURE.md#parallelism)** — Parallel requests
-  - Request batching
-  - Concurrent execution
+  - Request batching via `sendMany()`
   - Performance metrics (5-13x speedup)
-  - Optimization tips
 
 ### Custom Development
 
@@ -116,23 +94,17 @@ Master index of all IntegrationEngine Demo documentation.
   - Testing
 
 - **[Phase 3 Integration](PHASE3-INTEGRATION.md)** — Engine v7.0 upgrade
-  - Migration guide
-  - API changes
-  - Deprecated patterns
-  - Performance improvements
+  - Already carried out — this is the historical record of what changed
 
 ---
 
 ## 📊 Analysis & Planning
 
-### Project Analysis
-
-- **[Project Analysis & Recommendations](PROJECT-ANALYSIS.md)**
-  - What's working
-  - What's missing
-  - Enhancement opportunities
-  - Engine capabilities
-  - Recommendations
+- **[Project Analysis & Recommendations](PROJECT-ANALYSIS.md)** — a point-in-time
+  analysis (engine v6.0.0 era). Read its 2026-09-22 update banner first: several
+  "missing" items it lists have since shipped.
+- **[TAREAS.md](TAREAS.md)** — an archived, broader-scope draft plan (persistence,
+  a payments panel, RabbitMQ). Explicitly **not** the live plan; `PLAN.md` is.
 
 ---
 
@@ -146,8 +118,6 @@ Master index of all IntegrationEngine Demo documentation.
   - Pull request process
   - Code standards
   - Testing requirements
-  - Coding style
-  - Documentation
 
 ### Running Locally
 
@@ -157,7 +127,10 @@ git clone https://github.com/carlosgude/integrationEngine-demo.git
 cd integrationEngine-demo
 composer install
 
-# Start server
+# Start (Docker, recommended — also runs the Mercure hub)
+docker compose up -d
+
+# Or: Symfony CLI
 symfony server:start
 
 # Run tests
@@ -177,7 +150,7 @@ make ci
 | `make deptrac` | Architecture validation |
 | `make ci` | Full CI suite |
 | `php bin/console catalog:benchmark` | Parallel performance test |
-| `php bin/console mercure:publish` | Publish real-time updates |
+| `php bin/console mercure:publish` | Publish a real-time update (standalone demo) |
 | `php bin/console debug:router` | List routes |
 
 ---
@@ -188,107 +161,56 @@ make ci
 integrationEngine-demo/
 │
 ├── docs/                           # 📖 All documentation
-│   ├── QUICKSTART.md              # 5-min setup guide
-│   ├── ARCHITECTURE.md            # System design
-│   ├── DEPLOYMENT.md              # Production setup
-│   ├── EASYADMIN.md               # Admin dashboard
-│   ├── MERCURE-WEBSOCKETS.md      # Real-time updates
-│   ├── ADMIN-FEATURES.md          # Admin capabilities
-│   ├── RESILIENCE-PATTERNS.md     # Fault tolerance
-│   ├── CHAOS-TESTING.md           # Testing resilience
-│   ├── CUSTOM-ADAPTERS.md         # Protocol extensions
-│   ├── PROJECT-ANALYSIS.md        # Gap analysis
-│   ├── PHASE3-INTEGRATION.md      # Engine v7.0 upgrade
-│   ├── CONTRIBUTING.md            # Dev guidelines
-│   ├── RELEASE-NOTES.md           # Changelog
-│   └── WIKI.md                    # This file
+│   ├── QUICKSTART.md
+│   ├── ARCHITECTURE.md
+│   ├── DEPLOYMENT.md              # reference only, not executed
+│   ├── MERCURE-WEBSOCKETS.md
+│   ├── RESILIENCE-PATTERNS.md
+│   ├── CHAOS-TESTING.md
+│   ├── CUSTOM-ADAPTERS.md
+│   ├── PROJECT-ANALYSIS.md        # point-in-time snapshot
+│   ├── PHASE3-INTEGRATION.md      # historical record, already done
+│   ├── CONTRIBUTING.md
+│   ├── RELEASE-NOTES.md
+│   ├── TAREAS.md                  # archived draft plan
+│   └── WIKI.md                    # this file
 │
-├── src/                            # 🔧 Application code
-│   ├── Catalog/
-│   │   ├── Domain/                # Movie aggregate
-│   │   ├── Application/           # Use cases
-│   │   ├── Infrastructure/
-│   │   │   ├── Integrations/Tmdb/ # TMDB API
-│   │   │   └── Middleware/        # Rate limiting
-│   │   └── UI/                    # Controllers, CLI
-│   │
-│   ├── Pricing/
-│   │   ├── Infrastructure/
-│   │   │   ├── Http/             # CSV adapter
-│   │   │   └── Integrations/     # CSV, GraphQL
-│   │   └── UI/
-│   │
-│   ├── Payment/
-│   │   └── Infrastructure/
-│   │       ├── Http/             # Stripe client
-│   │       ├── Integrations/     # Stripe API
-│   │       └── Webhooks/         # Webhook handling
-│   │
-│   ├── Shared/
-│   │   └── Infrastructure/
-│   │       └── Middleware/       # Caching, logging
-│   │
-│   ├── Controller/
-│   │   ├── Admin/                # Admin CRUD
-│   │   │   └── DashboardController.php
-│   │   └── MercureUpdateController.php
-│   │
-│   ├── Command/
-│   │   ├── BenchmarkCommand.php
-│   │   └── MercurePublishCommand.php
-│   │
-│   └── Tour/
-│       └── Infrastructure/       # Tour system
+├── src/                             # 🔧 Application code
+│   ├── Catalog/                    # Movie catalog domain (TMDB-backed)
+│   ├── Pricing/                    # Pricing domain (CSV + GraphQL)
+│   ├── Billing/                    # Stripe payment gateway + webhook listener
+│   ├── Legacy/                     # Deliberately bad "before" code for the tour
+│   ├── Integrations/                # Tmdb, Countries, Stripe, Supplier (Action/Mapper/Response)
+│   ├── Shared/                      # Middleware, resilience, observability
+│   ├── Controller/, Command/, Console/   # HTTP + CLI entry points
+│   └── Tour/                        # Tour engine (YAML registry + snippet extractor)
 │
-├── config/                         # ⚙️ Configuration
+├── config/                          # ⚙️ Configuration
 │   ├── packages/
 │   │   ├── integration_engine.yaml  # API configs
-│   │   ├── mercure.yaml            # WebSockets
-│   │   └── rate_limiter.yaml       # Rate limiting
+│   │   ├── mercure.yaml
+│   │   └── rate_limiter.yaml
 │   ├── routes/
-│   ├── services.yaml              # Service injection
-│   ├── tour.yaml                  # Tour definitions
-│   └── security.yaml              # Auth & permissions
+│   ├── services.yaml
+│   └── tour.yaml
 │
-├── templates/                      # 🎨 Views
-│   ├── base.html.twig
-│   ├── catalog/
-│   │   ├── storefront.html.twig
-│   │   └── product.html.twig
-│   ├── tour/
-│   └── admin/
+├── templates/                       # 🎨 Views (base, store, tour)
 │
-├── public/                         # 📱 Frontend assets
-│   ├── index.php                  # Entry point
-│   ├── mercure-demo.html          # Real-time demo
-│   ├── css/
-│   ├── js/
-│   └── images/
+├── public/
+│   ├── index.php                    # Entry point
+│   └── mercure-demo.html            # Standalone real-time demo (see notes above)
 │
-├── tests/                          # ✅ Test suite
-│   ├── Catalog/
-│   │   ├── BenchmarkTest.php
-│   │   ├── StorefrontTest.php
-│   │   └── IntegrationTest.php
-│   ├── Pricing/
-│   ├── Payment/
-│   ├── Tour/
-│   └── Legacy/
+├── tests/                            # ✅ mirrors src/
 │
-├── translations/                   # 🌍 Internationalization
-│   ├── tour.en.yaml
-│   └── tour.es.yaml
+├── translations/                     # 🌍 tour.en.yaml, tour.es.yaml
 │
-├── docker/                         # 🐳 Docker setup
-│   ├── Dockerfile
-│   ├── nginx.conf
-│   └── entrypoint.sh
+├── docker/                            # nginx.conf, entrypoint.sh (used by root Dockerfile), supplier/
 │
-├── Makefile                        # 🛠️ Common tasks
-├── docker-compose.yml              # Container orchestration
-├── composer.json                   # PHP dependencies
-├── README.md                       # Project overview
-└── .env.local                      # Local configuration
+├── Makefile
+├── compose.yaml                       # app + Mercure hub
+├── composer.json
+├── README.md
+└── .env.local                         # Local secrets (git-ignored)
 ```
 
 ---
@@ -298,8 +220,6 @@ integrationEngine-demo/
 ### Official Documentation
 
 - **Symfony**: https://symfony.com/doc/
-- **Doctrine ORM**: https://www.doctrine-project.org/
-- **EasyAdmin Bundle**: https://symfony.com/bundles/EasyAdminBundle/
 - **Mercure Protocol**: https://mercure.rocks
 
 ### Tutorials & Examples
@@ -318,34 +238,22 @@ integrationEngine-demo/
 
 ## 📈 Project Metrics
 
-### Code Quality
+As of 2026-09-22 (`vendor/bin/phpunit`, `infection.json5`):
 
 | Metric | Status |
 |--------|--------|
-| PHPUnit Tests | 55+ ✅ |
-| Code Coverage | 80%+ |
-| PHPStan Level | Max |
-| Architecture | Validated ✅ |
-| Mutation Score | 85%+ |
-
-### Performance
+| PHPUnit Tests | 169 (638 assertions) ✅ |
+| PHPStan Level | Max, 0 violations |
+| Architecture | Deptrac, 0 violations |
+| Mutation Score | MSI ≥ 58%, covered-code MSI ≥ 63% (raised incrementally) |
 
 | Metric | Value |
 |--------|-------|
 | Parallel Speedup | 5-13x |
-| Sequential Response | ~4000ms |
-| Parallel Response | ~300ms |
-| Database Queries | Optimized |
-
-### Project Stats
-
-| Item | Count |
-|------|-------|
-| Source Files | 50+ |
-| Lines of Code | 3000+ |
-| Test Files | 20+ |
-| Documentation Files | 12+ |
-| Integrations | 4 (TMDB, Stripe, CSV, GraphQL) |
+| Sequential Response (20 items) | ~4000ms |
+| Parallel Response (20 items) | ~300-600ms |
+| Persistence | None — see `README.md` § "Scope of this demo" |
+| Integrations | 4 (TMDB/REST, Supplier/CSV, Countries/GraphQL, Stripe/form-urlencoded) |
 
 ---
 
@@ -367,54 +275,20 @@ integrationEngine-demo/
    - Actual behavior
    - Environment (OS, PHP version, etc.)
 
-### Feature Requests
-
-1. Check if feature already requested
-2. Create discussion or issue with:
-   - Use case
-   - Proposed solution
-   - Alternative approaches
-
 ---
 
-## 📝 Changelog
+## 📝 Status
 
-### v1.0.0 (Released)
+**Current:** feature-complete for this demo's intentionally limited scope (a tour of
+the engine, not a rental business) — see `PLAN.md` for the authoritative status and
+open items, and `README.md` § "Scope of this demo" / "Known issues" for what's
+deliberately not here and what's still a loose end (the orphaned Mercure demo
+controller, resilience middleware not yet wired into the live pipeline, and the
+`docs/TAREAS.md` "Partner stores" SSRF tour step that's still a legitimate gap).
 
-✅ **Features:**
-- Full TMDB integration
-- CSV & GraphQL protocols
-- Parallel request execution
-- Stripe payment processing
-- Interactive tour (EN/ES)
-- Resilience patterns
-- EasyAdmin dashboard
-- Mercure WebSockets
-- Production deployment guide
-
-✅ **Quality:**
-- 55+ tests
-- PHPStan level max
-- Deptrac architecture validation
-- 85%+ mutation score
-
-### v1.1.0 (Planned)
-
-📋 **Upcoming:**
-- User entity & authentication
-- Admin analytics dashboard
-- Email notifications
-- Advanced filtering & search
-- Custom webhook handlers
-
-### v2.0.0 (Future)
-
-🔮 **Vision:**
-- Multi-tenant support
-- Advanced analytics
-- Machine learning integration
-- Mobile app (React Native)
-- Kubernetes deployment
+**Not planned:** persistence, an admin/payments dashboard, multi-tenant support,
+RabbitMQ/Messenger workers, or a FrankenPHP migration — all explicitly descoped, see
+`docs/TAREAS.md` § "Decisiones de alcance".
 
 ---
 
@@ -424,28 +298,20 @@ integrationEngine-demo/
 
 1. [Quick Start](QUICKSTART.md)
 2. [Architecture Guide](ARCHITECTURE.md) - Overview section
-3. Try storefront & tour
+3. Try the storefront & the tour
 
 ### Intermediate (2-8 hours)
 
 1. [Architecture Guide](ARCHITECTURE.md) - Full
 2. [Resilience Patterns](RESILIENCE-PATTERNS.md)
-3. [EasyAdmin Setup](EASYADMIN.md)
-4. [Mercure Integration](MERCURE-WEBSOCKETS.md)
+3. [Mercure Integration](MERCURE-WEBSOCKETS.md) (standalone demo — read its note first)
 
 ### Advanced (8+ hours)
 
 1. [Custom Adapters](CUSTOM-ADAPTERS.md)
-2. [Phase 3 Integration](PHASE3-INTEGRATION.md)
-3. [Deployment Guide](DEPLOYMENT.md)
-4. [Project Analysis](PROJECT-ANALYSIS.md)
-
-### Production Ready
-
-1. Study entire [DEPLOYMENT.md](DEPLOYMENT.md)
-2. Review [Contributing Guide](CONTRIBUTING.md)
-3. Setup monitoring & backups
-4. Run full CI suite: `make ci`
+2. [Phase 3 Integration](PHASE3-INTEGRATION.md) (historical record)
+3. [Project Analysis](PROJECT-ANALYSIS.md) (point-in-time snapshot)
+4. [Deployment reference](DEPLOYMENT.md) (not executed)
 
 ---
 
@@ -460,31 +326,20 @@ integrationEngine-demo/
 - [ ] Create feature branch
 - [ ] Submit pull request
 - [ ] Address review feedback
-- [ ] Get merged! 🎉
 
 ---
 
-## 🏆 Project Highlights
+## 🏆 What This Project Actually Demonstrates
 
-### What Makes This Project Special
+✨ **Multi-protocol integration** — 4 protocols (REST, CSV, GraphQL, Stripe form-urlencoded) through one uniform Action → Mapper → Response pattern
 
-✨ **Comprehensive Integration** — 4 protocols (REST, CSV, GraphQL, Stripe) in one demo
+⚡ **Parallel performance** — 5-13x speedup demonstrated and measured (`catalog:benchmark`)
 
-⚡ **Parallel Performance** — 5-13x speedup demonstrated and measured
+🔐 **Resilience patterns** — Retry, circuit breaker, fallback, chaos injection — built and demonstrated in the tour, not yet wired into the live pipeline
 
-🎯 **Production-Ready** — Full deployment guide, monitoring, backups
+🌍 **Bilingual** — Interactive 7-step tour in English & Spanish, with code snippets extracted live from source
 
-🔐 **Resilience** — Retry, circuit breaker, fallback patterns
-
-📚 **Well-Documented** — 12+ guides covering every aspect
-
-🧪 **Well-Tested** — 55+ tests, PHPStan level max
-
-🌍 **Bilingual** — Interactive tour in English & Spanish
-
-🚀 **Real-time Updates** — Mercure WebSockets integration
-
-👨‍💼 **Admin Ready** — EasyAdmin CRUD dashboard
+🧪 **Well-tested** — 169 tests, PHPStan level max, Deptrac architecture checks
 
 ---
 
@@ -499,8 +354,7 @@ integrationEngine-demo/
 
 ---
 
-**Last Updated:** 2026-09-21  
-**Version:** 1.0.0  
-**Status:** Production Ready ✅
+**Last Updated:** 2026-09-22
+**Version:** 1.0.0 tag (see `PLAN.md` for current `main` status)
 
 [↑ Back to Top](#-complete-project-wiki)

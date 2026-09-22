@@ -2,6 +2,25 @@
 
 **Date:** September 2026 | **Engine Version:** 6.0.0 | **Project Status:** Phase 3 Complete
 
+> **Update (2026-09-22):** several "missing" items below have since shipped in the
+> engine and this demo. Reading this as a point-in-time snapshot, not current
+> status:
+> - ✅ **`FormEncodedClientAdapter`** — added to the engine; the demo's custom
+>   `StripeFormClientAdapter` was removed (see `docs/PHASE3-INTEGRATION.md`, `PLAN.md`).
+> - ✅ **`CsvParser` utility** — added to the engine; the demo's custom CSV parsing in
+>   `GetPricesMapper` was removed.
+> - ✅ **Resilience patterns** — `RetryMiddleware`, `CircuitBreaker`, `FallbackStrategy`,
+>   `ChaosMonkey` were built (Days 27-28) and are demonstrated live in tour step 4. They
+>   are **not** wired into the production middleware pipeline yet — that's still open,
+>   see `PLAN.md` § Next Steps.
+> - ✅ **Countries/GraphQL and rate limiting** — both are active in
+>   `config/packages/integration_engine.yaml`, not commented out as §§ 3-4 below say.
+> - Persistence, a payments/webhooks panel, and multi-tenant/RabbitMQ work were later
+>   explicitly **descoped** (not just deferred) — see `docs/TAREAS.md` § "Decisiones de
+>   alcance". Read the resilience/adapter recommendations below as still relevant engine
+>   feedback; read anything about persistence or admin panels as no longer applicable to
+>   this demo.
+
 ---
 
 ## 🎯 Executive Summary

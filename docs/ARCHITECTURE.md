@@ -8,7 +8,7 @@ Guía de patrones, flujos y componentes del proyecto
 
 Este proyecto es una demostración de **IntegrationEngine**, un bundle de Symfony que estandariza la integración con APIs externas. Utiliza patrones de arquitectura clean con separación clara entre capas de dominio, aplicación e infraestructura.
 
-**Métricas:** 55 tests ✅ | 4 integraciones | 3 protocolos (REST, CSV, GraphQL) | Webhooks | Parallelismo
+**Métricas:** 169 tests ✅ | 4 integraciones | 4 protocolos (REST, CSV, GraphQL, form-urlencoded) | Webhooks | Parallelismo
 
 ---
 
