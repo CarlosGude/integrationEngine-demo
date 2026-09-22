@@ -16,7 +16,7 @@ use Symfony\Component\RemoteEvent\Consumer\ConsumerInterface;
  * dispatches it — listeners (e.g. Billing) never see the raw payload.
  */
 #[AsRemoteEventConsumer('stripe')]
-final readonly class StripePaymentIntentConsumer implements ConsumerInterface
+final class StripePaymentIntentConsumer implements ConsumerInterface
 {
     use ConsumesWebhookEvents;
 
