@@ -6,7 +6,7 @@ namespace App\Integrations\Supplier\GetPrices;
 
 use IntegrationEngine\Core\Contract\Response\ResponseInterface;
 
-final class GetPricesResponse implements ResponseInterface
+final readonly class GetPricesResponse implements ResponseInterface
 {
     /**
      * @param list<array<string, string>> $prices

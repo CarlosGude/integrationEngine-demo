@@ -6,7 +6,7 @@ namespace App\Integrations\Stripe\CreatePaymentIntent;
 
 use IntegrationEngine\Core\Contract\Response\ResponseInterface;
 
-final class CreatePaymentIntentResponse implements ResponseInterface
+final readonly class CreatePaymentIntentResponse implements ResponseInterface
 {
     public function __construct(
         private readonly string $id,

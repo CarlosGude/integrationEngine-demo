@@ -6,7 +6,7 @@ namespace App\Integrations\Tmdb\GetConfiguration;
 
 use IntegrationEngine\Core\Contract\Response\ResponseInterface;
 
-final class GetConfigurationResponse implements ResponseInterface
+final readonly class GetConfigurationResponse implements ResponseInterface
 {
     /** @param array<string, mixed> $images */
     public function __construct(

@@ -6,7 +6,7 @@ namespace App\Integrations\Countries\GetCountries;
 
 use IntegrationEngine\Core\Contract\Response\ResponseInterface;
 
-final class GetCountriesResponse implements ResponseInterface
+final readonly class GetCountriesResponse implements ResponseInterface
 {
     /**
      * @param array<int, array{code: string, name: string, continent: string}> $countries

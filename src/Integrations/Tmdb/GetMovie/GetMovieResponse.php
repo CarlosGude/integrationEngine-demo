@@ -6,7 +6,7 @@ namespace App\Integrations\Tmdb\GetMovie;
 
 use IntegrationEngine\Core\Contract\Response\ResponseInterface;
 
-final class GetMovieResponse implements ResponseInterface
+final readonly class GetMovieResponse implements ResponseInterface
 {
     public function __construct(
         private readonly int $id,

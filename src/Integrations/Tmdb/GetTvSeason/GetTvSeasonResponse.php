@@ -6,7 +6,7 @@ namespace App\Integrations\Tmdb\GetTvSeason;
 
 use IntegrationEngine\Core\Contract\Response\ResponseInterface;
 
-final class GetTvSeasonResponse implements ResponseInterface
+final readonly class GetTvSeasonResponse implements ResponseInterface
 {
     /** @param array<string, mixed> $episodes */
     public function __construct(
