@@ -9,17 +9,29 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Jwt\StaticTokenProvider;
 use Symfony\Component\Mercure\MockHub;
-use Symfony\Component\Security\Core\User\InMemoryUser;
+use Symfony\Component\Mercure\Update;
 
 final class MercureUpdateControllerTest extends WebTestCase
 {
+    /** @var list<Update> */
+    private array $publishedUpdates = [];
+
+    protected function setUp(): void
+    {
+        $this->publishedUpdates = [];
+    }
+
     private function createClientWithMockHub(): \Symfony\Bundle\FrameworkBundle\KernelBrowser
     {
         $client = self::createClient();
         $container = self::getContainer();
 
         $tokenProvider = new StaticTokenProvider('test_token');
-        $publisher = static fn ($update): string => 'urn:uuid:test';
+        $publisher = function (Update $update): string {
+            $this->publishedUpdates[] = $update;
+
+            return 'urn:uuid:test';
+        };
 
         $hub = new MockHub('http://localhost/.well-known/mercure', $tokenProvider, $publisher);
         $container->set(HubInterface::class, $hub);
@@ -27,86 +39,193 @@ final class MercureUpdateControllerTest extends WebTestCase
         return $client;
     }
 
+    /** @return array<array-key, mixed> */
+    private function decodeJsonBody(\Symfony\Bundle\FrameworkBundle\KernelBrowser $client): array
+    {
+        $content = $client->getResponse()->getContent();
+        self::assertIsString($content);
+        $data = json_decode($content, true, flags: \JSON_THROW_ON_ERROR);
+        self::assertIsArray($data);
+
+        return $data;
+    }
+
+    // --- publish() ---
+
     #[Test]
-    public function publishRouteExistsAndValidatesInput(): void
+    public function publishRejectsInvalidJson(): void
     {
         $client = $this->createClientWithMockHub();
 
         $client->request('POST', '/api/mercure/publish', content: 'invalid json');
 
-        self::assertThat(
-            $client->getResponse()->getStatusCode(),
-            self::logicalOr(self::equalTo(400), self::equalTo(401)),
-        );
+        self::assertResponseStatusCodeSame(400);
+        self::assertSame(['error' => 'Invalid JSON'], $this->decodeJsonBody($client));
+        self::assertSame([], $this->publishedUpdates);
     }
 
     #[Test]
-    public function publishValidatesTopicRequired(): void
+    public function publishRequiresATopic(): void
     {
         $client = $this->createClientWithMockHub();
 
         $client->request('POST', '/api/mercure/publish', content: json_encode(['message' => 'test'], \JSON_THROW_ON_ERROR));
 
-        self::assertThat(
-            $client->getResponse()->getStatusCode(),
-            self::logicalOr(self::equalTo(400), self::equalTo(401)),
-        );
+        self::assertResponseStatusCodeSame(400);
+        self::assertSame(['error' => 'Topic is required and must be a string'], $this->decodeJsonBody($client));
+        self::assertSame([], $this->publishedUpdates);
     }
 
     #[Test]
-    public function publishValidatesTopicIsString(): void
+    public function publishRejectsANonStringTopic(): void
     {
         $client = $this->createClientWithMockHub();
 
         $client->request('POST', '/api/mercure/publish', content: json_encode(['topic' => 123], \JSON_THROW_ON_ERROR));
 
-        self::assertThat(
-            $client->getResponse()->getStatusCode(),
-            self::logicalOr(self::equalTo(400), self::equalTo(401)),
-        );
+        self::assertResponseStatusCodeSame(400);
+        self::assertSame(['error' => 'Topic is required and must be a string'], $this->decodeJsonBody($client));
+        self::assertSame([], $this->publishedUpdates);
     }
 
     #[Test]
-    public function transactionRouteExists(): void
+    public function publishSucceedsAndMergesTheMessageIntoThePayload(): void
     {
         $client = $this->createClientWithMockHub();
 
-        $client->request('POST', '/api/mercure/transactions', content: json_encode(['data' => 'test'], \JSON_THROW_ON_ERROR));
+        $client->request('POST', '/api/mercure/publish', content: json_encode([
+            'topic' => 'movies/550',
+            'message' => ['title' => 'Fight Club', 'available' => true],
+        ], \JSON_THROW_ON_ERROR));
 
-        self::assertThat(
-            $client->getResponse()->getStatusCode(),
-            self::logicalOr(self::equalTo(200), self::equalTo(401), self::equalTo(400)),
-        );
+        self::assertResponseIsSuccessful();
+        self::assertSame(['success' => true, 'topic' => 'movies/550'], $this->decodeJsonBody($client));
+
+        self::assertCount(1, $this->publishedUpdates);
+        $update = $this->publishedUpdates[0];
+        self::assertSame(['movies/550'], $update->getTopics());
+
+        /** @var array<string, mixed> $data */
+        $data = json_decode($update->getData(), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertSame('Fight Club', $data['title']);
+        self::assertTrue($data['available']);
+        self::assertArrayHasKey('timestamp', $data);
     }
 
     #[Test]
-    public function webhookRouteExists(): void
+    public function publishWithoutAMessageStillPublishesJustATimestamp(): void
+    {
+        $client = $this->createClientWithMockHub();
+
+        $client->request('POST', '/api/mercure/publish', content: json_encode(['topic' => 'movies/550'], \JSON_THROW_ON_ERROR));
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $this->publishedUpdates);
+
+        /** @var array<string, mixed> $data */
+        $data = json_decode($this->publishedUpdates[0]->getData(), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertSame(['timestamp'], array_keys($data));
+    }
+
+    #[Test]
+    public function publishWithANonArrayMessageIgnoresIt(): void
+    {
+        $client = $this->createClientWithMockHub();
+
+        $client->request('POST', '/api/mercure/publish', content: json_encode([
+            'topic' => 'movies/550',
+            'message' => 'not-an-array',
+        ], \JSON_THROW_ON_ERROR));
+
+        self::assertResponseIsSuccessful();
+        /** @var array<string, mixed> $data */
+        $data = json_decode($this->publishedUpdates[0]->getData(), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertSame(['timestamp'], array_keys($data));
+    }
+
+    // --- publishTransaction() ---
+
+    #[Test]
+    public function publishTransactionAlwaysPublishesToTheAdminTransactionsTopic(): void
+    {
+        $client = $this->createClientWithMockHub();
+
+        $client->request('POST', '/api/mercure/transactions', content: json_encode(['amount' => 500], \JSON_THROW_ON_ERROR));
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(
+            ['success' => true, 'message' => 'Transaction published'],
+            $this->decodeJsonBody($client),
+        );
+
+        self::assertCount(1, $this->publishedUpdates);
+        $update = $this->publishedUpdates[0];
+        self::assertSame(['admin/transactions'], $update->getTopics());
+
+        /** @var array<string, mixed> $data */
+        $data = json_decode($update->getData(), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertSame('new_transaction', $data['action']);
+        self::assertSame(['amount' => 500], $data['transaction']);
+        self::assertArrayHasKey('timestamp', $data);
+    }
+
+    #[Test]
+    public function publishTransactionTreatsInvalidJsonAsAnEmptyTransaction(): void
+    {
+        $client = $this->createClientWithMockHub();
+
+        $client->request('POST', '/api/mercure/transactions', content: 'not json at all');
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $this->publishedUpdates);
+
+        /** @var array<string, mixed> $data */
+        $data = json_decode($this->publishedUpdates[0]->getData(), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertSame([], $data['transaction']);
+    }
+
+    // --- handleStripeWebhook() ---
+
+    #[Test]
+    public function webhookRejectsInvalidJson(): void
     {
         $client = $this->createClientWithMockHub();
 
         $client->request('POST', '/api/mercure/webhook', content: 'invalid');
 
-        self::assertThat(
-            $client->getResponse()->getStatusCode(),
-            self::logicalOr(self::equalTo(400), self::equalTo(401)),
-        );
+        self::assertResponseStatusCodeSame(400);
+        self::assertSame(['error' => 'Invalid JSON'], $this->decodeJsonBody($client));
+        self::assertSame([], $this->publishedUpdates);
     }
 
     #[Test]
-    public function webhookValidatesEventType(): void
+    public function webhookRequiresAStringEventType(): void
     {
         $client = $this->createClientWithMockHub();
 
         $client->request('POST', '/api/mercure/webhook', content: json_encode(['data' => []], \JSON_THROW_ON_ERROR));
 
-        self::assertThat(
-            $client->getResponse()->getStatusCode(),
-            self::logicalOr(self::equalTo(400), self::equalTo(401)),
-        );
+        self::assertResponseStatusCodeSame(400);
+        self::assertSame(['error' => 'Event type is required'], $this->decodeJsonBody($client));
+        self::assertSame([], $this->publishedUpdates);
     }
 
     #[Test]
-    public function webhookValidatesPayloadStructure(): void
+    public function webhookForAnUnrelatedEventTypeSucceedsWithoutPublishing(): void
+    {
+        $client = $this->createClientWithMockHub();
+
+        $client->request('POST', '/api/mercure/webhook', content: json_encode([
+            'type' => 'charge.refunded',
+        ], \JSON_THROW_ON_ERROR));
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(['success' => true], $this->decodeJsonBody($client));
+        self::assertSame([], $this->publishedUpdates);
+    }
+
+    #[Test]
+    public function webhookForPaymentIntentSucceededRequiresADataObject(): void
     {
         $client = $this->createClientWithMockHub();
 
@@ -115,9 +234,73 @@ final class MercureUpdateControllerTest extends WebTestCase
             'data' => [],
         ], \JSON_THROW_ON_ERROR));
 
-        self::assertThat(
-            $client->getResponse()->getStatusCode(),
-            self::logicalOr(self::equalTo(400), self::equalTo(401)),
-        );
+        self::assertResponseStatusCodeSame(400);
+        self::assertSame(['error' => 'Invalid payload structure'], $this->decodeJsonBody($client));
+        self::assertSame([], $this->publishedUpdates);
+    }
+
+    #[Test]
+    public function webhookForPaymentIntentSucceededRejectsANonArrayObject(): void
+    {
+        $client = $this->createClientWithMockHub();
+
+        $client->request('POST', '/api/mercure/webhook', content: json_encode([
+            'type' => 'payment_intent.succeeded',
+            'data' => ['object' => 'not-an-array'],
+        ], \JSON_THROW_ON_ERROR));
+
+        self::assertResponseStatusCodeSame(400);
+        self::assertSame([], $this->publishedUpdates);
+    }
+
+    #[Test]
+    public function webhookPublishesThePaymentSucceededEventWithItsFields(): void
+    {
+        $client = $this->createClientWithMockHub();
+
+        $client->request('POST', '/api/mercure/webhook', content: json_encode([
+            'type' => 'payment_intent.succeeded',
+            'data' => [
+                'object' => [
+                    'id' => 'pi_123',
+                    'amount' => 500,
+                    'currency' => 'eur',
+                ],
+            ],
+        ], \JSON_THROW_ON_ERROR));
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(['success' => true], $this->decodeJsonBody($client));
+
+        self::assertCount(1, $this->publishedUpdates);
+        $update = $this->publishedUpdates[0];
+        self::assertSame(['admin/payments'], $update->getTopics());
+
+        /** @var array<string, mixed> $data */
+        $data = json_decode($update->getData(), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertSame('payment_succeeded', $data['action']);
+        self::assertSame('pi_123', $data['paymentIntentId']);
+        self::assertSame(500, $data['amount']);
+        self::assertSame('eur', $data['currency']);
+        self::assertSame('succeeded', $data['status']);
+        self::assertArrayHasKey('timestamp', $data);
+    }
+
+    #[Test]
+    public function webhookDefaultsCurrencyToUsdWhenMissing(): void
+    {
+        $client = $this->createClientWithMockHub();
+
+        $client->request('POST', '/api/mercure/webhook', content: json_encode([
+            'type' => 'payment_intent.succeeded',
+            'data' => ['object' => ['id' => 'pi_456']],
+        ], \JSON_THROW_ON_ERROR));
+
+        self::assertResponseIsSuccessful();
+        /** @var array<string, mixed> $data */
+        $data = json_decode($this->publishedUpdates[0]->getData(), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertSame('pi_456', $data['paymentIntentId']);
+        self::assertSame('USD', $data['currency']);
+        self::assertNull($data['amount']);
     }
 }

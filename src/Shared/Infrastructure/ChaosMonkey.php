@@ -59,10 +59,6 @@ final class ChaosMonkey
     public function injectTimeout(): never
     {
         throw new class ('Request timeout (simulated)') extends \RuntimeException implements TransportExceptionInterface {
-            public function getCode(): int
-            {
-                return 0;
-            }
         };
     }
 

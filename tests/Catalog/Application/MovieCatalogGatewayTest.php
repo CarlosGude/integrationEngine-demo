@@ -53,7 +53,84 @@ final class MovieCatalogGatewayTest extends KernelTestCase
         self::assertSame(550, $movie->id);
         self::assertSame('Fight Club', $movie->title);
         self::assertSame(8.8, $movie->voteAverage);
-        self::assertStringContainsString('pB8BM8DQsVv0AT39VHkVrNg8OVV', $movie->posterUrl);
+        self::assertSame(
+            'https://image.tmdb.org/t/p/w500/pB8BM8DQsVv0AT39VHkVrNg8OVV.jpg',
+            $movie->posterUrl,
+        );
+    }
+
+    #[Test]
+    public function getMovieByIdReturnsAnEmptyPosterUrlWhenThereIsNoPosterPath(): void
+    {
+        self::bootKernel();
+        $container = self::getContainer();
+
+        $movieData = \json_encode([
+            'id' => 550,
+            'title' => 'Fight Club',
+            'overview' => 'Overview',
+            'poster_path' => '',
+            'vote_average' => 8.8,
+            'release_date' => '1999-10-15',
+        ]);
+        \assert($movieData !== false);
+
+        $configData = \json_encode([
+            'images' => [
+                'secure_base_url' => 'https://image.tmdb.org/t/p/',
+                'poster_sizes' => ['w500'],
+            ],
+        ]);
+        \assert($configData !== false);
+
+        $mockClient = new MockHttpClient([
+            new MockResponse($movieData, ['http_code' => 200]),
+            new MockResponse($configData, ['http_code' => 200]),
+        ]);
+        $container->set('http_client', $mockClient);
+
+        $gateway = $container->get(MovieCatalogGateway::class);
+        \assert($gateway instanceof MovieCatalogGateway);
+        $movie = $gateway->getMovieById(550);
+
+        self::assertSame('', $movie->posterUrl);
+    }
+
+    #[Test]
+    public function getMovieByIdFallsBackToTheFirstAvailableSizeWhenW500IsUnavailable(): void
+    {
+        self::bootKernel();
+        $container = self::getContainer();
+
+        $movieData = \json_encode([
+            'id' => 550,
+            'title' => 'Fight Club',
+            'overview' => 'Overview',
+            'poster_path' => '/poster.jpg',
+            'vote_average' => 8.8,
+            'release_date' => '1999-10-15',
+        ]);
+        \assert($movieData !== false);
+
+        $configData = \json_encode([
+            'images' => [
+                'secure_base_url' => 'https://image.tmdb.org/t/p/',
+                'poster_sizes' => ['w92', 'w154'],
+            ],
+        ]);
+        \assert($configData !== false);
+
+        $mockClient = new MockHttpClient([
+            new MockResponse($movieData, ['http_code' => 200]),
+            new MockResponse($configData, ['http_code' => 200]),
+        ]);
+        $container->set('http_client', $mockClient);
+
+        $gateway = $container->get(MovieCatalogGateway::class);
+        \assert($gateway instanceof MovieCatalogGateway);
+        $movie = $gateway->getMovieById(550);
+
+        self::assertSame('https://image.tmdb.org/t/p/w92/poster.jpg', $movie->posterUrl);
     }
 
     #[Test]

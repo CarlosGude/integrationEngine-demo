@@ -5,11 +5,26 @@ declare(strict_types=1);
 namespace Tests\Catalog\UI;
 
 use App\Catalog\Domain\Movie;
+use App\Shared\Infrastructure\Middleware\RateLimitMiddleware;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 
-final class StorefrontControllerTest extends TestCase
+final class StorefrontControllerTest extends WebTestCase
 {
+    protected function setUp(): void
+    {
+        // RateLimitMiddleware tracks requests-per-second in process-wide
+        // static state (see RateLimitMiddlewareTest). Each storefront
+        // request alone makes 21 tmdb calls (20 movies + 1 configuration
+        // call), so leftover count from an earlier test in this same PHP
+        // process could trip the 40/s limit here. Start each test clean.
+        $ref = new \ReflectionClass(RateLimitMiddleware::class);
+        $ref->getProperty('requestsThisSecond')->setValue(null, 0);
+        $ref->getProperty('lastSecond')->setValue(null, 0);
+    }
+
     #[Test]
     public function storefrontBatchCanContainNullValuesForFailures(): void
     {
@@ -53,5 +68,71 @@ final class StorefrontControllerTest extends TestCase
         self::assertSame(299536, $movie->id);
         self::assertSame('Avengers: Endgame', $movie->title);
         self::assertNotEmpty($movie->posterUrl);
+    }
+
+    #[Test]
+    public function storefrontRendersTheFeaturedMoviesBatch(): void
+    {
+        $client = self::createClient();
+        $container = self::getContainer();
+
+        $movieJson = json_encode([
+            'id' => 550,
+            'title' => 'Fight Club',
+            'overview' => 'Overview',
+            'poster_path' => '/poster.jpg',
+            'vote_average' => 8.4,
+            'release_date' => '1999-10-15',
+        ], \JSON_THROW_ON_ERROR);
+        $configJson = json_encode([
+            'images' => ['secure_base_url' => 'https://image.tmdb.org/t/p/', 'poster_sizes' => ['w500']],
+        ], \JSON_THROW_ON_ERROR);
+
+        // The storefront requests 20 featured movies in one batch, then a
+        // trailing configuration call.
+        $responses = array_fill(0, 20, new MockResponse($movieJson, ['http_code' => 200]));
+        $responses[] = new MockResponse($configJson, ['http_code' => 200]);
+
+        $container->set('http_client', new MockHttpClient($responses));
+
+        $client->request('GET', '/en/store');
+
+        self::assertResponseIsSuccessful();
+        $content = $client->getResponse()->getContent();
+        self::assertIsString($content);
+        self::assertStringContainsString('Fight Club', $content);
+    }
+
+    #[Test]
+    public function storefrontStillRendersWhenSomeMoviesFailToLoad(): void
+    {
+        $client = self::createClient();
+        $container = self::getContainer();
+
+        $movieJson = json_encode([
+            'id' => 550,
+            'title' => 'Fight Club',
+            'overview' => 'Overview',
+            'poster_path' => '/poster.jpg',
+            'vote_average' => 8.4,
+            'release_date' => '1999-10-15',
+        ], \JSON_THROW_ON_ERROR);
+        $configJson = json_encode([
+            'images' => ['secure_base_url' => 'https://image.tmdb.org/t/p/', 'poster_sizes' => ['w500']],
+        ], \JSON_THROW_ON_ERROR);
+
+        $responses = [];
+        for ($i = 0; $i < 20; ++$i) {
+            $responses[] = $i % 2 === 0
+                ? new MockResponse($movieJson, ['http_code' => 200])
+                : new MockResponse('', ['http_code' => 404]);
+        }
+        $responses[] = new MockResponse($configJson, ['http_code' => 200]);
+
+        $container->set('http_client', new MockHttpClient($responses));
+
+        $client->request('GET', '/en/store');
+
+        self::assertResponseIsSuccessful();
     }
 }

@@ -7,11 +7,10 @@
         "summary": "var/infection/summary.log"
     },
     "testFramework": "phpunit",
-    // Infection never ran to completion before (the initial test suite kept
-    // getting killed on stderr output, see config/services.yaml's test
-    // logger override) so these were aspirational, unverified defaults.
-    // The actual run scores MSI 21%, Covered Code MSI 57% — thresholds set
-    // just below that as a floor. Raise them as test coverage improves.
-    "minMsi": 20,
-    "minCoveredMsi": 55
+    // Raised after a dedicated pass added coverage for previously-untested
+    // classes (console commands, resilience patterns, controllers). Actual
+    // run: MSI 61%, Covered Code MSI 66%. Thresholds set just below that as
+    // a floor — raise them further as coverage improves.
+    "minMsi": 58,
+    "minCoveredMsi": 63
 }

@@ -1,4 +1,10 @@
 steps:
+  # Declared out of numeric order on purpose: getAllSteps() must sort by
+  # `order`, not return steps in the order they appear in this file.
+  step3:
+    title: The Solution
+    description: How we solve it
+    order: 3
   step1:
     title: Intro
     description: Introduction to the demo
@@ -7,7 +13,3 @@ steps:
     title: The Problem
     description: The problem we solve
     order: 2
-  step3:
-    title: The Solution
-    description: How we solve it
-    order: 3

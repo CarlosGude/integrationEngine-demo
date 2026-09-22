@@ -30,4 +30,24 @@ CSV;
         self::assertSame('MOVIE-001', $prices[0]['sku']);
         self::assertSame('3.99', $prices[0]['price']);
     }
+
+    #[Test]
+    public function whitespaceOnlyBodyMapsToAnEmptyResponse(): void
+    {
+        $action = GetPricesAction::create('GET', '/prices.csv');
+        $response = GetPricesMapper::map($action, ['body' => "   \n  "], []);
+
+        self::assertInstanceOf(GetPricesResponse::class, $response);
+        self::assertSame([], $response->prices());
+    }
+
+    #[Test]
+    public function missingBodyMapsToAnEmptyResponse(): void
+    {
+        $action = GetPricesAction::create('GET', '/prices.csv');
+        $response = GetPricesMapper::map($action, [], []);
+        \assert($response instanceof GetPricesResponse);
+
+        self::assertSame([], $response->prices());
+    }
 }

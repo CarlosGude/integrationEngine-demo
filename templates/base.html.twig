@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>IntegrationEngine Demo</title>
+    <title>{% block title %}IntegrationEngine Demo{% endblock %}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: sans-serif; background: #f9f9f9; }
@@ -19,6 +19,7 @@
         <h1>IntegrationEngine Demo</h1>
     </header>
     <main>
+        {% block body %}
         <h2>Welcome to IntegrationEngine Demo</h2>
         <p>A guided tour through external API integrations with TMDB, Stripe, and more.</p>
 
@@ -34,6 +35,7 @@
             <a href="/en/">English</a> |
             <a href="/es/">Español</a>
         </p>
+        {% endblock %}
     </main>
     <footer>
         <small>Data provided by <a href="https://www.themoviedb.org/" style="color: #0066cc;">The Movie Database (TMDB)</a></small>

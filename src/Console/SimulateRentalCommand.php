@@ -228,7 +228,7 @@ final class SimulateRentalCommand extends Command
         $message = $e->getMessage();
 
         return str_contains($message, 'timeout')
-            || str_contains($message, 'Rate Limit')
+            || str_contains($message, 'Too Many Requests')
             || str_contains($message, 'Service Unavailable');
     }
     // tour:end

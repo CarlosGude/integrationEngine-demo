@@ -53,4 +53,26 @@ final class GetCountriesMapperTest extends TestCase
         self::assertInstanceOf(GetCountriesResponse::class, $response);
         self::assertEmpty($response->countries());
     }
+
+    #[Test]
+    public function defaultsMissingFieldsToEmptyStrings(): void
+    {
+        $graphQLResponse = ['data' => ['countries' => [['code' => 'FR']]]];
+
+        $action = GetCountriesAction::create('POST', '/graphql');
+        $response = GetCountriesMapper::map($action, $graphQLResponse, []);
+        \assert($response instanceof GetCountriesResponse);
+
+        self::assertSame([['code' => 'FR', 'name' => '', 'continent' => '']], $response->countries());
+    }
+
+    #[Test]
+    public function handlesAMissingDataKeyEntirely(): void
+    {
+        $action = GetCountriesAction::create('POST', '/graphql');
+        $response = GetCountriesMapper::map($action, [], []);
+        \assert($response instanceof GetCountriesResponse);
+
+        self::assertEmpty($response->countries());
+    }
 }

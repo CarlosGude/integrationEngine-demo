@@ -73,6 +73,29 @@ CSV;
     }
 
     #[Test]
+    public function trimsLeadingAndTrailingWhitespaceFromTheWholeContent(): void
+    {
+        $adapter = new CsvClientAdapter();
+
+        $result = $adapter->parseCSV("\n  \nsku,price\nMOVIE-001,3.99\n  \n");
+
+        self::assertCount(1, $result);
+        self::assertSame('MOVIE-001', $result[0]['sku']);
+    }
+
+    #[Test]
+    public function skipsWhitespaceOnlyLinesNotJustEmptyOnes(): void
+    {
+        $adapter = new CsvClientAdapter();
+
+        $csv = "sku,price\n   \nMOVIE-001,3.99";
+
+        $result = $adapter->parseCSV($csv);
+
+        self::assertCount(1, $result);
+    }
+
+    #[Test]
     public function backslashIsTreatedAsLiteralCharacter(): void
     {
         $adapter = new CsvClientAdapter();

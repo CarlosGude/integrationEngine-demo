@@ -71,4 +71,47 @@ final class StripePaymentIntentMapperTest extends TestCase
         self::assertInstanceOf(StripePaymentIntentEvent::class, $event);
         self::assertNull($event->movieId);
     }
+
+    public function testMapCastsNonStringAndNonIntFieldsToTheirDeclaredTypes(): void
+    {
+        $payload = [
+            'id' => 12345,
+            'type' => 'payment_intent.succeeded',
+            'data' => [
+                'object' => [
+                    'id' => 999,
+                    'status' => 'succeeded',
+                    'amount' => '750',
+                    'currency' => 'usd',
+                    'metadata' => ['movie_id' => '550'],
+                ],
+            ],
+        ];
+
+        $event = $this->mapper->map($payload, []);
+        \assert($event instanceof StripePaymentIntentEvent);
+
+        self::assertSame('12345', $event->eventId);
+        self::assertIsString($event->eventId);
+        self::assertSame('999', $event->paymentIntentId);
+        self::assertIsString($event->paymentIntentId);
+        self::assertSame(550, $event->movieId);
+        self::assertIsInt($event->movieId);
+        self::assertSame(750, $event->amount);
+        self::assertIsInt($event->amount);
+    }
+
+    public function testMapDefaultsMissingTopLevelFieldsToEmptyValues(): void
+    {
+        $event = $this->mapper->map([], []);
+        \assert($event instanceof StripePaymentIntentEvent);
+
+        self::assertSame('', $event->eventId);
+        self::assertSame('', $event->eventType);
+        self::assertSame('', $event->paymentIntentId);
+        self::assertNull($event->movieId);
+        self::assertSame('', $event->status);
+        self::assertSame(0, $event->amount);
+        self::assertSame('', $event->currency);
+    }
 }
