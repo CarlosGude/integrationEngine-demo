@@ -252,17 +252,15 @@ services:
 ## 📋 Features Prepared But Not Used (Can Remove or Activate)
 
 ### 1. Doctrine ORM
-**Status:** Configured but no entities defined
+**Status:** ✅ **Removed** (as of T-11)
 
-**Files:**
-- `config/packages/doctrine.yaml`
-- `src/Shared/Infrastructure/Persistence/Entity/` (empty)
+**Rationale:** The demo focuses on IntegrationEngine integrations, not CRUD or persistence. EasyAdmin admin panel (which depends on Doctrine) was not functional and added no value.
 
-**Decision:**
-- ❌ **Remove if:** Not needed for the tour
-- ✅ **Keep if:** Planning webhook DLQ persistence or rental state storage
-
-**Recommendation:** **Remove** (until needed). Adds 12KB of config, 0 value currently.
+**Removed:**
+- Composer packages: `doctrine/doctrine-bundle`, `doctrine/orm`, `doctrine/migrations`, `easycorp/easyadmin-bundle`
+- Doctrine config and test overrides
+- Admin dashboard controller and related tests
+- EasyAdmin and admin documentation
 
 ### 2. Symfony Translation (i18n)
 **Status:** Files exist but disabled (compatibility issue with Infection/PHPUnit)
@@ -270,7 +268,7 @@ services:
 **Files:**
 - `translations/messages.{en,es}.yaml` (337 lines)
 - `translations/tour.{en,es}.yaml` (12,900 lines - **used by tour**)
-- `config/packages/translation.yaml` (empty)
+- Translation config package (empty)
 
 **Decision:**
 - ✅ **Keep** — `tour.{en,es}.yaml` is used by the tour system

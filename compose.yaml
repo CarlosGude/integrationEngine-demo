@@ -13,7 +13,6 @@ services:
       # different secret from the one `symfony server:start` picks up out of
       # .env.dev — same app, two secrets, sessions invalidated by whichever way
       # you happened to start it. The .env chain is the single source now.
-      DATABASE_URL: sqlite:///%kernel.project_dir%/var/data.db
       DEFAULT_URI: http://localhost:8080/
     ports:
       - "127.0.0.1:8080:80"

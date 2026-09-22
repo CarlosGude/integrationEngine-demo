@@ -67,7 +67,7 @@ which is what settled the question.
 make test
 
 # Run specific test
-make test TEST=tests/Security/AdminAccessControlTest.php
+make test TEST=tests/Catalog/Application/MovieCatalogGatewayTest.php
 
 # Code quality
 make cs
@@ -283,11 +283,8 @@ make test
 # Watch mode (requires watchman)
 make test-watch
 
-# With coverage
-make test-coverage
-
 # Specific test
-make test TEST=tests/Security/AdminAccessControlTest.php::testInboundWebhookStaysAnonymous
+make test TEST=tests/Shared/UI/MercureUpdateControllerTest.php::publishValidatesInput
 ```
 
 ## Continuous Integration
