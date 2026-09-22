@@ -24,3 +24,16 @@ services:
             $baseUrl: 'https://api.stripe.com'
             $defaultHeaders:
                 Authorization: 'Bearer %env(STRIPE_SECRET_KEY)%'
+
+# No monolog-bundle is installed, so FrameworkBundle's LoggerPass falls back to
+# Symfony\Component\HttpKernel\Log\Logger writing straight to STDERR. That's
+# harmless for plain PHPUnit runs but Infection aborts its initial test suite
+# the instant anything appears on STDERR — and expected error-path tests
+# (404s, invalid webhook signatures, ...) log through the kernel's
+# ErrorListener, which trips it immediately. Route it to stdout instead.
+when@test:
+    services:
+        logger:
+            class: Symfony\Component\HttpKernel\Log\Logger
+            arguments:
+                $output: 'php://stdout'
