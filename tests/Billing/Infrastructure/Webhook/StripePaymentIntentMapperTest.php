@@ -96,7 +96,7 @@ final class StripePaymentIntentMapperTest extends TestCase
 
     public function testMapDefaultsMissingTopLevelFieldsToEmptyValues(): void
     {
-        $event = StripePaymentIntentMapper::map([], []);
+        $event = StripePaymentIntentMapper::map('payment_intent.succeeded', [], []);
         \assert($event instanceof StripePaymentIntentEvent);
 
         self::assertSame('', $event->eventId);
