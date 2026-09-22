@@ -25,6 +25,10 @@ services:
             $defaultHeaders:
                 Authorization: 'Bearer %env(STRIPE_SECRET_KEY)%'
 
+    IntegrationEngine\Infrastructure\Webhook\WebhookEventDispatcher:
+        arguments:
+            - '@event_dispatcher'
+
 # No monolog-bundle is installed, so FrameworkBundle's LoggerPass falls back to
 # Symfony\Component\HttpKernel\Log\Logger writing straight to STDERR. That's
 # harmless for plain PHPUnit runs but Infection aborts its initial test suite
