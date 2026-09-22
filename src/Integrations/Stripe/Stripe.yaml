@@ -4,3 +4,16 @@ create_payment_intent:
   path: /v1/payment_intents
   body: 'App\Integrations\Stripe\CreatePaymentIntent\CreatePaymentIntentRequest'
   mapper: 'App\Integrations\Stripe\Mappers\CreatePaymentIntentMapper'
+
+webhooks:
+  type_field: type
+  id_field: id
+  signature:
+    type: timestamped_hmac
+    header: 't'
+    secret: '%env(STRIPE_WEBHOOK_SECRET)%'
+    tolerance: 300
+  unknown_events: ignore
+  events:
+    payment_intent.succeeded:
+      mapper: 'App\Integrations\Stripe\Webhook\Mapper\StripePaymentIntentMapper'
