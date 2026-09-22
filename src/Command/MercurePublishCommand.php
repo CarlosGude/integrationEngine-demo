@@ -38,10 +38,20 @@ class MercurePublishCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $topic = (string) $input->getArgument('topic');
-        $messageArg = (string) $input->getArgument('message');
-        $repeat = (int) $input->getOption('repeat');
-        $delay = (int) $input->getOption('delay');
+        $topic = $input->getArgument('topic');
+        $messageArg = $input->getArgument('message');
+        $repeat = $input->getOption('repeat');
+        $delay = $input->getOption('delay');
+
+        if (!is_string($topic) || !is_string($messageArg) || !is_numeric($repeat) || !is_numeric($delay)) {
+            $io->error('Invalid input types');
+            return Command::FAILURE;
+        }
+
+        $topic = (string) $topic;
+        $messageArg = (string) $messageArg;
+        $repeat = (int) $repeat;
+        $delay = (int) $delay;
 
         // Parse JSON message
         $message = json_decode($messageArg, true);

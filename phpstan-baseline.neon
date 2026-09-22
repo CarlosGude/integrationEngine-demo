@@ -10,30 +10,6 @@ parameters:
 			message: '#^Cannot cast mixed to int\.$#'
 			identifier: cast.int
 			count: 2
-			path: src/Command/MercurePublishCommand.php
-
-		-
-			message: '#^Cannot cast mixed to string\.$#'
-			identifier: cast.string
-			count: 2
-			path: src/Command/MercurePublishCommand.php
-
-		-
-			message: '#^Parameter \#1 \.\.\.\$arg1 of function max expects non\-empty\-array, list\<float\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Console/BenchmarkCommand.php
-
-		-
-			message: '#^Parameter \#1 \.\.\.\$arg1 of function min expects non\-empty\-array, list\<float\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Console/BenchmarkCommand.php
-
-		-
-			message: '#^Cannot cast mixed to int\.$#'
-			identifier: cast.int
-			count: 2
 			path: src/Console/SimulateRentalCommand.php
 
 		-
@@ -43,85 +19,25 @@ parameters:
 			path: src/Integrations/Supplier/Mappers/GetPricesMapper.php
 
 		-
-			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: src/Kernel.php
-
-		-
-			message: '#^Cannot access offset ''all'' on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: src/Kernel.php
-
-		-
-			message: '#^Cannot access offset string on mixed\.$#'
-			identifier: offsetAccess.nonOffsetAccessible
-			count: 1
-			path: src/Kernel.php
-
-		-
 			message: '#^Variable \$lastException on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.variable
 			count: 1
 			path: src/Shared/Infrastructure/Middleware/RetryMiddleware.php
 
 		-
-			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsFloat\(\) with float will always evaluate to true\.$#'
-			identifier: staticMethod.alreadyNarrowedType
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
 			count: 1
-			path: tests/Catalog/UI/Console/BenchmarkCommandTest.php
+			path: src/Kernel.php
 
 		-
-			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertNull\(\) with null will always evaluate to true\.$#'
-			identifier: staticMethod.alreadyNarrowedType
+			message: '#^Cannot access offset string on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
 			count: 2
-			path: tests/Catalog/UI/StorefrontControllerTest.php
+			path: src/Kernel.php
 
 		-
-			message: '#^Parameter \#2 \$string of static method PHPUnit\\Framework\\Assert\:\:assertStringStartsWith\(\) expects string, mixed given\.$#'
+			message: '#^Parameter \#1 \.\.\.\$arg1 of function min expects non\-empty\-array, list\<float\> given\.$#'
 			identifier: argument.type
 			count: 1
-			path: tests/Legacy/LegacyEngineParityTest.php
-
-		-
-			message: '#^Call to function is_subclass_of\(\) with ''App\\\\Shared\\\\Infrastructure\\\\Middleware\\\\RateLimitMiddleware'' and ''IntegrationEngine\\\\Core\\\\Contract\\\\Client\\\\AbstractClientMiddleware'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: tests/Shared/Infrastructure/Middleware/RateLimitMiddlewareTest.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''App\\\\Shared\\\\Infrastructure\\\\Middleware\\\\RateLimitMiddleware'' and ''process'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: tests/Shared/Infrastructure/Middleware/RateLimitMiddlewareTest.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''App\\\\Shared\\\\Infrastructure\\\\Middleware\\\\RateLimitMiddleware'' and ''processMany'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: tests/Shared/Infrastructure/Middleware/RateLimitMiddlewareTest.php
-
-		-
-			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
-			identifier: staticMethod.alreadyNarrowedType
-			count: 1
-			path: tests/Shared/Infrastructure/Middleware/RateLimitMiddlewareTest.php
-
-		-
-			message: '#^Parameter \$content of method Symfony\\Component\\BrowserKit\\AbstractBrowser\<Symfony\\Component\\HttpFoundation\\Request,Symfony\\Component\\HttpFoundation\\Response\>\:\:request\(\) expects string\|null, string\|false given\.$#'
-			identifier: argument.type
-			count: 5
-			path: tests/Shared/UI/MercureUpdateControllerTest.php
-
-		-
-			message: '#^Method Tests\\Translation\\TranslationParityTest\:\:loadMessages\(\) should return array\<string, string\> but returns array\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: tests/Translation/TranslationParityTest.php
-
-		-
-			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertNotNull\(\) with Symfony\\Component\\DependencyInjection\\ContainerInterface will always evaluate to true\.$#'
-			identifier: staticMethod.alreadyNarrowedType
-			count: 1
-			path: tests/Unit/KernelBootTest.php
+			path: src/Console/BenchmarkCommand.php

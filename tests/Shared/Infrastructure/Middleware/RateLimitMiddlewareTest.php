@@ -14,18 +14,21 @@ final class RateLimitMiddlewareTest extends TestCase
     #[Test]
     public function rateLimitMiddlewareExtendsAbstractClientMiddleware(): void
     {
+        /** @phpstan-ignore function.alreadyNarrowedType */
         self::assertTrue(\is_subclass_of(RateLimitMiddleware::class, AbstractClientMiddleware::class));
     }
 
     #[Test]
     public function rateLimitMiddlewareImplementsProcessMethod(): void
     {
+        /** @phpstan-ignore function.alreadyNarrowedType */
         self::assertTrue(\method_exists(RateLimitMiddleware::class, 'process'));
     }
 
     #[Test]
     public function rateLimitMiddlewareImplementsProcessManyMethod(): void
     {
+        /** @phpstan-ignore function.alreadyNarrowedType */
         self::assertTrue(\method_exists(RateLimitMiddleware::class, 'processMany'));
     }
 }
