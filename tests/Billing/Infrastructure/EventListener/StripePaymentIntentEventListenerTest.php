@@ -9,6 +9,7 @@ use App\Integrations\Stripe\Webhook\StripePaymentIntentEvent;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Mercure\HubInterface;
 
 final class StripePaymentIntentEventListenerTest extends TestCase
 {
@@ -41,7 +42,9 @@ final class StripePaymentIntentEventListenerTest extends TestCase
                 ],
             );
 
-        $listener = new StripePaymentIntentEventListener($logger);
+        $hub = $this->createMock(HubInterface::class);
+        $hub->expects(self::once())->method('publish')->willReturn('urn:uuid:test');
+        $listener = new StripePaymentIntentEventListener($logger, $hub);
         $listener->onStripePaymentIntentSucceeded($event);
     }
 
@@ -65,7 +68,9 @@ final class StripePaymentIntentEventListenerTest extends TestCase
                 static fn (array $context): bool => \array_key_exists('movie_id', $context) && $context['movie_id'] === null,
             ));
 
-        $listener = new StripePaymentIntentEventListener($logger);
+        $hub = $this->createMock(HubInterface::class);
+        $hub->expects(self::once())->method('publish')->willReturn('urn:uuid:test');
+        $listener = new StripePaymentIntentEventListener($logger, $hub);
         $listener->onStripePaymentIntentSucceeded($event);
     }
 }
