@@ -183,6 +183,39 @@ jobs:
             exit 1
           }
 
+  container-smoke:
+    runs-on: ubuntu-latest
+    name: Container Smoke (non-root)
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Start application and supplier
+        run: docker compose up -d --build php supplier
+
+      - name: Verify non-root users
+        run: |
+          [ "$(docker compose exec -T php id -u)" != "0" ]
+          [ "$(docker compose exec -T supplier id -u)" != "0" ]
+
+      - name: Verify HTTP endpoints
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/ >/dev/null; then
+              break
+            fi
+            [ "$attempt" -lt 30 ] || exit 1
+            sleep 2
+          done
+          docker compose exec -T php curl -fsS http://supplier:8080/prices.csv >/dev/null
+
+      - name: Show container logs
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop containers
+        if: always()
+        run: docker compose down -v
+
   build-image:
     runs-on: ubuntu-latest
     name: Build Docker Image
