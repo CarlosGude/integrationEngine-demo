@@ -8,7 +8,6 @@ use IntegrationEngine\Core\Contract\Action\AbstractAction;
 use IntegrationEngine\Core\Contract\Action\ActionContextInterface;
 use IntegrationEngine\Core\Contract\Client\AbstractClientMiddleware;
 use IntegrationEngine\Core\Contract\Client\RequestHeadersInterface;
-use Throwable;
 
 /**
  * Exponential backoff retry middleware.
@@ -55,7 +54,7 @@ final class RetryMiddleware extends AbstractClientMiddleware
             }
         }
 
-        throw $lastException ?? new \RuntimeException('Retry exhausted');
+        throw $lastException;
         // tour:end
     }
 
