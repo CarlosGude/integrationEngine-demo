@@ -13,6 +13,9 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 final class StorefrontControllerTest extends WebTestCase
 {
+    private const TITLE = self::TITLE;
+    private const POSTER_PATH = self::POSTER_PATH;
+
     protected function setUp(): void
     {
         // RateLimitMiddleware tracks requests-per-second in process-wide
@@ -59,7 +62,7 @@ final class StorefrontControllerTest extends WebTestCase
             id: 299536,
             title: 'Avengers: Endgame',
             overview: 'The final battle',
-            posterPath: '/poster.jpg',
+            posterPath: self::POSTER_PATH,
             voteAverage: 8.4,
             releaseDate: '2019-04-26',
             posterUrl: 'https://image.tmdb.org/t/p/w500/poster.jpg',
@@ -78,9 +81,9 @@ final class StorefrontControllerTest extends WebTestCase
 
         $movieJson = json_encode([
             'id' => 550,
-            'title' => 'Fight Club',
+            'title' => self::TITLE,
             'overview' => 'Overview',
-            'poster_path' => '/poster.jpg',
+            'poster_path' => self::POSTER_PATH,
             'vote_average' => 8.4,
             'release_date' => '1999-10-15',
         ], \JSON_THROW_ON_ERROR);
@@ -100,7 +103,7 @@ final class StorefrontControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         $content = $client->getResponse()->getContent();
         self::assertIsString($content);
-        self::assertStringContainsString('Fight Club', $content);
+        self::assertStringContainsString(self::TITLE, $content);
     }
 
     #[Test]
@@ -111,9 +114,9 @@ final class StorefrontControllerTest extends WebTestCase
 
         $movieJson = json_encode([
             'id' => 550,
-            'title' => 'Fight Club',
+            'title' => self::TITLE,
             'overview' => 'Overview',
-            'poster_path' => '/poster.jpg',
+            'poster_path' => self::POSTER_PATH,
             'vote_average' => 8.4,
             'release_date' => '1999-10-15',
         ], \JSON_THROW_ON_ERROR);
