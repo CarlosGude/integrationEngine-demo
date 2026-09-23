@@ -28,7 +28,7 @@ final readonly class SupplierCsvClient implements ClientInterface
     ): array {
         $path = $action->getPath($context);
 
-        if (self::EXPECTED_PATH !== $path) {
+        if ($path !== self::EXPECTED_PATH) {
             throw new RequestResponseException(0, sprintf('Unsupported supplier path: %s', $path));
         }
 
