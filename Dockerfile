@@ -32,10 +32,14 @@ COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 WORKDIR /app
 
+RUN chown www-data:www-data /app
+
 # Copy lock files — ensures exact version reproducibility
 # composer.lock: frozen dependency tree from last successful install
 # symfony.lock: Flex recipe versions (not used for dev-mode)
-COPY composer.json composer.lock symfony.lock ./
+COPY --chown=www-data:www-data composer.json composer.lock symfony.lock ./
+
+USER www-data
 
 # Install with --no-dev to exclude PHPUnit, PHPStan, Infection, etc.
 # This keeps the production image size small (~50MB vs 120MB with dev tools)
@@ -46,7 +50,7 @@ RUN composer install \
     --no-interaction \
     --optimize-autoloader
 
-COPY . .
+COPY --chown=www-data:www-data . .
 
 # Regenerate autoloader in production mode
 # --classmap-authoritative: fail fast if a class is missing (no fallback)
