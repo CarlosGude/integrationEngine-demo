@@ -38,55 +38,57 @@ class MercurePublishCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+
+        try {
+            [$topic, $message, $repeat, $delay] = $this->parseInput($input);
+        } catch (\InvalidArgumentException $e) {
+            $io->error($e->getMessage());
+
+            return Command::FAILURE;
+        }
+
+        $message['timestamp'] = date('c');
+
+        for ($i = 0; $i < $repeat; ++$i) {
+            if ($i > 0) {
+                sleep($delay);
+            }
+
+            $encodedMessage = json_encode($message, \JSON_THROW_ON_ERROR);
+            $this->hub->publish(new Update(topics: $topic, data: $encodedMessage));
+            $io->success(sprintf(
+                'Published to "%s" (%d/%d): %s',
+                $topic,
+                $i + 1,
+                $repeat,
+                $encodedMessage,
+            ));
+        }
+
+        return Command::SUCCESS;
+    }
+
+    /** @return array{string, array<mixed>, int, int} */
+    private function parseInput(InputInterface $input): array
+    {
         $topic = $input->getArgument('topic');
         $messageArg = $input->getArgument('message');
         $repeat = $input->getOption('repeat');
         $delay = $input->getOption('delay');
 
         if (!is_string($topic) || !is_string($messageArg) || !is_numeric($repeat) || !is_numeric($delay)) {
-            $io->error('Invalid input types');
-            return Command::FAILURE;
+            throw new \InvalidArgumentException('Invalid input types');
         }
 
-        $topic = (string) $topic;
-        $messageArg = (string) $messageArg;
-        $repeat = (int) $repeat;
-        $delay = (int) $delay;
-
-        // Parse JSON message
         $message = json_decode($messageArg, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            $io->error('Invalid JSON message: '.json_last_error_msg());
-            return Command::FAILURE;
+            throw new \InvalidArgumentException('Invalid JSON message: '.json_last_error_msg());
         }
         if (!is_array($message)) {
-            $io->error('Message must be a JSON object, not '.gettype($message));
-            return Command::FAILURE;
+            throw new \InvalidArgumentException('Message must be a JSON object, not '.gettype($message));
         }
 
-        // Add timestamp
-        $message['timestamp'] = date('c');
-
-        for ($i = 0; $i < $repeat; $i++) {
-            if ($i > 0) {
-                sleep($delay);
-            }
-
-            $update = new Update(
-                topics: $topic,
-                data: (string) json_encode($message),
-            );
-
-            $this->hub->publish($update);
-            $io->success(sprintf(
-                'Published to "%s" (%d/%d): %s',
-                $topic,
-                $i + 1,
-                $repeat,
-                json_encode($message),
-            ));
-        }
-
-        return Command::SUCCESS;
+        return [$topic, $message, (int) $repeat, (int) $delay];
     }
+
 }
