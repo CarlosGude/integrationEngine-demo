@@ -183,6 +183,7 @@ final class RetryMiddlewareTest extends TestCase
 
                     public function cancel(): void
                     {
+                        // No-op: this test double has no transport to cancel.
                     }
 
                     public function getInfo(?string $type = null): mixed
