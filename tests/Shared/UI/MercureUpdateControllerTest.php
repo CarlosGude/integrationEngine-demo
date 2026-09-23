@@ -13,6 +13,9 @@ use Symfony\Component\Mercure\Update;
 
 final class MercureUpdateControllerTest extends WebTestCase
 {
+    private const PUBLISH_ENDPOINT = self::PUBLISH_ENDPOINT;
+    private const MOVIE_TOPIC = self::MOVIE_TOPIC;
+
     /** @var list<Update> */
     private array $publishedUpdates = [];
 
@@ -57,7 +60,7 @@ final class MercureUpdateControllerTest extends WebTestCase
     {
         $client = $this->createClientWithMockHub();
 
-        $client->request('POST', '/api/mercure/publish', content: 'invalid json');
+        $client->request('POST', self::PUBLISH_ENDPOINT, content: 'invalid json');
 
         self::assertResponseStatusCodeSame(400);
         self::assertSame(['error' => 'Invalid JSON'], $this->decodeJsonBody($client));
@@ -69,7 +72,7 @@ final class MercureUpdateControllerTest extends WebTestCase
     {
         $client = $this->createClientWithMockHub();
 
-        $client->request('POST', '/api/mercure/publish', content: json_encode(['message' => 'test'], \JSON_THROW_ON_ERROR));
+        $client->request('POST', self::PUBLISH_ENDPOINT, content: json_encode(['message' => 'test'], \JSON_THROW_ON_ERROR));
 
         self::assertResponseStatusCodeSame(400);
         self::assertSame(['error' => 'Topic is required and must be a string'], $this->decodeJsonBody($client));
@@ -81,7 +84,7 @@ final class MercureUpdateControllerTest extends WebTestCase
     {
         $client = $this->createClientWithMockHub();
 
-        $client->request('POST', '/api/mercure/publish', content: json_encode(['topic' => 123], \JSON_THROW_ON_ERROR));
+        $client->request('POST', self::PUBLISH_ENDPOINT, content: json_encode(['topic' => 123], \JSON_THROW_ON_ERROR));
 
         self::assertResponseStatusCodeSame(400);
         self::assertSame(['error' => 'Topic is required and must be a string'], $this->decodeJsonBody($client));
@@ -93,17 +96,17 @@ final class MercureUpdateControllerTest extends WebTestCase
     {
         $client = $this->createClientWithMockHub();
 
-        $client->request('POST', '/api/mercure/publish', content: json_encode([
-            'topic' => 'movies/550',
+        $client->request('POST', self::PUBLISH_ENDPOINT, content: json_encode([
+            'topic' => self::MOVIE_TOPIC,
             'message' => ['title' => 'Fight Club', 'available' => true],
         ], \JSON_THROW_ON_ERROR));
 
         self::assertResponseIsSuccessful();
-        self::assertSame(['success' => true, 'topic' => 'movies/550'], $this->decodeJsonBody($client));
+        self::assertSame(['success' => true, 'topic' => self::MOVIE_TOPIC], $this->decodeJsonBody($client));
 
         self::assertCount(1, $this->publishedUpdates);
         $update = $this->publishedUpdates[0];
-        self::assertSame(['movies/550'], $update->getTopics());
+        self::assertSame([self::MOVIE_TOPIC], $update->getTopics());
 
         /** @var array<string, mixed> $data */
         $data = json_decode($update->getData(), true, flags: \JSON_THROW_ON_ERROR);
@@ -117,7 +120,7 @@ final class MercureUpdateControllerTest extends WebTestCase
     {
         $client = $this->createClientWithMockHub();
 
-        $client->request('POST', '/api/mercure/publish', content: json_encode(['topic' => 'movies/550'], \JSON_THROW_ON_ERROR));
+        $client->request('POST', self::PUBLISH_ENDPOINT, content: json_encode(['topic' => self::MOVIE_TOPIC], \JSON_THROW_ON_ERROR));
 
         self::assertResponseIsSuccessful();
         self::assertCount(1, $this->publishedUpdates);
@@ -132,8 +135,8 @@ final class MercureUpdateControllerTest extends WebTestCase
     {
         $client = $this->createClientWithMockHub();
 
-        $client->request('POST', '/api/mercure/publish', content: json_encode([
-            'topic' => 'movies/550',
+        $client->request('POST', self::PUBLISH_ENDPOINT, content: json_encode([
+            'topic' => self::MOVIE_TOPIC,
             'message' => 'not-an-array',
         ], \JSON_THROW_ON_ERROR));
 
