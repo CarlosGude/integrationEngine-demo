@@ -34,10 +34,7 @@ final readonly class SupplierCsvClient implements ClientInterface
             $content = $response->getContent(throw: false);
 
             if ($statusCode >= 400) {
-                throw new RequestResponseException(
-                    $statusCode,
-                    sprintf('%s %s returned HTTP %d', $action->getMethod(), $path, $statusCode),
-                );
+                throw new RequestResponseException($statusCode, sprintf('%s %s returned HTTP %d', $action->getMethod(), $path, $statusCode));
             }
 
             return [
@@ -48,10 +45,7 @@ final readonly class SupplierCsvClient implements ClientInterface
         } catch (RequestResponseException $e) {
             throw $e;
         } catch (\Throwable $e) {
-            throw new RequestResponseException(
-                0,
-                sprintf('Network error on %s %s: %s', $action->getMethod(), $path, $e->getMessage()),
-            );
+            throw new RequestResponseException(0, sprintf('Network error on %s %s: %s', $action->getMethod(), $path, $e->getMessage()));
         }
     }
 }
