@@ -44,7 +44,7 @@ final class SyntaxHighlighter
 
         /** @var string */
         $code = preg_replace(
-            '/(\$[a-zA-Z_][a-zA-Z0-9_]*)/',
+            '/(\$[a-zA-Z_]\w*)/',
             '<span class="variable">$1</span>',
             $code,
         );
