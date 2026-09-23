@@ -23,7 +23,7 @@ final class SupplierCsvClientTest extends TestCase
         $http = $this->createMock(HttpClientInterface::class);
         $http->expects(self::once())
             ->method('request')
-            ->with('GET', 'http://supplier/prices.csv', ['headers' => []])
+            ->with('GET', 'http://supplier:8080/prices.csv', ['headers' => []])
             ->willReturn($response);
 
         $client = new SupplierCsvClient($http);
