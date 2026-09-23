@@ -13,8 +13,8 @@ use Symfony\Component\Mercure\Update;
 
 final class MercureUpdateControllerTest extends WebTestCase
 {
-    private const PUBLISH_ENDPOINT = self::PUBLISH_ENDPOINT;
-    private const MOVIE_TOPIC = self::MOVIE_TOPIC;
+    private const PUBLISH_ENDPOINT = '/api/mercure/publish';
+    private const MOVIE_TOPIC = 'movies/550';
 
     /** @var list<Update> */
     private array $publishedUpdates = [];
