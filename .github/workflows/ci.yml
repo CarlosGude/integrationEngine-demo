@@ -196,8 +196,8 @@ jobs:
         run: |
           services=$(docker compose config --services | sort | tr '\n' ' ')
           echo "services: $services"
-          [ "$services" = "mercure php " ] || {
-            echo "::error::expected 'mercure php', got '$services'"
+          [ "$services" = "mercure php supplier " ] || {
+            echo "::error::expected 'mercure php supplier', got '$services'"
             exit 1
           }
 
