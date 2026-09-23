@@ -6,9 +6,8 @@ namespace App\Tour\Application;
 
 use App\Billing\Application\RentalPaymentGateway;
 use App\Catalog\Application\MovieCatalogGateway;
-use App\Integrations\Countries\CountriesIntegration;
 use App\Integrations\Stripe\Webhook\StripePaymentIntentEvent;
-use App\Integrations\Supplier\SupplierIntegration;
+use App\Pricing\Application\PricingGateway;
 use App\Shared\Infrastructure\Resilience\CircuitBreaker;
 use App\Shared\Infrastructure\Resilience\FallbackStrategy;
 use App\Shared\Observability\TraceRecorderMiddleware;
@@ -18,8 +17,7 @@ final readonly class TourStepRunner
 {
     public function __construct(
         private MovieCatalogGateway $catalog,
-        private CountriesIntegration $countries,
-        private SupplierIntegration $supplier,
+        private PricingGateway $pricing,
         private RentalPaymentGateway $payments,
         private EventDispatcherInterface $events,
     ) {
@@ -68,10 +66,10 @@ final readonly class TourStepRunner
     private function protocols(): array
     {
         $countries = $this->timed('countries.get_countries', 'POST', fn (): array => [
-            'countries' => count($this->countries->getCountries()->countries()),
+            'countries' => $this->pricing->countCountries(),
         ]);
         $supplier = $this->timed('supplier.get_prices', 'GET', fn (): array => [
-            'prices' => count($this->supplier->getPrices()->prices()),
+            'prices' => $this->pricing->countSupplierPrices(),
         ]);
 
         return ['graphql' => $countries, 'csv' => $supplier];
