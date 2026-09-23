@@ -2,35 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [main, develop, 'feature/**']
+    branches: [main, develop]
   pull_request:
     branches: [main, develop]
 
 jobs:
-  dependency-lock:
-    runs-on: ubuntu-latest
-    name: Resolve Dependency Lock
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-      - name: Resolve locked dependencies
-        run: composer update carlosgude/integration-engine deptrac/deptrac --with-all-dependencies --no-interaction --no-progress --no-scripts
-      - name: Commit resolved lock
-        if: github.event_name == 'push'
-        run: |
-          if ! git diff --quiet -- composer.lock; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add composer.lock
-            git commit -m "chore: refresh dependency lock for IntegrationEngine v8"
-            git push origin HEAD:$GITHUB_REF_NAME
-          fi
-
   tests:
     runs-on: ubuntu-latest
     name: Tests (PHPUnit)
