@@ -82,10 +82,12 @@ final class TourControllerTest extends WebTestCase
         $data = json_decode($content, true);
         self::assertIsArray($data);
 
-        self::assertTrue($data['result']['success']);
+        $result = $data['result'] ?? null;
+        self::assertIsArray($result);
+        self::assertTrue($result['success']);
         self::assertSame(
             ['null' => null, 'cache' => ['price' => '2.99', 'currency' => 'USD'], 'default' => ['stock' => 0]],
-            $data['result']['data'],
+            $result['data'],
         );
 
         $trace = $data['trace'];
