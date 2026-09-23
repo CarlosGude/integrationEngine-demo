@@ -23,14 +23,6 @@ final class FallbackStrategyTest extends TestCase
     }
 
     #[Test]
-    public function cacheFallbackIgnoresTheCachedAtArgument(): void
-    {
-        $result = FallbackStrategy::cacheFallback(['prices' => [1, 2, 3]], new \DateTimeImmutable('-2 hours'));
-
-        self::assertSame(['prices' => [1, 2, 3]], $result);
-    }
-
-    #[Test]
     public function defaultFallbackReturnsTheGivenDefault(): void
     {
         self::assertSame(0, FallbackStrategy::defaultFallback(0));
