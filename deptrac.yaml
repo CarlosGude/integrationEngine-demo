@@ -8,47 +8,47 @@ deptrac:
     - name: Shared
       collectors:
           - type: classNameRegex
-            value: ^App\\Shared\\.*
+            value: '#^App\\Shared\\.*#'
 
     - name: Integrations
       collectors:
           - type: classNameRegex
-            value: ^App\\Integrations\\.*
+            value: '#^App\\Integrations\\.*#'
 
     - name: Catalog
       collectors:
           - type: classNameRegex
-            value: ^App\\Catalog\\.*
+            value: '#^App\\Catalog\\.*#'
 
     - name: Billing
       collectors:
           - type: classNameRegex
-            value: ^App\\Billing\\.*
+            value: '#^App\\Billing\\.*#'
 
     - name: Pricing
       collectors:
           - type: classNameRegex
-            value: ^App\\Pricing\\.*
+            value: '#^App\\Pricing\\.*#'
 
     - name: Legacy
       collectors:
           - type: classNameRegex
-            value: ^App\\Legacy\\.*
+            value: '#^App\\Legacy\\.*#'
 
     - name: Tour
       collectors:
           - type: classNameRegex
-            value: ^App\\Tour\\.*
+            value: '#^App\\Tour\\.*#'
 
     - name: UI
       collectors:
           - type: classNameRegex
-            value: ^App\\(Controller|Command|Console)\\.*
+            value: '#^App\\(Controller|Command|Console)\\.*#'
 
     - name: Kernel
       collectors:
           - type: classNameRegex
-            value: ^App\\Kernel$
+            value: '#^App\\Kernel$#'
 
   ruleset:
     UI:
@@ -69,9 +69,11 @@ deptrac:
       - Integrations
     Pricing:
       - Shared
+      - Integrations
     Legacy:
       - Shared
     Tour:
       - Shared
       - Catalog
       - Billing
+      - Pricing
