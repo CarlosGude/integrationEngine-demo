@@ -70,6 +70,10 @@ final class MovieCatalogGateway
         /** @var array<int, Movie|null> $movies */
         $movies = [];
         foreach ($results->responses() as $movieId => $movieResponse) {
+            if (!is_int($movieId)) {
+                continue;
+            }
+
             \assert($movieResponse instanceof GetMovieResponse);
 
             $posterUrl = $this->buildPosterUrl(
