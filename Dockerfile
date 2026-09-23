@@ -69,9 +69,11 @@ COPY --from=vendor /app/vendor ./vendor
 COPY . .
 
 RUN test -f vendor/autoload_runtime.php && \
-    grep -q "project_dir" vendor/autoload_runtime.php
-
-RUN echo 'error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT\noutput_buffering = off\n' > /usr/local/etc/php/conf.d/symfony.ini
+    grep -q "project_dir" vendor/autoload_runtime.php && \
+    printf '%s\n' \
+        'error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT' \
+        'output_buffering = off' \
+        > /usr/local/etc/php/conf.d/symfony.ini
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 

@@ -8,7 +8,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4f46b8 0%, #5b3a86 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -24,7 +24,7 @@
             overflow: hidden;
         }
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4f46b8 0%, #5b3a86 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -58,7 +58,7 @@
             animation: pulse 2s infinite;
         }
         .status-dot.connected {
-            background: #4CAF50;
+            background: #2e7d32;
         }
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -80,7 +80,7 @@
             transition: all 0.3s;
         }
         .btn-primary {
-            background: #667eea;
+            background: #4f46b8;
             color: white;
         }
         .btn-primary:hover {
@@ -105,7 +105,7 @@
             color: #333;
             margin-bottom: 15px;
             font-size: 16px;
-            border-bottom: 2px solid #667eea;
+            border-bottom: 2px solid #4f46b8;
             padding-bottom: 10px;
         }
         .updates-list {
@@ -146,14 +146,14 @@
             }
         }
         .timestamp {
-            color: #999;
+            color: #666;
             font-size: 11px;
             margin-right: 10px;
         }
         .topic-badge {
             display: inline-block;
             padding: 2px 8px;
-            background: #667eea;
+            background: #4f46b8;
             color: white;
             border-radius: 4px;
             font-size: 11px;
@@ -161,17 +161,17 @@
             margin-right: 8px;
         }
         .topic-badge.transactions {
-            background: #4CAF50;
+            background: #2e7d32;
         }
         .topic-badge.payments {
-            background: #2196F3;
+            background: #1565c0;
         }
         .topic-badge.admin {
-            background: #FF9800;
+            background: #b45309;
         }
         .empty-state {
             text-align: center;
-            color: #999;
+            color: #666;
             padding: 40px 20px;
         }
         .stats {
@@ -181,7 +181,7 @@
             margin-bottom: 30px;
         }
         .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4f46b8 0%, #5b3a86 100%);
             color: white;
             padding: 20px;
             border-radius: 8px;
@@ -352,7 +352,7 @@
 
             // Limitar a 50 items
             while (list.children.length > 50) {
-                list.removeChild(list.lastChild);
+                list.lastChild?.remove();
             }
 
             updateStats();
@@ -366,14 +366,20 @@
             document.getElementById('payment-count').textContent = paymentCount;
         }
 
+        function secureRandomFraction() {
+            const value = new Uint32Array(1);
+            crypto.getRandomValues(value);
+            return value[0] / 0x100000000;
+        }
+
         // Publicar transacción
         async function publishTransaction() {
             await fetch(apiUrl + '/transactions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    id: Math.random().toString(36).substr(2, 9),
-                    amount: Math.floor(Math.random() * 10000) / 100,
+                    id: Math.floor(secureRandomFraction() * Number.MAX_SAFE_INTEGER).toString(36),
+                    amount: Math.floor(secureRandomFraction() * 10000) / 100,
                     currency: 'USD',
                     status: 'completed',
                     paymentMethod: 'credit_card'
@@ -390,7 +396,7 @@
                     topic: 'admin/payments',
                     message: {
                         action: 'payment_processed',
-                        amount: (Math.random() * 1000).toFixed(2),
+                        amount: (secureRandomFraction() * 1000).toFixed(2),
                         status: 'success',
                         processor: 'stripe'
                     }

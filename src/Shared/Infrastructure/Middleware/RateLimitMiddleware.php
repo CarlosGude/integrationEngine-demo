@@ -10,10 +10,6 @@ use IntegrationEngine\Core\Contract\Action\ActionContextInterface;
 use IntegrationEngine\Core\Contract\Client\AbstractClientMiddleware;
 use IntegrationEngine\Core\Contract\Client\RequestHeadersInterface;
 
-final class RateLimitExceededException extends \RuntimeException
-{
-}
-
 final class RateLimitMiddleware extends AbstractClientMiddleware
 {
     private static int $requestsThisSecond = 0;
