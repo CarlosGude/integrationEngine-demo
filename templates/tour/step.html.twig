@@ -19,6 +19,8 @@
     <button id="run-btn" class="btn-run">Run Step</button>
 
     <div id="trace" class="trace-output" style="display: none;">
+        <h3>Result</h3>
+        <pre id="result-output"></pre>
         <h3>Execution Trace</h3>
         <ul id="trace-list"></ul>
         <p>Total: <span id="total-duration">0</span>ms</p>
@@ -43,6 +45,7 @@
             headers: { 'Content-Type': 'application/json' }
         });
         const data = await response.json();
+        document.getElementById('result-output').textContent = JSON.stringify(data.result, null, 2);
         displayTrace(data.trace);
     });
 

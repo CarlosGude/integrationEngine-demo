@@ -1,23 +1,23 @@
 # IntegrationEngine Demo
 
-A guided tour through external API integrations using the [IntegrationEngine](https://github.com/carlosgude/integrationEngine) bundle: real, working REST integration (TMDB) with parallel request benchmarking, plus CSV and GraphQL integrations implemented with the same architecture as reference code. Bilingual code tour with snippets extracted live from source. **The tour's "Run" button doesn't execute anything yet** — see "Known issues" below before assuming this is a click-and-see-it-run demo.
+A guided, executable tour through external API integrations using the [IntegrationEngine](https://github.com/carlosgude/integrationEngine) bundle. REST/TMDB, GraphQL/Countries, CSV/Supplier and Stripe all use the same Action → Mapper → Response architecture. Tour snippets are extracted live from source, and the **Run Step** action executes the corresponding integration or deterministic resilience scenario and shows its result and trace.
 
 ## Scope of this demo
 
 This is a **tour of the engine**, not a real rental store. That shapes a few deliberate choices:
 
-- **No persistence.** Nothing is saved to a database — no rentals, no payment history, no webhook log. `RentalPaymentGateway` creates a real Stripe PaymentIntent; the webhook confirmation is verified, mapped, and dispatched as a typed event (`StripePaymentIntentEvent`) that a listener currently just logs. There's no live push to the browser on that path — Mercure exists in this repo, but only as its own standalone real-time demo (`/mercure-demo.html`, `MercureUpdateController`), unconnected to rentals or payments. See "Known issues" below.
+- **No persistence.** Nothing is saved to a database — no rentals, no payment history, no webhook log. `RentalPaymentGateway` creates a real Stripe PaymentIntent; the inbound webhook is verified by IntegrationEngine, mapped to `StripePaymentIntentEvent`, dispatched to Billing and published to the `admin/payments` Mercure topic for a live browser feed.
 - **No admin panel, no payments/webhooks dashboard.** With no real traffic, a dashboard would just show one or two test rows — empty-looking statistics that undercut the point of the demo instead of supporting it. What matters here is the integration code itself, shown live in the tour, not a business back-office around it.
 - **No background workers or message queue.** There's no state for a worker to reconcile, so there's nothing for Messenger/RabbitMQ to do here.
 
 These aren't gaps to fill later — they're scope decisions. The original, broader roadmap (`docs/TAREAS.md`) explored a version of this demo *with* persistence, a payments panel, and a webhook inbox; that path was intentionally dropped in favor of staying a focused engine tour. See `docs/TAREAS.md`'s "Decisiones de alcance" section for the full reasoning.
 
-### Known issues
+### Runtime boundaries
 
-- **The tour's "Run" button is a stub.** `TourController::run()` returns a fixed `{"success": true}` and an empty trace for *every* step, regardless of which one you click — read the comment in the source: `// This is a placeholder - actual step execution would happen here`. The code snippets shown in each step are real (extracted live from source, so they can't drift), but clicking Run does not execute them. This is the single biggest gap between what this demo appears to offer and what it currently does.
-- **CSV (Supplier) and GraphQL (Countries) integrations aren't reachable from the running app.** Both exist with the same Action/Mapper/Response architecture as TMDB and have unit tests, but `SupplierIntegration` isn't even registered under `integration_engine.yaml`'s `integrations:`, and nothing in `src/` ever calls the `countries` integration (which *is* registered). Tour step 3 ("Behind the Counter") only shows rate-limiting middleware, not CSV or GraphQL.
-- **You can't rent a movie from the browser.** `RentalPaymentGateway` — the class that creates a real Stripe PaymentIntent — is only called from `SimulateRentalCommand`, a CLI command (`bin/console billing:simulate-rental`). There's no rent button, no payment page; tour steps 5-6 show real snippets but nothing you click actually triggers them.
-- **`public/mercure-demo.html` and `MercureUpdateController` are orphaned.** They publish to topics like `admin/payments` and `admin/transactions` — leftovers from an earlier, unrelated prototype (the page's own `<title>` still says "TransactionEngine"). Nothing in the actual tour, storefront, or Stripe webhook flow links to or publishes through them. They're not wired into anything the tour demonstrates.
+- Live TMDB steps require a valid `TMDB_ACCESS_TOKEN`.
+- Live Stripe PaymentIntent creation requires a valid test `STRIPE_SECRET_KEY`. The tour's payment-confirmation step deliberately starts at the typed-event boundary so it can demonstrate Billing → Mercure without forging a Stripe signature; the authentic inbound path remains `POST /webhook/stripe` and is covered separately.
+- Supplier CSV is served by the local Compose `supplier` service. Countries/GraphQL calls the public Countries endpoint.
+- Persistence, admin dashboards and background workers remain intentionally out of scope.
 
 ## 📚 Complete Documentation Suite
 
@@ -46,22 +46,21 @@ These aren't gaps to fill later — they're scope decisions. The original, broad
 
 ## Status & Versions
 
-**Demo:** `v1.0.0` is tagged, `main` is development branch.
-**IntegrationEngine:** Pinned to `dev-main` (latest from [carlosgude/integrationEngine](https://github.com/CarlosGude/integrationEngine), v7.0+)
-**Symfony:** 7.4 LTS (supported until Nov 2025)
+**Demo:** `main` is the development branch; the next release is the executable-tour update.
+**IntegrationEngine:** `^8.0.4` (stable release, not `dev-main`).
+**Symfony:** 7.4 LTS
 **PHP:** 8.4 (current stable)
 
 ### Quality Gates
 
-All CI jobs are green:
-- ✅ `make up` → both containers healthy
+CI enforces the following gates:
+- `docker compose config` validates the app, supplier and Mercure services
 - ✅ `composer install --no-dev` → production boot
 - ✅ Webhook endpoints unauthenticated
-- ✅ 169 tests passing, 638 assertions
-- ✅ PHPStan level `max`, PHP CS Fixer, Deptrac — all clean
-- ✅ Infection: MSI ≥ 58%, covered-code MSI ≥ 63% (raised incrementally as coverage grows — see `infection.json5`)
+- PHPStan level `max` without a baseline, PHP CS Fixer and Deptrac
+- Infection is blocking with MSI ≥ 58% and covered-code MSI ≥ 63%
 
-**Deferred by choice, not by gap:** upgrading `qossmic/deptrac-shim` (abandoned) to `deptrac/deptrac` 2.x needs a config migration; bumping to PHPUnit 13 is scheduled as its own PR.
+Deptrac uses the maintained `deptrac/deptrac` package. Exact test/assertion totals are taken from the current CI run rather than frozen here.
 
 ### ✅ Completed (Days 17-26)
 
@@ -104,13 +103,13 @@ All CI jobs are green:
 
 | Métrica | Valor |
 |---------|-------|
-| Tests | 169 ✅ (no skipped; admin tests removed in T-11) |
-| Test Coverage | 638 assertions |
-| CI Jobs | 8 (tests, style, static-analysis, architecture, production-install, compose-config, build-image, mutation-testing) |
+| Tests | PHPUnit suite enforced by CI |
+| Assertions / coverage | Reported by the current CI run; assertions are not presented as coverage |
+| CI Gates | tests, style, static analysis, architecture, production install, Compose config, Docker build, mutation testing |
 | Protocolos | 4 (REST, CSV, GraphQL, Stripe form-urlencoded) |
-| Tour Steps | 7, bilingual EN/ES, real snippets — "Run" button not yet implemented (see Known issues) |
+| Tour Steps | 7, bilingual EN/ES, live snippets and executable Run Step actions |
 | Integrations | TMDB (REST), Supplier (CSV), Countries (GraphQL), Stripe (webhooks) |
-| Code Quality | PHPStan max, 0 violations, baseline 7 entries (T-09) |
+| Code Quality | PHPStan max without baseline, PHP CS Fixer, Deptrac |
 | Architecture | Deptrac 0 violations, UI layer captured (T-10) |
 | Parallelism Speedup | 5-13x for 20 concurrent movie loads |
 | Custom Code (Post-v7.0) | ~100 lines (-76% from v6.0) |
@@ -132,21 +131,20 @@ All CI jobs are green:
 - [x] Comprehensive testing framework
 - [x] Production checklists and monitoring guides
 
-### ✅ Phase 3 Complete - Integration with Engine v7.0
+### ✅ Engine v8 integration
 
-**Engine v7.0 Integration Complete:**
+**Engine v8 Integration Complete:**
 - [x] Remove StripeFormClientAdapter (129 lines → use engine's FormEncodedClientAdapter)
 - [x] Simplify GetPricesMapper (44 lines removed → use engine's CsvParser utility)
 - [x] Remove custom CSV parsing code
-- [x] Update middleware signatures for v7.0 API compatibility
-- [x] All tests passing (55/55) ✅
+- [x] Update webhook and middleware contracts for v8 API compatibility
 
 **Impact:** Custom boilerplate reduced from 410 → 100 lines (-76%)
 - Lines removed: 170
 - Lines added: 25
 - Net reduction: -145 lines
 
-See: [Phase 3 Integration Plan](docs/PHASE3-INTEGRATION.md) for implementation details
+See the architecture and upgrade documentation for implementation details.
 
 ### 📄 Deployment guide (reference, not executed)
 

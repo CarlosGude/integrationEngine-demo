@@ -13,6 +13,9 @@ integration_engine:
             base_url: 'https://countries.trevorblades.com'
             client: graphql
             config_path: '%kernel.project_dir%/src/Integrations/Countries/Countries.yaml'
+        supplier:
+            client_service: app.client.supplier_csv
+            config_path: '%kernel.project_dir%/src/Integrations/Supplier/Supplier.yaml'
         stripe:
             client_service: app.client.stripe
             config_path: '%kernel.project_dir%/src/Integrations/Stripe/Stripe.yaml'

@@ -179,8 +179,8 @@ jobs:
         run: |
           services=$(docker compose config --services | sort | tr '\n' ' ')
           echo "services: $services"
-          [ "$services" = "mercure php " ] || {
-            echo "::error::expected 'mercure php', got '$services'"
+          [ "$services" = "mercure php supplier " ] || {
+            echo "::error::expected 'mercure php supplier', got '$services'"
             exit 1
           }
 
@@ -208,7 +208,6 @@ jobs:
   mutation-testing:
     runs-on: ubuntu-latest
     name: Mutation Testing (Infection)
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -242,5 +241,6 @@ jobs:
         with:
           name: mutation-report
           path: |
-            infection.log
+            var/infection/infection.log
+            var/infection/summary.log
           if-no-files-found: ignore

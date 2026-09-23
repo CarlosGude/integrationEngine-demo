@@ -1,0 +1,5 @@
+get_prices:
+  action: 'App\Integrations\Supplier\GetPrices\GetPricesAction'
+  method: GET
+  path: /prices.csv
+  mapper: 'App\Integrations\Supplier\Mappers\GetPricesMapper'

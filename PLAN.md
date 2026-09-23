@@ -1,6 +1,6 @@
 # IntegrationEngine Demo - Implementation Plan
 
-## Project Status: Days 17-28 Complete ✅, plus a Phase 5 engine v7.0 cleanup pass
+## Project Status: Executable demo on IntegrationEngine v8
 
 **Scope note:** this is a tour of the IntegrationEngine bundle, not a real rental
 business. Persistence (Doctrine/SQLite), a payments/webhooks admin panel, and
@@ -9,25 +9,12 @@ not relevant, the app stays on `php:8.4-fpm` + Nginx. See `docs/TAREAS.md` §
 "Decisiones de alcance" for the reasoning. `docs/TAREAS.md` itself is an archived
 draft of a broader plan, not the live one — this file is the source of truth.
 
-**Final Status:** Feature-complete for that scope, with one important caveat
-verified 2026-09-22: **the tour's "Run" button does not execute anything.**
-`TourController::run()` (`src/Controller/TourController.php`) is a stub —
-`// This is a placeholder - actual step execution would happen here` — that
-returns a fixed `{"success": true}` and an empty trace for every step,
-regardless of which one was requested. The tour's real, verifiable value is
-the code snippets themselves (extracted live from source via
-`SourceSnippetExtractor`, so they can't drift from the code) — not live
-execution in the browser. See Next Steps for what that implies for each step.
-
-Resilience patterns (retry, circuit breaker, fallback, chaos injection) exist
-under `src/Shared/Infrastructure/` and are shown as source in tour step 4
-("When Suppliers Fail"), and are genuinely *executed* — but only via
-`bin/console billing:simulate-rental --chaos` from the CLI, not from the
-tour's Run button. They're also **not** wired into the production request
-pipeline — `config/packages/integration_engine.yaml` only declares
-`app.middleware.rate_limit` under `tmdb`'s `middlewares:`. Wiring
-retry/circuit-breaker into that live pipeline is a separate open item; see
-Next Steps.
+**Final Status:** the tour is executable. `TourController::run()` delegates to
+`TourStepRunner`, which executes live TMDB, Countries/GraphQL, Supplier/CSV and
+Stripe outbound calls where appropriate, plus deterministic resilience scenarios.
+The payment-confirmation step exercises the typed-event downstream path and
+publishes to Mercure; authentic inbound Stripe requests still enter through
+`POST /webhook/stripe` with IntegrationEngine signature verification.
 
 ### Overview
 A progressive demonstration of the **IntegrationEngine** Symfony bundle, showcasing API integration patterns through a movie storefront demo. Spans 9 days of incremental development with 3 distinct protocols and middleware extensibility.
@@ -96,12 +83,12 @@ A progressive demonstration of the **IntegrationEngine** Symfony bundle, showcas
 - `CircuitBreaker` (CLOSED → OPEN → HALF_OPEN state machine)
 - `FallbackStrategy` (null, cache, default)
 - `ChaosMonkey` for controlled failure injection, driven by `bin/console billing:simulate-rental --chaos`
-- **Caveat 1:** genuinely executed only via that console command — the tour's own "Run" button is a stub (see the Final Status note above) and doesn't invoke any of this.
+- The tour now executes deterministic circuit-breaker and fallback scenarios directly; `SimulateRentalCommand --chaos` remains the manual randomized failure-injection path.
 - **Caveat 2:** not wired into `config/packages/integration_engine.yaml`'s `middlewares:` for any integration — only `app.middleware.rate_limit` is. Wiring them into the real request pipeline is still open (see Next Steps).
 
-### Phase 5: Engine v7.0 Integration Cleanup
+### Phase 5: Engine v8 Integration Cleanup
 
-Once IntegrationEngine shipped native form-urlencoded and CSV support, the demo's own workarounds were removed:
+IntegrationEngine v8 is pinned as a stable dependency and the demo uses its current contracts:
 - Removed the custom `StripeFormClientAdapter` (129 lines) in favor of the engine's `FormEncodedClientAdapter`
 - Simplified `GetPricesMapper` (44 lines removed) using the engine's CSV parser utility
 - Net effect: ~410 → ~100 lines of custom protocol-handling code (-76%)
@@ -135,7 +122,7 @@ Domain Service
 
 ### Test Coverage
 
-**Current:** 169 tests, 638 assertions, all passing ✅ (verified 2026-09-22 via `vendor/bin/phpunit`)
+**Current:** enforced by CI. Exact test/assertion totals are read from the current run rather than frozen in documentation.
 - `tests/Catalog/` — TMDB integration, domain layer, storefront controller
 - `tests/Pricing/` — CSV adapter, Countries GraphQL, rate limiting
 - `tests/Tour/` — snippet resolution, tour configuration
@@ -177,7 +164,7 @@ docker/
 ├── nginx.conf, entrypoint.sh   (used by the root Dockerfile)
 └── supplier/                    Dockerfile + nginx.conf + prices.csv (CSV mock)
 
-tests/  — mirrors src/, 169 tests total (see Test Coverage above)
+tests/  — mirrors src/ and is enforced by CI
 ```
 
 ### Git History
@@ -192,7 +179,7 @@ of sync with reality every time new work landed.
 - **English Storefront:** http://localhost:8080/en/store
 - **Spanish Storefront:** http://localhost:8080/es/store
 
-**Status:** 🟢 Architecture complete | ⚠️ Needs valid TMDB credentials for live data
+**Status:** Architecture and executable tour complete; live external steps need the corresponding test credentials.
 
 ### Implementation Validation
 
@@ -202,28 +189,29 @@ of sync with reality every time new work landed.
 | Domain layer | ✅ | Movie aggregate, fromInfrastructure factory |
 | Gateway pattern | ✅ | send() + sendMany() parallelism |
 | Route discovery | ✅ | 11 routes registered (`bin/console debug:router`) |
-| YAML config loading | ✅ | Tmdb.yaml, Countries.yaml, Stripe.yaml parsed |
+| YAML config loading | ✅ | Tmdb.yaml, Countries.yaml, Supplier.yaml, Stripe.yaml parsed |
 | HTTP method resolution | ✅ | GET /3/configuration (verified) |
 | Authorization injection | ✅ | Bearer token header sent |
 | Middleware pipeline | ✅ | RateLimitMiddleware wired; Retry/CircuitBreaker demo-only (see caveat above) |
 | Bilingual tour (snippets) | ✅ | EN/ES, 7 steps, ~26 snippets, extracted live from source |
-| Bilingual tour ("Run" button) | ❌ | Stub — `TourController::run()` returns a fixed response, executes nothing |
-| Tests | ✅ | 169 tests, 638 assertions passing |
+| Bilingual tour ("Run" button) | ✅ | `TourStepRunner` executes integrations/scenarios and returns result + trace |
+| Tests | ✅ | PHPUnit enforced by CI |
 
 ### Next Steps
 
-**Known open items:**
-- [ ] **Make the tour's "Run" button actually run something.** `TourController::run()` is a stub returning a fixed response for every step. This is the biggest gap between what the demo claims to do and what it does — fixing it (or being explicit in the UI that it's not implemented yet) should be the top priority before showing this to anyone external.
-- [ ] Wire `SupplierIntegration` (CSV) into `integration_engine.yaml` and call it from somewhere real (tour step 3 or the storefront), or remove it — right now it's unregistered, unreachable code with only unit tests.
-- [ ] Give `countries` (GraphQL) an actual caller, or remove it — it's registered but nothing in `src/` ever calls it.
-- [ ] Wire `RetryMiddleware`/`CircuitBreaker` into the live `integration_engine.yaml` pipeline — currently only reachable via `bin/console billing:simulate-rental --chaos`
-- [ ] D5.2 "Partner stores" tour step (SSRF protection via a connection resolver) — the one piece of `docs/TAREAS.md`'s original spec not discarded by the scope decisions
-- [ ] Decide the fate of `MercureUpdateController` / `public/mercure-demo.html` — orphaned from an earlier, unrelated prototype (publishes to `admin/payments`/`admin/transactions` topics, page title still says "TransactionEngine"). Not linked from the tour or storefront, not part of the real Stripe webhook flow. Either wire it into the payment-confirmation tour step for a genuine live-update demo, or remove it.
-- [ ] There is no web UI path to rent a movie at all — `RentalPaymentGateway` is only called from `SimulateRentalCommand` (CLI). Tour steps 5-6 ("Renting a Movie", "Payment Confirmation") show real snippets but can't be triggered from the browser.
+The original execution gaps are closed:
 
-**Explicitly out of scope** (see `docs/TAREAS.md` § "Decisiones de alcance" — this is a decided position, not a backlog):
-- Persistence (Doctrine/SQLite), a payments/webhooks admin panel, RabbitMQ/Messenger workers
-- Migrating from `php:8.4-fpm` to FrankenPHP
+- [x] Run Step executes real integrations or deterministic resilience scenarios.
+- [x] Supplier/CSV is registered and served by the local Compose supplier service.
+- [x] Countries/GraphQL has a real caller through the executable tour.
+- [x] Stripe's verified typed event reaches Billing and Mercure.
+- [x] The duplicate unverified Stripe/Mercure webhook endpoint was removed.
+- [x] IntegrationEngine is pinned to stable v8 rather than `dev-main`.
+- [x] PHPStan max runs without a baseline; Deptrac uses the maintained package; Infection is blocking.
+
+Remaining items are optional extensions, not required to make the demo truthful:
+- wiring retry/circuit-breaker into a production request pipeline instead of keeping them as explicit teaching scenarios;
+- adding a browser-side Stripe confirmation flow if the demo ever grows beyond an engine tour.
 
 ---
 
@@ -274,10 +262,10 @@ The demo uses a test token from `.env.local` that has expired. To see live movie
 
 **Current state (Days 17-28 + Phase 5 cleanup):**
 - 4 bounded contexts (Catalog, Pricing, Billing) + Legacy + Tour + Shared, with integrations kept flat under `src/Integrations/`
-- 4 protocols implemented with identical architecture: REST/JSON (TMDB), CSV (Supplier), GraphQL (Countries), form-urlencoded (Stripe) — but only TMDB and Stripe are actually reachable from a running instance (see caveats below)
-- Resilience patterns (retry, circuit breaker, fallback, chaos injection) built and genuinely executed via CLI, not yet wired into the live pipeline or the tour
+- 4 protocols implemented with the same integration architecture: REST/JSON (TMDB), CSV (Supplier), GraphQL (Countries), form-urlencoded (Stripe), all reachable through executable demo flows
+- Resilience patterns are executable in the tour; randomized chaos injection remains available from the CLI
 - Complete bilingual tour: 7 steps, ~26 snippets extracted live from source
-- 169 tests, 638 assertions, all green
+- PHPUnit, PHPStan, Deptrac, CS Fixer, production boot, Docker build and Infection are enforced by CI
 - No persistence, no admin panel, no message queue, no FrankenPHP — deliberately, see the scope note at the top
 
 **Architecture Proven:**
@@ -285,21 +273,15 @@ The demo uses a test token from `.env.local` that has expired. To see live movie
 ✅ Handles multiple protocols uniformly in code (outbound + inbound)
 ✅ Supports parallelism (5-13x speedup) — live in the storefront
 ✅ Extensible via middleware and custom client adapters
-✅ Webhook infrastructure (Symfony webhook + remote-event): verified, mapped, and
-   dispatched as a typed event — currently just logged, no live push to the browser
-   (`MercureUpdateController`/`public/mercure-demo.html` exist but are an unrelated,
-   unwired standalone demo — see Next Steps)
+✅ Webhook infrastructure (Symfony webhook + remote-event): verified, mapped and dispatched as a typed event; Billing publishes the resulting payment event to Mercure for live browser updates
 ✅ Bilingual UI with live, extracted-from-source code snippets
 ✅ Test coverage across all layers
 
-**Not yet proven — verified false 2026-09-22:**
-❌ The tour's "Run" button executes anything (it's a stub)
-❌ CSV (Supplier) or GraphQL (Countries) integrations are reachable from the running app (unregistered/uncalled, respectively)
-❌ Renting a movie is possible from a browser (CLI-only, via `SimulateRentalCommand`)
+**Deliberate boundary:** the project remains an engine tour, not a rental product. The executable "Renting a Movie" step creates the PaymentIntent from the tour; there is no full card-entry/Stripe.js checkout UI or persistence layer.
 
-**Open work:** see "Next Steps" above — making "Run" real (or labeling it as not implemented) is the top priority, ahead of wiring resilience middleware or the D5.2 "Partner stores" tour step.
+**Optional future work:** wire retry/circuit-breaker into a normal production request pipeline or add a complete browser checkout if the scope changes.
 
 ---
 
-*Status claims in this document last verified against the code on 2026-09-22, at `75bb4b7`.*
+*Status claims updated for the IntegrationEngine v8 executable-tour branch on 2026-09-23.*
 *Enforced for file paths by `tests/Documentation/DocumentedPathsExistTest.php`.*

@@ -103,8 +103,10 @@ final class SimulateRentalCommand extends Command
     // tour:start resilience/chaos-testing-example
     private function executeWithChaos(SymfonyStyle $io, int $movieId, InputInterface $input): int
     {
-        $timeoutRate = (int) ($input->getOption('timeout-rate') ?? '0');
-        $rateLimitRate = (int) ($input->getOption('ratelimit-rate') ?? '0');
+        $timeoutOption = $input->getOption('timeout-rate');
+        $rateLimitOption = $input->getOption('ratelimit-rate');
+        $timeoutRate = is_numeric($timeoutOption) ? (int) $timeoutOption : 0;
+        $rateLimitRate = is_numeric($rateLimitOption) ? (int) $rateLimitOption : 0;
         $chaos = (new ChaosMonkey())
             ->withTimeoutRate($timeoutRate)
             ->withRateLimitRate($rateLimitRate);

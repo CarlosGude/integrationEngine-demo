@@ -67,8 +67,13 @@ final class MovieCatalogGateway
         $configResponse = $engine->send('get_configuration');
         \assert($configResponse instanceof GetConfigurationResponse);
 
+        /** @var array<int, Movie|null> $movies */
         $movies = [];
         foreach ($results->responses() as $movieId => $movieResponse) {
+            if (!is_int($movieId)) {
+                continue;
+            }
+
             \assert($movieResponse instanceof GetMovieResponse);
 
             $posterUrl = $this->buildPosterUrl(

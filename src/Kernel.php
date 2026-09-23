@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
 final class Kernel extends BaseKernel
@@ -13,10 +14,10 @@ final class Kernel extends BaseKernel
 
     public function registerBundles(): iterable
     {
+        /** @var array<class-string<BundleInterface>, array<string, bool>> $contents */
         $contents = require $this->getProjectDir().'/config/bundles.php';
         foreach ($contents as $class => $envs) {
             if ($envs[$this->environment] ?? $envs['all'] ?? false) {
-                /** @var class-string<\Symfony\Component\HttpKernel\Bundle\BundleInterface> $class */
                 yield new $class();
             }
         }

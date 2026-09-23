@@ -22,7 +22,7 @@ MOVIE-002,4.99,USD
 CSV;
 
         $action = GetPricesAction::create('GET', '/prices.csv');
-        $response = GetPricesMapper::map($action, ['body' => $csvContent], []);
+        $response = GetPricesMapper::map($action, ['csv' => $csvContent], []);
 
         self::assertInstanceOf(GetPricesResponse::class, $response);
         $prices = $response->prices();
@@ -35,7 +35,7 @@ CSV;
     public function whitespaceOnlyBodyMapsToAnEmptyResponse(): void
     {
         $action = GetPricesAction::create('GET', '/prices.csv');
-        $response = GetPricesMapper::map($action, ['body' => "   \n  "], []);
+        $response = GetPricesMapper::map($action, ['csv' => "   \n  "], []);
 
         self::assertInstanceOf(GetPricesResponse::class, $response);
         self::assertSame([], $response->prices());

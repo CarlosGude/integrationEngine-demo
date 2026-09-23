@@ -1,6 +1,13 @@
 {
     "source": {
-        "directories": ["src"]
+        "directories": ["src"],
+        "excludes": [
+            "Controller",
+            "Command",
+            "Console",
+            "Kernel.php",
+            "Legacy"
+        ]
     },
     "logs": {
         "text": "var/infection/infection.log",

@@ -71,7 +71,7 @@ final class TourControllerTest extends WebTestCase
         $client = self::createClient();
         $payload = json_encode(['action' => 'test']);
         self::assertIsString($payload);
-        $client->request('POST', '/en/tour/the-problem/run', [], [], [
+        $client->request('POST', '/en/tour/graceful-degradation/run', [], [], [
             'CONTENT_TYPE' => 'application/json',
         ], $payload);
 
@@ -82,16 +82,17 @@ final class TourControllerTest extends WebTestCase
         $data = json_decode($content, true);
         self::assertIsArray($data);
 
+        $result = $data['result'] ?? null;
+        self::assertIsArray($result);
+        self::assertTrue($result['success']);
         self::assertSame(
-            ['result' => ['success' => true, 'message' => 'Step executed']],
-            ['result' => $data['result']],
+            ['null' => null, 'cache' => ['price' => '2.99', 'currency' => 'USD'], 'default' => ['stock' => 0]],
+            $result['data'],
         );
 
         $trace = $data['trace'];
         self::assertIsArray($trace);
-        // json_decode() gives back an int 0, not a float 0.0, for a whole
-        // number without JSON_PRESERVE_ZERO_FRACTION on the encoding side.
-        self::assertSame(['calls' => [], 'total_duration_ms' => 0], $trace);
+        self::assertSame([], $trace['calls']);
     }
 
     public function testRunEndpointFor404sForAnUnknownStepWithoutRunningIt(): void

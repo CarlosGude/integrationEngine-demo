@@ -28,6 +28,11 @@ services:
       retries: 3
       start_period: 30s
 
+  supplier:
+    build:
+      context: ./docker/supplier
+    restart: unless-stopped
+
 ###> symfony/mercure-bundle ###
   mercure:
     image: dunglas/mercure
