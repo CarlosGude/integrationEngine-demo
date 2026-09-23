@@ -10,6 +10,10 @@ use IntegrationEngine\Core\Contract\Action\ActionContextInterface;
 use IntegrationEngine\Core\Contract\Client\AbstractClientMiddleware;
 use IntegrationEngine\Core\Contract\Client\RequestHeadersInterface;
 
+final class RateLimitExceededException extends \RuntimeException
+{
+}
+
 final class RateLimitMiddleware extends AbstractClientMiddleware
 {
     private static int $requestsThisSecond = 0;
@@ -35,7 +39,7 @@ final class RateLimitMiddleware extends AbstractClientMiddleware
      */
     public function processMany(array $requests, callable $next): array
     {
-        foreach ($requests as $_ => $_) {
+        for ($i = 0, $count = count($requests); $i < $count; ++$i) {
             $this->checkRateLimit();
         }
 
@@ -52,7 +56,7 @@ final class RateLimitMiddleware extends AbstractClientMiddleware
 
         ++self::$requestsThisSecond;
         if (self::$requestsThisSecond > self::MAX_REQUESTS_PER_SECOND) {
-            throw new \RuntimeException('Rate limit exceeded (40 requests/second max)');
+            throw new RateLimitExceededException('Rate limit exceeded (40 requests/second max)');
         }
     }
     // tour:end middleware-rate-limit
