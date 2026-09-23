@@ -32,7 +32,11 @@ COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 WORKDIR /app
 
-RUN chown www-data:www-data /app
+RUN chown www-data:www-data /app \
+    && mkdir -p /tmp/composer \
+    && chown -R www-data:www-data /tmp/composer
+
+ENV COMPOSER_HOME=/tmp/composer
 
 # Copy lock files — ensures exact version reproducibility
 # composer.lock: frozen dependency tree from last successful install
