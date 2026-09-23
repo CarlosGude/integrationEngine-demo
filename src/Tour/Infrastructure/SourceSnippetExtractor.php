@@ -32,7 +32,7 @@ final class SourceSnippetExtractor
             throw SnippetNotFoundException::forFile($filePath, $snippetId);
         }
 
-        return $this->extractFromContent($content, $snippetId, $filePath);
+        return $this->extractFromContent($content, $snippetId);
     }
 
     private function validatePath(string $filePath): void
@@ -54,7 +54,7 @@ final class SourceSnippetExtractor
         }
     }
 
-    private function extractFromContent(string $content, string $snippetId, string $filePath): string
+    private function extractFromContent(string $content, string $snippetId): string
     {
         $startMarker = "tour:start $snippetId";
         $endMarker = 'tour:end';
