@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tour\Application;
 
+use App\Billing\Application\PaymentConfirmationSimulator;
 use App\Billing\Application\RentalPaymentGateway;
 use App\Catalog\Application\MovieCatalogGateway;
-use App\Integrations\Stripe\Webhook\StripePaymentIntentEvent;
 use App\Pricing\Application\PricingGateway;
 use App\Shared\Infrastructure\Resilience\CircuitBreaker;
 use App\Shared\Infrastructure\Resilience\FallbackStrategy;
 use App\Shared\Observability\TraceRecorderMiddleware;
-use Psr\EventDispatcher\EventDispatcherInterface;
 
 final readonly class TourStepRunner
 {
@@ -19,7 +18,7 @@ final readonly class TourStepRunner
         private MovieCatalogGateway $catalog,
         private PricingGateway $pricing,
         private RentalPaymentGateway $payments,
-        private EventDispatcherInterface $events,
+        private PaymentConfirmationSimulator $paymentConfirmation,
     ) {
     }
 
@@ -117,24 +116,7 @@ final readonly class TourStepRunner
     /** @return array<string, mixed> */
     private function paymentConfirmation(): array
     {
-        $event = new StripePaymentIntentEvent(
-            eventId: 'evt_demo',
-            eventType: 'payment_intent.succeeded',
-            paymentIntentId: 'pi_demo',
-            movieId: 550,
-            status: 'succeeded',
-            amount: 500,
-            currency: 'usd',
-        );
-
-        $this->events->dispatch($event);
-
-        return [
-            'event' => $event->eventType,
-            'payment_intent_id' => $event->paymentIntentId,
-            'mercure_topic' => 'admin/payments',
-            'mode' => 'typed-event downstream simulation',
-        ];
+        return $this->paymentConfirmation->simulate(movieId: 550, amount: 500, currency: 'usd');
     }
 
     /**
