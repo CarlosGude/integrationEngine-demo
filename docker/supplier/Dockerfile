@@ -1,8 +1,11 @@
 FROM nginx:alpine
 
-COPY prices.csv /usr/share/nginx/html/prices.csv
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY --chown=nginx:nginx prices.csv /usr/share/nginx/html/prices.csv
+COPY --chown=nginx:nginx nginx.conf /etc/nginx/nginx.conf
 
-EXPOSE 80
+USER nginx
 
+EXPOSE 8080
+
+ENTRYPOINT []
 CMD ["nginx", "-g", "daemon off;"]
