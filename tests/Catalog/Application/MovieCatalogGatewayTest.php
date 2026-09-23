@@ -13,9 +13,9 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 final class MovieCatalogGatewayTest extends KernelTestCase
 {
-    private const TITLE = self::TITLE;
-    private const RELEASE_DATE = self::RELEASE_DATE;
-    private const IMAGE_BASE_URL = self::IMAGE_BASE_URL;
+    private const TITLE = 'Fight Club';
+    private const RELEASE_DATE = '1999-10-15';
+    private const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/';
 
     #[Test]
     public function getMovieByIdBuildsMovieDomainObject(): void
