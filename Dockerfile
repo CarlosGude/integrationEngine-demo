@@ -9,8 +9,8 @@
 #   - FPM: FastCGI Process Manager for Nginx
 #
 # MAIN DEPENDENCIES: (from composer.lock)
-#   - Symfony 7.4 LTS: Web framework (LTS until Nov 2025)
-#   - IntegrationEngine v7.0+: TMDB/Stripe/Countries integrations
+#   - Symfony 7.4 LTS: Web framework
+#   - IntegrationEngine v8.0+: TMDB/Stripe/Countries/Supplier integrations
 #   - Mercure 0.8+: Real-time WebSocket hub
 #   - symfony/security-bundle 7.4: HTTP Basic auth for webhooks
 #
