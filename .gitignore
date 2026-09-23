@@ -40,3 +40,5 @@
 # src and tests. See docs/CONTRIBUTING.md.
 /config/reference.php
 ###< generated config ###
+
+/.deptrac.cache
