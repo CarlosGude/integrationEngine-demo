@@ -18,12 +18,12 @@ final class PaymentConfirmationSimulatorTest extends TestCase
             ->method('dispatch')
             ->with(self::callback(static function (object $event): bool {
                 return $event instanceof StripePaymentIntentEvent
-                    && 'evt_demo' === $event->eventId
-                    && 'payment_intent.succeeded' === $event->eventType
-                    && 'pi_demo' === $event->paymentIntentId
-                    && 550 === $event->movieId
-                    && 500 === $event->amount
-                    && 'usd' === $event->currency;
+                    && $event->eventId === 'evt_demo'
+                    && $event->eventType === 'payment_intent.succeeded'
+                    && $event->paymentIntentId === 'pi_demo'
+                    && $event->movieId === 550
+                    && $event->amount === 500
+                    && $event->currency === 'usd';
             }))
             ->willReturnArgument(0);
 
