@@ -13,9 +13,11 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class SupplierCsvClient implements ClientInterface
 {
+    private const ENDPOINT = 'http://supplier/prices.csv';
+    private const EXPECTED_PATH = '/prices.csv';
+
     public function __construct(
         private HttpClientInterface $httpClient,
-        private string $baseUrl,
     ) {
     }
 
@@ -26,8 +28,12 @@ final readonly class SupplierCsvClient implements ClientInterface
     ): array {
         $path = $action->getPath($context);
 
+        if (self::EXPECTED_PATH !== $path) {
+            throw new RequestResponseException(0, sprintf('Unsupported supplier path: %s', $path));
+        }
+
         try {
-            $response = $this->httpClient->request($action->getMethod(), $this->baseUrl.$path, [
+            $response = $this->httpClient->request($action->getMethod(), self::ENDPOINT, [
                 'headers' => $headers?->toArray() ?? [],
             ]);
             $statusCode = $response->getStatusCode();
