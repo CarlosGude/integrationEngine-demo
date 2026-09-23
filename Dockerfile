@@ -41,7 +41,7 @@ ENV COMPOSER_HOME=/tmp/composer
 # Copy lock files — ensures exact version reproducibility
 # composer.lock: frozen dependency tree from last successful install
 # symfony.lock: Flex recipe versions (not used for dev-mode)
-COPY --chown=www-data:www-data composer.json composer.lock symfony.lock ./
+COPY composer.json composer.lock symfony.lock ./
 
 USER www-data
 
@@ -54,7 +54,7 @@ RUN composer install \
     --no-interaction \
     --optimize-autoloader
 
-COPY --chown=www-data:www-data . .
+COPY . .
 
 # Regenerate autoloader in production mode
 # --classmap-authoritative: fail fast if a class is missing (no fallback)
