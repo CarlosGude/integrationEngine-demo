@@ -33,6 +33,6 @@ final class GetPricesMapper extends AbstractMapper
             return new GetPricesResponse([]);
         }
 
-        return new GetPricesResponse($rows);
+        return new GetPricesResponse(array_values($rows));
     }
 }
