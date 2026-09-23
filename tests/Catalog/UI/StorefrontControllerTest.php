@@ -13,8 +13,8 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 final class StorefrontControllerTest extends WebTestCase
 {
-    private const TITLE = self::TITLE;
-    private const POSTER_PATH = self::POSTER_PATH;
+    private const TITLE = 'Fight Club';
+    private const POSTER_PATH = '/poster.jpg';
 
     protected function setUp(): void
     {
