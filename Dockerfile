@@ -77,17 +77,27 @@ RUN test -f vendor/autoload_runtime.php && \
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
-RUN mkdir -p /app/var/cache /app/var/log && chown -R www-data:www-data /app/var
+RUN mkdir -p \
+        /app/var/cache \
+        /app/var/log \
+        /tmp/client_temp \
+        /tmp/proxy_temp \
+        /tmp/fastcgi_temp \
+        /tmp/uwsgi_temp \
+        /tmp/scgi_temp \
+    && chown -R www-data:www-data /app/var /tmp/client_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp
 
-EXPOSE 80
+EXPOSE 8080
 
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=30s \
-    CMD curl -f http://localhost/ || exit 1
+    CMD curl -f http://localhost:8080/ || exit 1
 
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
+
+USER www-data
 
 ENTRYPOINT ["/entrypoint.sh"]
