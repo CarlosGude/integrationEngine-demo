@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Shared\Observability\TraceRecorderMiddleware;
+use App\Tour\Application\TourStepRunner;
 use App\Tour\Domain\StepNotFoundException;
 use App\Tour\Domain\TourRegistry;
 use App\Tour\Domain\TourStep;
@@ -17,6 +18,7 @@ final class TourController extends AbstractController
 {
     public function __construct(
         private readonly TourRegistry $tourRegistry,
+        private readonly TourStepRunner $runner,
     ) {
     }
 
@@ -39,8 +41,11 @@ final class TourController extends AbstractController
 
         TraceRecorderMiddleware::startTrace();
         try {
-            // This is a placeholder - actual step execution would happen here
-            $result = ['success' => true, 'message' => 'Step executed'];
+            try {
+                $result = ['success' => true, 'data' => $this->runner->run($stepId)];
+            } catch (\Throwable $e) {
+                $result = ['success' => false, 'error' => $e->getMessage()];
+            }
         } finally {
             $trace = TraceRecorderMiddleware::getCurrentTrace();
             TraceRecorderMiddleware::clearTrace();
