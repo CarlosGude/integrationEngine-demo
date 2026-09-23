@@ -241,5 +241,6 @@ jobs:
         with:
           name: mutation-report
           path: |
-            infection.log
+            var/infection/infection.log
+            var/infection/summary.log
           if-no-files-found: ignore
