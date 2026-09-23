@@ -13,7 +13,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class SupplierCsvClient implements ClientInterface
 {
-    private const ENDPOINT = 'http://supplier/prices.csv';
+    private const ENDPOINT = 'http://supplier:8080/prices.csv';
     private const EXPECTED_PATH = '/prices.csv';
 
     public function __construct(

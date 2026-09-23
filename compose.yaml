@@ -15,14 +15,14 @@ services:
       # you happened to start it. The .env chain is the single source now.
       DEFAULT_URI: http://localhost:8080/
     ports:
-      - "127.0.0.1:8080:80"
+      - "127.0.0.1:8080:8080"
     volumes:
       - ./:/app:rw
       - /app/var
       - /app/vendor
     working_dir: /app
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
       interval: 10s
       timeout: 5s
       retries: 3
