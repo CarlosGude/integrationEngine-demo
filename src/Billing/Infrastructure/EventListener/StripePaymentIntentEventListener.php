@@ -46,6 +46,14 @@ final readonly class StripePaymentIntentEventListener
             'timestamp' => date('c'),
         ], JSON_THROW_ON_ERROR);
 
-        $this->hub->publish(new Update('admin/payments', $payload));
+        try {
+            $this->hub->publish(new Update('admin/payments', $payload));
+        } catch (\Throwable $e) {
+            $this->logger->warning('Mercure publication failed after Stripe payment event', [
+                'event_id' => $event->eventId,
+                'payment_intent_id' => $event->paymentIntentId,
+                'exception' => $e::class,
+            ]);
+        }
     }
 }
