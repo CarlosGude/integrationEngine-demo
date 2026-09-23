@@ -21,7 +21,6 @@ services:
         class: App\Pricing\Infrastructure\Http\SupplierCsvClient
         arguments:
             $httpClient: '@http_client'
-            $baseUrl: '%env(SUPPLIER_BASE_URL)%'
 
     app.client.stripe:
         class: IntegrationEngine\Infrastructure\Adapter\FormEncodedClientAdapter
