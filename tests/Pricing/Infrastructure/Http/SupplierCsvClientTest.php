@@ -26,7 +26,7 @@ final class SupplierCsvClientTest extends TestCase
             ->with('GET', 'http://supplier/prices.csv', ['headers' => []])
             ->willReturn($response);
 
-        $client = new SupplierCsvClient($http, 'http://supplier');
+        $client = new SupplierCsvClient($http);
         $action = GetPricesAction::create('GET', '/prices.csv');
 
         self::assertSame([
@@ -34,6 +34,20 @@ final class SupplierCsvClientTest extends TestCase
             'headers' => ['content-type' => ['text/csv']],
             'statusCode' => 200,
         ], $client->send($action));
+    }
+
+    public function testRejectsUnexpectedSupplierPath(): void
+    {
+        $http = $this->createMock(HttpClientInterface::class);
+        $http->expects(self::never())->method('request');
+
+        $client = new SupplierCsvClient($http);
+        $action = GetPricesAction::create('GET', '/internal-metadata');
+
+        $this->expectException(RequestResponseException::class);
+        $this->expectExceptionMessage('Unsupported supplier path: /internal-metadata');
+
+        $client->send($action);
     }
 
     public function testWrapsHttpErrorAsRequestResponseException(): void
@@ -45,7 +59,7 @@ final class SupplierCsvClientTest extends TestCase
         $http = $this->createMock(HttpClientInterface::class);
         $http->method('request')->willReturn($response);
 
-        $client = new SupplierCsvClient($http, 'http://supplier');
+        $client = new SupplierCsvClient($http);
         $action = GetPricesAction::create('GET', '/prices.csv');
 
         $this->expectException(RequestResponseException::class);
@@ -59,7 +73,7 @@ final class SupplierCsvClientTest extends TestCase
         $http = $this->createMock(HttpClientInterface::class);
         $http->method('request')->willThrowException(new \RuntimeException('connection refused'));
 
-        $client = new SupplierCsvClient($http, 'http://supplier');
+        $client = new SupplierCsvClient($http);
         $action = GetPricesAction::create('GET', '/prices.csv');
 
         $this->expectException(RequestResponseException::class);
