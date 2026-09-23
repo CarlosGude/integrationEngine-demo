@@ -11,9 +11,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 final class StripeWebhookFlowTest extends WebTestCase
 {
-    // Matches STRIPE_WEBHOOK_SECRET in .env.test.
-    private const SECRET = 'whsec_test';
-
     /** @var list<StripePaymentIntentEvent> */
     private array $dispatched = [];
 
@@ -96,7 +93,11 @@ final class StripeWebhookFlowTest extends WebTestCase
 
     private function sign(string $body, int $timestamp): string
     {
-        return \sprintf('t=%d,v1=%s', $timestamp, hash_hmac('sha256', "{$timestamp}.{$body}", self::SECRET));
+        $secret = $_SERVER['STRIPE_WEBHOOK_SECRET'] ?? $_ENV['STRIPE_WEBHOOK_SECRET'] ?? null;
+        self::assertIsString($secret);
+        self::assertNotSame('', $secret);
+
+        return \sprintf('t=%d,v1=%s', $timestamp, hash_hmac('sha256', "{$timestamp}.{$body}", $secret));
     }
 
     private function post(string $body, string $signature): void
