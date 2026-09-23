@@ -83,7 +83,7 @@ A progressive demonstration of the **IntegrationEngine** Symfony bundle, showcas
 - `CircuitBreaker` (CLOSED → OPEN → HALF_OPEN state machine)
 - `FallbackStrategy` (null, cache, default)
 - `ChaosMonkey` for controlled failure injection, driven by `bin/console billing:simulate-rental --chaos`
-- **Caveat 1:** genuinely executed only via that console command — the tour's own "Run" button is a stub (see the Final Status note above) and doesn't invoke any of this.
+- The tour now executes deterministic circuit-breaker and fallback scenarios directly; `SimulateRentalCommand --chaos` remains the manual randomized failure-injection path.
 - **Caveat 2:** not wired into `config/packages/integration_engine.yaml`'s `middlewares:` for any integration — only `app.middleware.rate_limit` is. Wiring them into the real request pipeline is still open (see Next Steps).
 
 ### Phase 5: Engine v8 Integration Cleanup
@@ -262,10 +262,10 @@ The demo uses a test token from `.env.local` that has expired. To see live movie
 
 **Current state (Days 17-28 + Phase 5 cleanup):**
 - 4 bounded contexts (Catalog, Pricing, Billing) + Legacy + Tour + Shared, with integrations kept flat under `src/Integrations/`
-- 4 protocols implemented with identical architecture: REST/JSON (TMDB), CSV (Supplier), GraphQL (Countries), form-urlencoded (Stripe) — but only TMDB and Stripe are actually reachable from a running instance (see caveats below)
-- Resilience patterns (retry, circuit breaker, fallback, chaos injection) built and genuinely executed via CLI, not yet wired into the live pipeline or the tour
+- 4 protocols implemented with the same integration architecture: REST/JSON (TMDB), CSV (Supplier), GraphQL (Countries), form-urlencoded (Stripe), all reachable through executable demo flows
+- Resilience patterns are executable in the tour; randomized chaos injection remains available from the CLI
 - Complete bilingual tour: 7 steps, ~26 snippets extracted live from source
-- 169 tests, 638 assertions, all green
+- PHPUnit, PHPStan, Deptrac, CS Fixer, production boot, Docker build and Infection are enforced by CI
 - No persistence, no admin panel, no message queue, no FrankenPHP — deliberately, see the scope note at the top
 
 **Architecture Proven:**
@@ -273,21 +273,15 @@ The demo uses a test token from `.env.local` that has expired. To see live movie
 ✅ Handles multiple protocols uniformly in code (outbound + inbound)
 ✅ Supports parallelism (5-13x speedup) — live in the storefront
 ✅ Extensible via middleware and custom client adapters
-✅ Webhook infrastructure (Symfony webhook + remote-event): verified, mapped, and
-   dispatched as a typed event — currently just logged, no live push to the browser
-   (`MercureUpdateController`/`public/mercure-demo.html` exist but are an unrelated,
-   unwired standalone demo — see Next Steps)
+✅ Webhook infrastructure (Symfony webhook + remote-event): verified, mapped and dispatched as a typed event; Billing publishes the resulting payment event to Mercure for live browser updates
 ✅ Bilingual UI with live, extracted-from-source code snippets
 ✅ Test coverage across all layers
 
-**Not yet proven — verified false 2026-09-22:**
-❌ The tour's "Run" button executes anything (it's a stub)
-❌ CSV (Supplier) or GraphQL (Countries) integrations are reachable from the running app (unregistered/uncalled, respectively)
-❌ Renting a movie is possible from a browser (CLI-only, via `SimulateRentalCommand`)
+**Deliberate boundary:** the project remains an engine tour, not a rental product. The executable "Renting a Movie" step creates the PaymentIntent from the tour; there is no full card-entry/Stripe.js checkout UI or persistence layer.
 
-**Open work:** see "Next Steps" above — making "Run" real (or labeling it as not implemented) is the top priority, ahead of wiring resilience middleware or the D5.2 "Partner stores" tour step.
+**Optional future work:** wire retry/circuit-breaker into a normal production request pipeline or add a complete browser checkout if the scope changes.
 
 ---
 
-*Status claims in this document last verified against the code on 2026-09-22, at `75bb4b7`.*
+*Status claims updated for the IntegrationEngine v8 executable-tour branch on 2026-09-23.*
 *Enforced for file paths by `tests/Documentation/DocumentedPathsExistTest.php`.*
