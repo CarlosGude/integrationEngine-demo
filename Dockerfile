@@ -9,8 +9,8 @@
 #   - FPM: FastCGI Process Manager for Nginx
 #
 # MAIN DEPENDENCIES: (from composer.lock)
-#   - Symfony 7.4 LTS: Web framework (LTS until Nov 2025)
-#   - IntegrationEngine v7.0+: TMDB/Stripe/Countries integrations
+#   - Symfony 7.4 LTS: Web framework
+#   - IntegrationEngine v8.0+: TMDB/Stripe/Countries/Supplier integrations
 #   - Mercure 0.8+: Real-time WebSocket hub
 #   - symfony/security-bundle 7.4: HTTP Basic auth for webhooks
 #
@@ -32,10 +32,18 @@ COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
 WORKDIR /app
 
+RUN chown www-data:www-data /app \
+    && mkdir -p /tmp/composer \
+    && chown -R www-data:www-data /tmp/composer
+
+ENV COMPOSER_HOME=/tmp/composer
+
 # Copy lock files — ensures exact version reproducibility
 # composer.lock: frozen dependency tree from last successful install
 # symfony.lock: Flex recipe versions (not used for dev-mode)
 COPY composer.json composer.lock symfony.lock ./
+
+USER www-data
 
 # Install with --no-dev to exclude PHPUnit, PHPStan, Infection, etc.
 # This keeps the production image size small (~50MB vs 120MB with dev tools)
@@ -77,17 +85,33 @@ RUN test -f vendor/autoload_runtime.php && \
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
-RUN mkdir -p /app/var/cache /app/var/log && chown -R www-data:www-data /app/var
+RUN mkdir -p \
+        /app/var/cache \
+        /app/var/log \
+        /tmp/client_temp \
+        /tmp/proxy_temp \
+        /tmp/fastcgi_temp \
+        /tmp/uwsgi_temp \
+        /tmp/scgi_temp \
+    && chown -R www-data:www-data \
+        /app/var \
+        /tmp/client_temp \
+        /tmp/proxy_temp \
+        /tmp/fastcgi_temp \
+        /tmp/uwsgi_temp \
+        /tmp/scgi_temp
 
-EXPOSE 80
+EXPOSE 8080
 
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=30s \
-    CMD curl -f http://localhost/ || exit 1
+    CMD curl -f http://localhost:8080/ || exit 1
 
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
+
+USER www-data
 
 ENTRYPOINT ["/entrypoint.sh"]
