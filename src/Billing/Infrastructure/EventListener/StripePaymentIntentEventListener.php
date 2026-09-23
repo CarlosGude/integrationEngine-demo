@@ -21,7 +21,10 @@ final readonly class StripePaymentIntentEventListener
     #[AsEventListener(event: StripePaymentIntentEvent::class)]
     public function onStripePaymentIntentSucceeded(StripePaymentIntentEvent $event): void
     {
-        $this->logger->info('Stripe payment intent succeeded', [
+        $succeeded = 'payment_intent.succeeded' === $event->eventType;
+        $action = $succeeded ? 'payment_succeeded' : 'payment_failed';
+
+        $this->logger->info($succeeded ? 'Stripe payment intent succeeded' : 'Stripe payment intent failed', [
             'event_id' => $event->eventId,
             'event_type' => $event->eventType,
             'payment_intent_id' => $event->paymentIntentId,
@@ -33,7 +36,7 @@ final readonly class StripePaymentIntentEventListener
 
         $payload = json_encode([
             'topic' => 'admin/payments',
-            'action' => 'payment_succeeded',
+            'action' => $action,
             'eventId' => $event->eventId,
             'paymentIntentId' => $event->paymentIntentId,
             'movieId' => $event->movieId,
