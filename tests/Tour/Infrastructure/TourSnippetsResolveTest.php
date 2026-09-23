@@ -22,7 +22,7 @@ final class TourSnippetsResolveTest extends TestCase
 
         $extractor = new SourceSnippetExtractor($projectDir, ['src', 'config']);
 
-        foreach ($tourConfig['steps'] as $stepId => $stepConfig) {
+        foreach ($tourConfig['steps'] as $stepConfig) {
             if (!isset($stepConfig['snippets'])) {
                 continue;
             }
