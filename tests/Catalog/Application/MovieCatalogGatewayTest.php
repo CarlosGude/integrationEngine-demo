@@ -13,6 +13,10 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 final class MovieCatalogGatewayTest extends KernelTestCase
 {
+    private const TITLE = 'Fight Club';
+    private const RELEASE_DATE = '1999-10-15';
+    private const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/';
+
     #[Test]
     public function getMovieByIdBuildsMovieDomainObject(): void
     {
@@ -21,17 +25,17 @@ final class MovieCatalogGatewayTest extends KernelTestCase
 
         $movieData = \json_encode([
             'id' => 550,
-            'title' => 'Fight Club',
+            'title' => self::TITLE,
             'overview' => 'An insomniac office worker and a devil-may-care soapmaker form an underground fight club.',
             'poster_path' => '/pB8BM8DQsVv0AT39VHkVrNg8OVV.jpg',
             'vote_average' => 8.8,
-            'release_date' => '1999-10-15',
+            'release_date' => self::RELEASE_DATE,
         ]);
         \assert($movieData !== false);
 
         $configData = \json_encode([
             'images' => [
-                'secure_base_url' => 'https://image.tmdb.org/t/p/',
+                'secure_base_url' => self::IMAGE_BASE_URL,
                 'poster_sizes' => ['w92', 'w154', 'w185', 'w342', 'w500', 'w780', 'original'],
             ],
         ]);
@@ -51,7 +55,7 @@ final class MovieCatalogGatewayTest extends KernelTestCase
 
         self::assertInstanceOf(Movie::class, $movie);
         self::assertSame(550, $movie->id);
-        self::assertSame('Fight Club', $movie->title);
+        self::assertSame(self::TITLE, $movie->title);
         self::assertSame(8.8, $movie->voteAverage);
         self::assertSame(
             'https://image.tmdb.org/t/p/w500/pB8BM8DQsVv0AT39VHkVrNg8OVV.jpg',
@@ -67,17 +71,17 @@ final class MovieCatalogGatewayTest extends KernelTestCase
 
         $movieData = \json_encode([
             'id' => 550,
-            'title' => 'Fight Club',
+            'title' => self::TITLE,
             'overview' => 'Overview',
             'poster_path' => '',
             'vote_average' => 8.8,
-            'release_date' => '1999-10-15',
+            'release_date' => self::RELEASE_DATE,
         ]);
         \assert($movieData !== false);
 
         $configData = \json_encode([
             'images' => [
-                'secure_base_url' => 'https://image.tmdb.org/t/p/',
+                'secure_base_url' => self::IMAGE_BASE_URL,
                 'poster_sizes' => ['w500'],
             ],
         ]);
@@ -104,17 +108,17 @@ final class MovieCatalogGatewayTest extends KernelTestCase
 
         $movieData = \json_encode([
             'id' => 550,
-            'title' => 'Fight Club',
+            'title' => self::TITLE,
             'overview' => 'Overview',
             'poster_path' => '/poster.jpg',
             'vote_average' => 8.8,
-            'release_date' => '1999-10-15',
+            'release_date' => self::RELEASE_DATE,
         ]);
         \assert($movieData !== false);
 
         $configData = \json_encode([
             'images' => [
-                'secure_base_url' => 'https://image.tmdb.org/t/p/',
+                'secure_base_url' => self::IMAGE_BASE_URL,
                 'poster_sizes' => ['w92', 'w154'],
             ],
         ]);
@@ -141,17 +145,17 @@ final class MovieCatalogGatewayTest extends KernelTestCase
 
         $movieData = \json_encode([
             'id' => 550,
-            'title' => 'Fight Club',
+            'title' => self::TITLE,
             'overview' => 'Overview',
             'poster_path' => '/path.jpg',
             'vote_average' => 8.8,
-            'release_date' => '1999-10-15',
+            'release_date' => self::RELEASE_DATE,
         ]);
         \assert($movieData !== false);
 
         $configData = \json_encode([
             'images' => [
-                'secure_base_url' => 'https://image.tmdb.org/t/p/',
+                'secure_base_url' => self::IMAGE_BASE_URL,
                 'poster_sizes' => ['w500', 'original'],
             ],
         ]);
@@ -173,7 +177,7 @@ final class MovieCatalogGatewayTest extends KernelTestCase
 
         self::assertCount(3, $batch);
         self::assertInstanceOf(Movie::class, $batch[550]);
-        self::assertSame('Fight Club', $batch[550]->title);
+        self::assertSame(self::TITLE, $batch[550]->title);
         self::assertNull($batch[999]);
         self::assertNull($batch[1000]);
     }

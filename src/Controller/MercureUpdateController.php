@@ -17,21 +17,20 @@ class MercureUpdateController extends AbstractController
     public function publish(Request $request, HubInterface $hub): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
+        $error = null;
         if (!is_array($data)) {
-            return new JsonResponse(['error' => 'Invalid JSON'], 400);
+            $error = 'Invalid JSON';
+        } elseif (!isset($data['topic']) || !is_string($data['topic'])) {
+            $error = 'Topic is required and must be a string';
         }
 
-        if (!isset($data['topic']) || !is_string($data['topic'])) {
-            return new JsonResponse(['error' => 'Topic is required and must be a string'], 400);
+        if ($error !== null) {
+            return new JsonResponse(['error' => $error], 400);
         }
 
         $topic = $data['topic'];
         $message = is_array($data['message'] ?? null) ? $data['message'] : [];
-
-        $payload = json_encode(['timestamp' => date('c'), ...$message]);
-        if ($payload === false) {
-            return new JsonResponse(['error' => 'Failed to encode message'], 400);
-        }
+        $payload = json_encode(['timestamp' => date('c'), ...$message], \JSON_THROW_ON_ERROR);
 
         $update = new Update(
             topics: $topic,
@@ -52,10 +51,7 @@ class MercureUpdateController extends AbstractController
             'action' => 'new_transaction',
             'transaction' => $data,
             'timestamp' => date('c'),
-        ]);
-        if ($payload === false) {
-            return new JsonResponse(['error' => 'Failed to encode transaction'], 400);
-        }
+        ], \JSON_THROW_ON_ERROR);
 
         $update = new Update(
             topics: 'admin/transactions',
