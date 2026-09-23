@@ -93,7 +93,13 @@ RUN mkdir -p \
         /tmp/fastcgi_temp \
         /tmp/uwsgi_temp \
         /tmp/scgi_temp \
-    && chown -R www-data:www-data /app/var /tmp/client_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp
+    && chown -R www-data:www-data \
+        /app/var \
+        /tmp/client_temp \
+        /tmp/proxy_temp \
+        /tmp/fastcgi_temp \
+        /tmp/uwsgi_temp \
+        /tmp/scgi_temp
 
 EXPOSE 8080
 
