@@ -21,7 +21,7 @@ final class GetPricesMapper extends AbstractMapper
     protected static function transform(AbstractAction $action, array $response, array $headers): ResponseInterface
     {
         /** @var string $csvContent */
-        $csvContent = $response['body'] ?? '';
+        $csvContent = $response['csv'] ?? '';
 
         if (trim($csvContent) === '') {
             return new GetPricesResponse([]);
