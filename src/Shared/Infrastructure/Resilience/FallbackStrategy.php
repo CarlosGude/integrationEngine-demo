@@ -33,12 +33,8 @@ final class FallbackStrategy
      * Return cached value (last known good).
      * tour:start resilience/fallback-cache
      */
-    public static function cacheFallback(mixed $cachedValue, ?\DateTimeImmutable $cachedAt = null): mixed
+    public static function cacheFallback(mixed $cachedValue): mixed
     {
-        // In production: check age of cached value
-        // $age = (new \DateTimeImmutable('now'))->getTimestamp() - $cachedAt->getTimestamp();
-        // if ($age > 3600) throw new \RuntimeException('Cache too old'); // Don't use stale data
-        //
         return $cachedValue;
     }
     // tour:end
