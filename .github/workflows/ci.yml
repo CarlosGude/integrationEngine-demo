@@ -138,6 +138,11 @@ jobs:
   production-install:
     runs-on: ubuntu-latest
     name: Production Install (--no-dev)
+    # Composer's post-install scripts must also boot without dev-only bundles.
+    env:
+      APP_ENV: prod
+      APP_DEBUG: 0
+      APP_SECRET: ci-only-not-a-secret
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
@@ -155,11 +160,6 @@ jobs:
         run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
       - name: Warm up the production cache
-        env:
-          APP_ENV: prod
-          APP_DEBUG: 0
-          APP_SECRET: ci-only-not-a-secret
-          DATABASE_URL: 'sqlite:///:memory:'
         run: php bin/console cache:warmup
 
   compose-config:
