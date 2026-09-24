@@ -37,6 +37,12 @@ Branch naming:
 composer install
 ```
 
+For the Docker development environment, credentials, Symfony toolbar and existing
+vendor-volume upgrades, follow [Quick Start](QUICKSTART.md). Compose selects the
+`development` image; production excludes the profiler and other dev dependencies.
+Use `docker compose exec php vendor/bin/phpunit` for container tests. Make and a
+coverage driver are not bundled in the runtime image.
+
 ### 4. Make Changes
 
 Follow the [coding standards](#coding-standards).
@@ -67,7 +73,7 @@ which is what settled the question.
 make test
 
 # Run specific test
-make test TEST=tests/Catalog/Application/MovieCatalogGatewayTest.php
+vendor/bin/phpunit tests/Catalog/Application/MovieCatalogGatewayTest.php
 
 # Code quality
 make cs
@@ -275,7 +281,7 @@ config/
 make test
 
 # Specific test
-make test TEST=tests/Shared/UI/MercureUpdateControllerTest.php::publishValidatesInput
+vendor/bin/phpunit tests/Shared/UI/MercureUpdateControllerTest.php --filter publishValidatesInput
 ```
 
 ## Continuous Integration
@@ -365,7 +371,7 @@ When adding features:
 
 - ⚡ Parallel requests where possible
 - 🔄 Reuse existing services
-- 📊 Benchmark impacts (see `catalog:benchmark`)
+- 📊 Benchmark impacts (see `app:benchmark`)
 - ⏱️ Cache expensive operations (filesystem-backed `cache.app`, no Redis)
 
 ## Security Guidelines

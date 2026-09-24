@@ -1,5 +1,7 @@
 services:
   php:
+    build:
+      target: development
     environment:
       APP_ENV: dev
       APP_DEBUG: 1

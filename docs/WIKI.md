@@ -128,10 +128,9 @@ cd integrationEngine-demo
 composer install
 
 # Start (Docker, recommended — also runs the Mercure hub)
-docker compose up -d
+docker compose up -d --build --wait
 
-# Or: Symfony CLI
-symfony server:start
+# Credentials and existing vendor-volume upgrades: see docs/QUICKSTART.md
 
 # Run tests
 make test
@@ -149,7 +148,7 @@ make ci
 | `make stan` | Static analysis (PHPStan) |
 | `make deptrac` | Architecture validation |
 | `make ci` | Full CI suite |
-| `php bin/console catalog:benchmark` | Parallel performance test |
+| `php bin/console app:benchmark` | Parallel performance test |
 | `php bin/console mercure:publish` | Publish a real-time update (standalone demo) |
 | `php bin/console debug:router` | List routes |
 
@@ -238,13 +237,13 @@ integrationEngine-demo/
 
 ## 📈 Project Metrics
 
-As of 2026-09-22 (`vendor/bin/phpunit`, `infection.json5`):
+Quality targets and verification commands (see the latest CI run for results):
 
 | Metric | Status |
 |--------|--------|
-| PHPUnit Tests | 169 (638 assertions) ✅ |
-| PHPStan Level | Max, 0 violations |
-| Architecture | Deptrac, 0 violations |
+| PHPUnit Tests | Run `vendor/bin/phpunit`; totals change with the suite |
+| PHPStan Level | Max (`make stan`) |
+| Architecture | Deptrac (`make deptrac`) |
 | Mutation Score | MSI ≥ 58%, covered-code MSI ≥ 63% (raised incrementally) |
 
 | Metric | Value |
@@ -333,7 +332,7 @@ RabbitMQ/Messenger workers, or a FrankenPHP migration — all explicitly descope
 
 ✨ **Multi-protocol integration** — 4 protocols (REST, CSV, GraphQL, Stripe form-urlencoded) through one uniform Action → Mapper → Response pattern
 
-⚡ **Parallel performance** — 5-13x speedup demonstrated and measured (`catalog:benchmark`)
+⚡ **Parallel performance** — 5-13x speedup demonstrated and measured (`app:benchmark`)
 
 🔐 **Resilience patterns** — Retry, circuit breaker, fallback, chaos injection — built and demonstrated in the tour, not yet wired into the live pipeline
 

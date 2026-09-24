@@ -1,4 +1,16 @@
 {
+    "deptrac/deptrac": {
+        "version": "4.7.2"
+    },
+    "doctrine/deprecations": {
+        "version": "1.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "1.0",
+            "ref": "fdd756167454623e21f1d769c5b814b243782a67"
+        }
+    },
     "friendsofphp/php-cs-fixer": {
         "version": "3.95",
         "recipe": {
@@ -27,9 +39,6 @@
             "phpunit.xml.dist",
             "tests/bootstrap.php"
         ]
-    },
-    "qossmic/deptrac-shim": {
-        "version": "1.0.2"
     },
     "symfony/console": {
         "version": "7.4",
@@ -194,6 +203,19 @@
         },
         "files": [
             "config/packages/twig_component.yaml"
+        ]
+    },
+    "symfony/web-profiler-bundle": {
+        "version": "7.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "7.3",
+            "ref": "a363460c1b0b4a4d0242f2ce1a843ca0f6ac9026"
+        },
+        "files": [
+            "config/packages/web_profiler.yaml",
+            "config/routes/web_profiler.yaml"
         ]
     },
     "symfony/webhook": {

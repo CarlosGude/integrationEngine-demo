@@ -7,6 +7,7 @@ namespace Tests\Catalog\UI;
 use App\Catalog\Domain\Movie;
 use App\Shared\Infrastructure\Middleware\RateLimitMiddleware;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\TestWith;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -107,6 +108,24 @@ final class StorefrontControllerTest extends WebTestCase
     }
 
     #[Test]
+    public function storefrontShowsAnUnavailableMessageWhenTmdbRejectsCredentials(): void
+    {
+        $client = self::createClient();
+        self::getContainer()->set('http_client', new MockHttpClient(
+            static fn (): MockResponse => new MockResponse(
+                '{"status_code":7,"status_message":"Invalid API key","success":false}',
+                ['http_code' => 401],
+            ),
+        ));
+
+        $client->request('GET', '/es/store');
+
+        self::assertResponseStatusCodeSame(503);
+        self::assertSelectorTextContains('[role="alert"]', 'El catálogo no está disponible temporalmente.');
+        self::assertSelectorNotExists('.movie-card');
+    }
+
+    #[Test]
     public function storefrontStillRendersWhenSomeMoviesFailToLoad(): void
     {
         $client = self::createClient();
@@ -138,4 +157,64 @@ final class StorefrontControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
     }
+
+    #[Test]
+    #[TestWith([false])]
+    #[TestWith([true])]
+    public function rentButtonShowsThePaymentResult(bool $stripeUnavailable): void
+    {
+        $client = self::createClient();
+        $client->disableReboot();
+        self::getContainer()->set('http_client', new MockHttpClient(
+            static function (string $method, string $url, array $options) use ($stripeUnavailable): MockResponse {
+                if (str_contains($url, '/payment_intents')) {
+                    self::assertSame('POST', $method);
+                    self::assertIsString($options['body']);
+                    parse_str($options['body'], $body);
+                    self::assertSame('399', $body['amount']);
+                    self::assertSame('usd', $body['currency']);
+                    self::assertSame(['movie_id' => '550'], $body['metadata']);
+
+                    if ($stripeUnavailable) {
+                        return new MockResponse('{"error":{"message":"Invalid API key"}}', ['http_code' => 401]);
+                    }
+
+                    return new MockResponse('{"id":"pi_rental","status":"requires_payment_method","client_secret":"secret","amount":399,"currency":"usd"}');
+                }
+                if (str_contains($url, '/configuration')) {
+                    return new MockResponse('{"images":{"secure_base_url":"https://image.tmdb.org/t/p/","poster_sizes":["w500"]}}');
+                }
+
+                return new MockResponse('{"id":550,"title":"Fight Club","overview":"Overview","poster_path":"","vote_average":8,"release_date":"1999-10-15"}');
+            },
+        ));
+
+        $client->request('GET', '/es/store');
+        $client->submitForm('Alquilar por 3,99 US$');
+
+        if ($stripeUnavailable) {
+            self::assertResponseStatusCodeSame(503);
+            self::assertSelectorTextContains('[role="alert"]', 'No se pudo iniciar el alquiler.');
+
+            return;
+        }
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('[role="status"]', 'Solicitud de pago creada');
+        self::assertSelectorTextContains('dl', 'pi_rental');
+        self::assertSelectorTextContains('dl', '3.99 USD');
+        self::assertStringNotContainsString('secret', (string) $client->getResponse()->getContent());
+    }
+
+    #[Test]
+    public function rentRequiresACsrfToken(): void
+    {
+        $client = self::createClient();
+        self::getContainer()->set('http_client', new MockHttpClient(static function (): never {
+            self::fail('Stripe must not be called without a valid CSRF token.');
+        }));
+        $client->request('POST', '/es/store/550/rent');
+        self::assertResponseStatusCodeSame(403);
+    }
+
 }

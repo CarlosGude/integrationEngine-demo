@@ -153,7 +153,7 @@ public function testParsesCsvCorrectly(): void {
 ### Verification
 ```bash
 # Test CSV integration
-php bin/console catalog:benchmark   # Uses supplier prices
+php bin/console app:benchmark   # Sequential vs. parallel TMDB requests
 # Should show same performance, cleaner code
 ```
 
@@ -311,7 +311,7 @@ make test
 make test
 
 # 2. Test manual workflows
-php bin/console catalog:benchmark
+php bin/console app:benchmark
 php bin/console billing:simulate-rental 550
 php bin/console billing:simulate-rental 550 --chaos
 

@@ -63,7 +63,11 @@ RUN composer dump-autoload --no-dev --optimize --classmap-authoritative
 # =============================================================================
 # Final Stage: Slim runtime image
 # =============================================================================
-FROM php:8.4-fpm
+FROM vendor AS vendor-dev
+
+RUN composer install --no-scripts --no-progress --no-interaction --optimize-autoloader
+
+FROM php:8.4-fpm AS runtime
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
@@ -115,3 +119,12 @@ ENV APP_DEBUG=0
 USER www-data
 
 ENTRYPOINT ["/entrypoint.sh"]
+
+FROM runtime AS development
+
+COPY --from=vendor-dev /app/vendor /app/vendor
+
+ENV APP_ENV=dev
+ENV APP_DEBUG=1
+
+FROM runtime AS production

@@ -6,6 +6,12 @@
 <div class="storefront">
     <h1>Featured Movies</h1>
 
+    {% if catalog_unavailable|default(false) %}
+        <p role="alert">{{ app.request.locale == 'es'
+            ? 'El catálogo no está disponible temporalmente. Inténtalo de nuevo más tarde.'
+            : 'The catalog is temporarily unavailable. Please try again later.' }}</p>
+    {% endif %}
+
     <div class="movies-grid">
         {% for movie in movies %}
             {% if movie %}
@@ -20,7 +26,10 @@
                         <p class="rating">★ {{ movie.voteAverage|round(1) }}</p>
                         <p class="release-date">{{ movie.releaseDate }}</p>
                         <p class="overview">{{ movie.overview[:100] }}...</p>
-                        <button class="btn-rent">Rent for $3.99</button>
+                        <form method="post" action="{{ path('storefront_rent', {movieId: movie.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('rent_' ~ movie.id) }}">
+                            <button type="submit" class="btn-rent">{{ app.request.locale == 'es' ? 'Alquilar por 3,99 US$' : 'Rent for $3.99' }}</button>
+                        </form>
                     </div>
                 </div>
             {% else %}

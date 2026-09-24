@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+{% set spanish = app.request.locale == 'es' %}
+
+{% block title %}{{ spanish ? 'Solicitud de alquiler' : 'Rental request' }}{% endblock %}
+
+{% block body %}
+    <h2>{{ spanish ? 'Solicitud de alquiler' : 'Rental request' }}</h2>
+    {% if payment %}
+        <p role="status">{{ spanish ? 'Solicitud de pago creada. No se ha realizado ningún cobro ni confirmado el alquiler.' : 'Payment request created. No payment has been taken and the rental has not been confirmed.' }}</p>
+        <dl>
+            <dt>{{ spanish ? 'Película' : 'Movie' }}</dt><dd>{{ payment.movieId }}</dd>
+            <dt>{{ spanish ? 'Importe' : 'Amount' }}</dt><dd>{{ (payment.amountCents / 100)|number_format(2) }} {{ payment.currency|upper }}</dd>
+            <dt>{{ spanish ? 'Referencia' : 'Reference' }}</dt><dd>{{ payment.paymentIntentId }}</dd>
+            <dt>{{ spanish ? 'Estado' : 'Status' }}</dt><dd>{{ payment.status }}</dd>
+        </dl>
+        <p>{{ spanish ? 'Esta demo muestra la solicitud a Stripe; no incluye un formulario para completar el pago.' : 'This demo shows the request to Stripe; it does not include a form to complete payment.' }}</p>
+    {% else %}
+        <p role="alert">{{ spanish ? 'No se pudo iniciar el alquiler. El servicio de pagos no está disponible. Inténtalo más tarde.' : 'The rental could not be started. The payment service is unavailable. Please try again later.' }}</p>
+    {% endif %}
+    <p><a href="{{ path('storefront') }}">{{ spanish ? 'Volver a la tienda' : 'Back to the store' }}</a></p>
+{% endblock %}

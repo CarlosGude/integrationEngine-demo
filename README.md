@@ -49,7 +49,7 @@ These aren't gaps to fill later — they're scope decisions. The original, broad
 **Demo:** `main` is the development branch; the next release is the executable-tour update.
 **IntegrationEngine:** `^8.0.4` (stable release, not `dev-main`).
 **Symfony:** 7.4 LTS
-**PHP:** 8.4 (current stable)
+**PHP:** 8.4 in Docker (project requirement: >=8.4)
 
 ### Quality Gates
 
@@ -166,7 +166,7 @@ integrationEngine-demo/
 │   └── tour.yaml                 # Tour step + snippet definitions
 ├── src/
 │   ├── Controller/                # HTTP endpoints (storefront, tour, homepage, Mercure)
-│   ├── Command/, Console/         # CLI commands (e.g. catalog:benchmark)
+│   ├── Command/, Console/         # CLI commands (e.g. app:benchmark)
 │   ├── Catalog/                   # Movie catalog domain (TMDB-backed)
 │   ├── Pricing/                   # Pricing domain (CSV + GraphQL integrations)
 │   ├── Billing/                   # Stripe payment gateway + webhook listener
@@ -187,47 +187,58 @@ integrationEngine-demo/
 
 ## Running the Demo
 
-### Quick Start
+### Credentials and startup
+
+Create or edit the Git-ignored `.env.local` without overwriting existing settings:
+
+```dotenv
+TMDB_ACCESS_TOKEN=your_tmdb_api_read_access_token
+STRIPE_SECRET_KEY=sk_test_your_stripe_test_secret_key
+```
+
+These are placeholders: use your own TMDB Bearer token and Stripe test secret key.
+`TMDB_API_KEY` is not used by the configured client. `STRIPE_WEBHOOK_SECRET` is
+required separately for authentic inbound Stripe webhooks.
 
 ```bash
-# 1. Start containers
-docker compose up -d
-
-# 2. Verify routes
-docker compose exec php php bin/console debug:router | grep -E "storefront|tour"
-
-# 3. Access demo
-open http://localhost:8080/en/store    # English
-open http://localhost:8080/es/store    # Spanish
+docker compose up -d --build --wait
 ```
 
-### Configuration
+Open http://localhost:8080/es/store or http://localhost:8080/en/store.
+Start the tour at http://localhost:8080/es/tour/the-problem.
 
-**`.env.local` (required for live data):**
-```env
-TMDB_BASE_URL=https://api.themoviedb.org
-TMDB_ACCESS_TOKEN=<your_v4_access_token>  # Get from https://www.themoviedb.org/settings/api
-```
+Compose selects the `development` Docker target, including PHPUnit and Symfony's
+WebProfilerBundle. The default Dockerfile target is `production`, without dev
+dependencies. If an existing vendor volume still contains production dependencies,
+follow the volume renewal instructions in [Quick Start](docs/QUICKSTART.md).
 
-**Note:** The demo includes a test token that has expired. Replace with your own for live movie data.
+### Storefront and rental behavior
 
-### Running Tests
+The store loads 20 featured movies from TMDB. A failed catalog configuration request
+shows an unavailable message (HTTP 503), rather than an unhandled exception.
+
+The Rent button posts the selected movie and a CSRF token to
+`POST /{_locale}/store/{movieId}/rent`. The server requests a Stripe PaymentIntent
+for **399 cents USD**, then displays its reference and status. Stripe HTTP failures
+show an unavailable message (HTTP 503). This demo does not collect card details,
+complete the payment or persist a rental. The tour's separate rental example still
+uses **500 cents USD** for movie 550.
+
+### Debugging and verification
+
+The Symfony toolbar is enabled on development HTML pages; its panels are available
+under `/_profiler` and its resources under `/_wdt`. Links retain port `8080`.
 
 ```bash
-docker compose exec php make test      # All tests
-docker compose exec php make qa        # Code quality
-docker compose exec php make ci        # Full CI suite
+docker compose exec php vendor/bin/phpunit
+docker compose exec php php bin/console debug:router
+docker compose exec php php bin/console app:benchmark
 ```
 
-### Features to Try
-
-```bash
-# Benchmark parallel requests
-docker compose exec php php bin/console catalog:benchmark
-
-# Verify code snippets resolve
-docker compose exec php php bin/console debug:container | grep tour
-```
+For local quality checks, run `composer install` and `make qa` with PHP 8.4+,
+Composer and Make installed. `make ci` additionally needs a coverage driver for
+mutation testing. The runtime container has neither Make nor a coverage driver.
+See [Quick Start](docs/QUICKSTART.md) for troubleshooting and setup details.
 
 ## Architecture
 
@@ -257,27 +268,18 @@ sendMany(requests)           → concurrent calls via BatchClientInterface
 
 ## Configuration
 
-### Environment Variables
-
-```env
-TMDB_API_KEY=50da1790...              # Public API key
-TMDB_ACCESS_TOKEN=eyJhbGciOi...       # Bearer token
-APP_ENV=dev                            # dev|prod
-APP_DEBUG=1                            # 0|1
-```
-
-No `DATABASE_URL` — see [Scope of this demo](#scope-of-this-demo) above for why.
+Credentials belong in `.env.local`; see [Credentials and startup](#credentials-and-startup).
+There is no `DATABASE_URL`: the demo has no persistence layer.
 
 ## Git Status
 
-`main` is pushed. Use `git log --oneline` for the current history — this file no
-longer carries a frozen snapshot of it.
+Use `git status` and `git log --oneline` for the checkout state and commit history.
 
 ---
 
-**Status:** see [Status & Versions](#status--versions) at the top — `v1.0.0` tagged, `main` ahead, all CI gates green.
+**Status:** see [Status & Versions](#status--versions) and the latest CI run for verification results.
 
 ---
 
-*Status claims in this document last verified against the code on 2026-09-22.*
+*Local setup and storefront instructions reviewed against the code on 2026-09-24.*
 *Enforced for file paths by `tests/Documentation/DocumentedPathsExistTest.php`.*

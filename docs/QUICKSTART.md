@@ -1,240 +1,135 @@
-# 🚀 Quick Start Guide
+# Quick Start Guide
 
-Get IntegrationEngine Demo up and running in 5 minutes.
+Run the demo locally with Docker Compose. It starts the Symfony application,
+the CSV supplier and the Mercure hub. No database or JavaScript build is needed.
 
-## Prerequisites
+## 1. Configure credentials
 
-- PHP 8.4+
-- Composer
-- Docker (recommended — `compose.yaml` also runs the Mercure hub)
+Clone the repository, then create or edit `.env.local` in its root. Preserve any
+existing settings; this file is ignored by Git.
 
-No Node.js needed — assets are served via Symfony AssetMapper, no JS build step.
+```dotenv
+TMDB_ACCESS_TOKEN=your_tmdb_api_read_access_token
+STRIPE_SECRET_KEY=sk_test_your_stripe_test_secret_key
+```
 
-## Installation
+Replace both placeholders with your own credentials:
 
-### 1. Clone & Install
+- `TMDB_ACCESS_TOKEN` is the API Read Access Token used as a Bearer token. The
+  application does not use `TMDB_API_KEY` for authentication.
+- `STRIPE_SECRET_KEY` must be a valid Stripe test secret key. The example in
+  `.env` cannot create payments. A publishable key (`pk_test_…`) cannot replace it.
+- `STRIPE_WEBHOOK_SECRET` is needed separately if you forward signed Stripe
+  events to `POST /webhook/stripe`. It is not required to create a PaymentIntent.
+
+Saving `.env.local` is enough for subsequent requests in this development setup.
+Do not commit credentials.
+
+## 2. Start the application
 
 ```bash
-git clone https://github.com/carlosgude/integrationEngine-demo.git
-cd integrationEngine-demo
-
-composer install
+docker compose up -d --build --wait
 ```
 
-### 2. Configure Environment
+`compose.override.yaml` selects the Dockerfile's `development` target, which
+includes development dependencies and enables `APP_ENV=dev` and `APP_DEBUG=1`.
+The default Dockerfile target remains `production`, without dev dependencies.
 
-There's no `.env.local.example` to copy — create `.env.local` directly (it's
-git-ignored) with at least your TMDB token; everything else already has a
-working default in `.env`:
+If upgrading a container that already has an anonymous `/app/vendor` volume
+from the production image, replace that volume after rebuilding:
 
 ```bash
-echo 'TMDB_ACCESS_TOKEN=your_token_here' > .env.local
+docker compose up -d --build --force-recreate --renew-anon-volumes php
 ```
 
-Get a TMDB token:
-1. Visit https://www.themoviedb.org/settings/api
-2. Create an API key (v4 Bearer token)
-3. Add to `.env.local`:
-   ```env
-   TMDB_ACCESS_TOKEN=eyJhbGci...
-   ```
+This replaces the PHP service's anonymous vendor and var volumes, including local
+cache, profiler history and sessions. Source files and `.env.local` remain on the
+host; Mercure's named volumes are not affected.
 
-### 3. Start the Server
+## 3. Open the demo
+
+- Spanish store: http://localhost:8080/es/store
+- English store: http://localhost:8080/en/store
+- Spanish tour: http://localhost:8080/es/tour/the-problem
+- English tour: http://localhost:8080/en/tour/the-problem
+- Standalone Mercure demo: http://localhost:8080/mercure-demo.html
+
+The app listens on loopback port `8080`; Mercure uses loopback port `3000`.
+
+## Try renting a movie
+
+Click **Alquilar por 3,99 US$** / **Rent for $3.99** on a movie. The form submits
+its movie ID and a CSRF token to `POST /{_locale}/store/{movieId}/rent`. The server
+sets the price to 399 cents in USD and calls `RentalPaymentGateway`.
+
+With a valid Stripe test key, the result page shows the PaymentIntent reference,
+amount and status. This is a payment request, not a completed rental: there is no
+card-entry checkout, payment confirmation or saved rental history in this flow.
+The separate payment-confirmation tour step demonstrates a simulated typed event;
+it does not confirm this PaymentIntent.
+
+If Stripe rejects the request, the page displays an unavailable message with HTTP
+503. Check the server logs and the test secret key in `.env.local`.
+
+## Symfony debug toolbar
+
+Development HTML pages include the toolbar. Open a panel to inspect its request
+in `/_profiler`; toolbar resources are served under `/_wdt`.
+
+If it is missing:
+
+1. Rebuild the development image and renew old anonymous volumes as described above.
+2. Confirm `APP_ENV=dev` and `APP_DEBUG=1` in the PHP service.
+3. Reload the page. Profiler links must retain `http://localhost:8080`; the Nginx
+   configuration passes this listener's port to Symfony.
+
+The profiler is registered only for dev/test; collection is disabled in tests.
+
+## Commands and tests
 
 ```bash
-# Option A: Symfony CLI (simplest)
-symfony server:start
-
-# Option B: Docker Compose  (serves on 8080, not 8000)
-docker compose up -d
-
-# Option C: PHP built-in
-php -S localhost:8000 -t public
-```
-
-### 4. Access the Demo
-
-**The port depends on how you started it:** `8000` for the Symfony CLI and the
-built-in server (options A and C), `8080` for Docker Compose (option B, bound to
-`127.0.0.1` only). The Mercure hub is on `127.0.0.1:3000` under Docker.
-
-Open your browser — substituting the port for your option:
-- **Storefront**: http://localhost:8000/en/store
-- **Tour**: http://localhost:8000/en/tour
-- **Real-time Demo**: http://localhost:8000/mercure-demo.html
-
-There's no admin dashboard — this demo has no persistence layer at all, see
-[README.md](../README.md) § "Scope of this demo".
-
-## Features to Try
-
-### 1. Storefront
-```bash
-# Browse movies with parallel loading
-curl http://localhost:8000/en/store
-```
-
-### 2. Tour
-```bash
-# Interactive guided tour (EN/ES)
-curl http://localhost:8000/en/tour
-curl http://localhost:8000/es/tour
-```
-
-### 3. Benchmark
-```bash
-# See parallel request speedup
-php bin/console catalog:benchmark
-```
-
-### 4. Real-time Updates
-```bash
-# Start Mercure (in another terminal)
-docker run -p 3000:80 -e MERCURE_PUBLISHER_JWT_SECRET=dev dunglas/mercure
-
-# Open demo page
-http://localhost:8000/mercure-demo.html
-
-# Publish test event
-php bin/console mercure:publish "admin/updates" '{"test":"hello"}'
-```
-
-## Running Tests
-
-```bash
-# All tests
-make test
-
-# Specific suite
-make test TEST=tests/Catalog
-
-# With coverage
-php bin/console --group=coverage
-```
-
-## Code Quality
-
-```bash
-# Check code style
-make cs
-
-# Static analysis
-make stan
-
-# Architecture validation
-make deptrac
-
-# Everything
-make ci
-```
-
-## Project Structure
-
-```
-integrationEngine-demo/
-├── src/
-│   ├── Catalog/          # Movie catalog (TMDB integration)
-│   ├── Pricing/          # Pricing service (CSV + GraphQL)
-│   ├── Billing/          # Stripe payment gateway + webhook listener
-│   ├── Integrations/     # Tmdb, Countries, Stripe, Supplier clients
-│   ├── Shared/           # Middleware, resilience patterns, observability
-│   └── Tour/             # Interactive tour system
-├── config/
-│   ├── packages/
-│   │   ├── integration_engine.yaml    # API configs
-│   │   ├── mercure.yaml              # WebSocket setup
-│   │   └── rate_limiter.yaml
-│   └── routes/
-├── tests/
-├── docs/                 # Full documentation
-├── docker/               # nginx.conf + entrypoint.sh (used by root Dockerfile)
-└── public/
-    ├── mercure-demo.html # Real-time demo
-    └── index.php         # Entry point
-```
-
-## Configuration
-
-### API Keys
-
-Create or edit `.env.local`:
-```env
-# TMDB (Required for live data)
-TMDB_ACCESS_TOKEN=your_token_here
-
-# Stripe (already has a working test placeholder in .env)
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-# Mercure (already has a working default in .env)
-MERCURE_JWT_SECRET=dev-secret
-```
-
-No database, no `DATABASE_URL` — this demo has no persistence layer, see
-[README.md](../README.md) § "Scope of this demo".
-
-## Docker Compose
-
-```bash
-# Start all services
-docker compose up -d
-
-# View logs
-docker compose logs -f php
-
-# Run commands
+# Container logs and routes
+docker compose logs --tail=100 php
 docker compose exec php php bin/console debug:router
 
-# Stop services
-docker compose down
+# Catalog benchmark (requires a valid TMDB token)
+docker compose exec php php bin/console app:benchmark
+
+# Tests inside the development container
+docker compose exec php vendor/bin/phpunit
+docker compose exec php vendor/bin/phpunit tests/Catalog tests/Billing
+
+# Configuration checks
+docker compose config --quiet
+docker compose exec php php bin/console lint:yaml config/
+docker compose exec php php bin/console lint:twig templates/
 ```
 
-## Common Commands
+For local quality tools, install PHP 8.4+, Composer and Make, then run:
 
 ```bash
-# Routes
-php bin/console debug:router
-
-# Services
-php bin/console debug:container
-
-# Cache
-php bin/console cache:clear
-
-# Tests
-vendor/bin/phpunit
-
-# Lint
-php bin/console lint:yaml config/
+composer install
+make qa
+# With a coverage driver available:
+XDEBUG_MODE=coverage make ci
 ```
+
+The runtime container does not include Make or a coverage driver. Use the PHPUnit
+command directly there; run the full quality workflow in an appropriately equipped
+local or CI environment. Keep `composer.lock` when installing dependencies.
 
 ## Troubleshooting
 
-### "Token not found" Error
-→ Set `TMDB_ACCESS_TOKEN` in `.env.local`
+| Symptom | What to check |
+| --- | --- |
+| Catalog unavailable; logs show TMDB HTTP 401 | Replace `TMDB_ACCESS_TOKEN` with a valid API Read Access Token. |
+| Rental unavailable; logs show Stripe HTTP 401 | Replace the example `STRIPE_SECRET_KEY` with a valid test secret key. |
+| Rental form rejected after restarting containers | Reload the store to obtain a fresh session and CSRF token. |
+| Old Rent button does nothing | Reload the updated store; the current button submits a form. |
+| Port 8080 already in use | Stop the conflicting local service before starting Compose. |
+| Mercure connection fails | Check `docker compose ps mercure` and hub logs. |
+| PHPUnit or WebProfilerBundle missing | Rebuild the development target and renew the old vendor volume. |
 
-### "Port 8000 already in use"
-→ Use different port: `symfony server:start --port=8001`
-
-### Mercure connection fails
-→ Ensure the `mercure` container is up: `docker compose up -d mercure`
-
-### Composer dependency conflicts
-→ Clear cache: `rm -rf vendor composer.lock && composer install`
-
-## Next Steps
-
-1. **Read the [Architecture Guide](ARCHITECTURE.md)** — Understand the design patterns
-2. **Explore [Resilience Patterns](RESILIENCE-PATTERNS.md)** — Retry, fallback, circuit breaker
-3. **Configure [Real-time Updates](MERCURE-WEBSOCKETS.md)** — WebSocket communication
-4. **Read [Deployment reference](DEPLOYMENT.md)** — a written exercise, not an executed live setup
-
-## Support
-
-- **Issues**: https://github.com/carlosgude/integrationEngine-demo/issues
-- **Docs**: See `docs/` directory
-- **Contributing**: See [Contributing Guide](CONTRIBUTING.md)
-
-## License
-
-MIT — See LICENSE file
+There is no admin dashboard or database. See [scope](../README.md#scope-of-this-demo),
+[architecture](ARCHITECTURE.md) and [contributing](CONTRIBUTING.md) for more detail.
+The [deployment guide](DEPLOYMENT.md) is a reference exercise, not a live deployment.
