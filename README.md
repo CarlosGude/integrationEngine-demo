@@ -19,20 +19,25 @@ These aren't gaps to fill later — they're scope decisions. The original, broad
 - Supplier CSV is served by the local Compose `supplier` service. Countries/GraphQL calls the public Countries endpoint.
 - Persistence, admin dashboards and background workers remain intentionally out of scope.
 
-## 📚 Complete Documentation Suite
+## Documentation
+
+For the current checkout, start with [Quick Start](docs/QUICKSTART.md) and
+[Architecture](docs/ARCHITECTURE.md). The release notes, phase plan and project
+analysis below are historical records; their old counts and proposed features
+must not be read as current guarantees.
 
 **Getting Started:**
-- **[Release Notes](docs/RELEASE-NOTES.md)** — v1.0.0 features, metrics, roadmap
-- **[Deployment Guide](docs/DEPLOYMENT.md)** — Production VPS setup, CI/CD, monitoring
+- **[Release Notes](docs/RELEASE-NOTES.md)** — historical v1.0.0 record
+- **[Deployment Guide](docs/DEPLOYMENT.md)** — unexecuted deployment reference
 - **[Quick Start Guide](docs/QUICKSTART.md)** — Get up and running in 5 minutes
 
 **Technical Guides:**
 - **[Architecture & Patterns Guide](docs/ARCHITECTURE.md)** — Complete reference covering layers, patterns, integrations, parallelism, and configuration
-- **[Project Analysis & Recommendations](docs/PROJECT-ANALYSIS.md)** — What's working, what's missing, and what could be added to the engine
+- **[Project Analysis & Recommendations](docs/PROJECT-ANALYSIS.md)** — historical v6 snapshot
 
 **Real-time & Webhooks:**
 - **[Mercure & WebSockets Guide](docs/MERCURE-WEBSOCKETS.md)** — Real-time updates with WebSockets
-- **[Webhook Integration](docs/ARCHITECTURE.md#webhooks)** — Stripe webhook handler with HMAC verification
+- **[Webhook Integration](docs/ARCHITECTURE.md#webhook-and-simulation)** — Stripe webhook handler with HMAC verification
 
 **Resilience & Testing:**
 - **[Resilience Patterns Guide](docs/RESILIENCE-PATTERNS.md)** — Retry, circuit breaker, fallback strategies with production checklist
@@ -40,7 +45,7 @@ These aren't gaps to fill later — they're scope decisions. The original, broad
 
 **Integration & Deployment:**
 - **[Custom Adapters Guide](docs/CUSTOM-ADAPTERS.md)** — Building domain-specific protocol adapters
-- **[Phase 3 Integration Plan](docs/PHASE3-INTEGRATION.md)** — Upgrade plan for IntegrationEngine v7.0
+- **[Phase 3 Integration Plan](docs/PHASE3-INTEGRATION.md)** — historical upgrade plan
 - **[Contributing](docs/CONTRIBUTING.md)** — Development workflow and git conventions
 - **[Wiki](docs/WIKI.md)** — Complete project wiki with all documentation indexed
 
@@ -48,6 +53,9 @@ These aren't gaps to fill later — they're scope decisions. The original, broad
 
 **Demo:** `main` is the development branch; the next release is the executable-tour update.
 **IntegrationEngine:** `^8.0.4` (stable release, not `dev-main`).
+The engine repository currently tags v9; this application's declared dependency
+remains v8. The engine's separate contract workflow also tests its current checkout
+against the demo, but does not change this application's installed version.
 **Symfony:** 7.4 LTS
 **PHP:** 8.4 in Docker (project requirement: >=8.4)
 
@@ -77,8 +85,8 @@ Deptrac uses the maintained `deptrac/deptrac` package. Exact test/assertion tota
 **Days 21-22: Parallelism & Benchmarking**
 - [x] Storefront with 20 movies (parallel loading)
 - [x] Graceful failure handling (null entries)
-- [x] Tour step 2: "Parallel Requests" + benchmark results
-- [x] Median calculator (5-13x speedup metrics)
+- [x] Tour step 2: "Parallel Requests" + batch timing example
+- [x] Median calculator for repeated batch timings
 
 **Days 23-24: Protocol Expansion**
 - [x] CSV adapter (Supplier pricing integration)
@@ -111,9 +119,9 @@ Deptrac uses the maintained `deptrac/deptrac` package. Exact test/assertion tota
 | Integrations | TMDB (REST), Supplier (CSV), Countries (GraphQL), Stripe (webhooks) |
 | Code Quality | PHPStan max without baseline, PHP CS Fixer, Deptrac |
 | Architecture | Deptrac 0 violations, UI layer captured (T-10) |
-| Parallelism Speedup | 5-13x for 20 concurrent movie loads |
-| Custom Code (Post-v7.0) | ~100 lines (-76% from v6.0) |
-| Dependencies | 113 packages (Doctrine & EasyAdmin removed, T-11) |
+| Batch timing | `app:benchmark` reports median/min/max for batch calls; it does not compare sequential calls |
+| Custom protocol code | Former demo adapter and CSV parsing were replaced; historical line counts are in the phase 3 notes |
+| Dependencies | See `composer.lock`; Doctrine and EasyAdmin are absent |
 | Persistence | None (in-memory event transport, focus on integrations) |
 
 ### ✅ Phase 2 Complete - Days 27-28
@@ -134,15 +142,13 @@ Deptrac uses the maintained `deptrac/deptrac` package. Exact test/assertion tota
 ### ✅ Engine v8 integration
 
 **Engine v8 Integration Complete:**
-- [x] Remove StripeFormClientAdapter (129 lines → use engine's FormEncodedClientAdapter)
+- [x] Replace the former StripeFormClientAdapter with the engine's FormEncodedClientAdapter, registered as `app.client.stripe`
 - [x] Simplify GetPricesMapper (44 lines removed → use engine's CsvParser utility)
 - [x] Remove custom CSV parsing code
 - [x] Update webhook and middleware contracts for v8 API compatibility
 
-**Impact:** Custom boilerplate reduced from 410 → 100 lines (-76%)
-- Lines removed: 170
-- Lines added: 25
-- Net reduction: -145 lines
+The historical code-size comparison is recorded in the phase 3 notes; it is not
+a measured property of the current checkout.
 
 See the architecture and upgrade documentation for implementation details.
 
@@ -251,7 +257,7 @@ Each protocol follows **Action → Mapper → Response**, under `src/Integration
 | REST/JSON (TMDB) | GetMovieAction | GetMovieMapper | GetMovieResponse |
 | CSV (Supplier) | GetPricesAction | GetPricesMapper | GetPricesResponse |
 | GraphQL (Countries) | GetCountriesAction | GetCountriesMapper | GetCountriesResponse |
-| Form-urlencoded (Stripe) | CreatePaymentIntentAction | CreatePaymentIntentMapper | PaymentIntentResponse |
+| Form-urlencoded (Stripe) | CreatePaymentIntentAction | CreatePaymentIntentMapper | CreatePaymentIntentResponse |
 
 Business logic lives in the bounded contexts (`Catalog`, `Pricing`, `Billing`) that consume these integrations through gateways — e.g. `Catalog\Application\MovieCatalogGateway`.
 
@@ -264,7 +270,9 @@ sendMany(requests)           → concurrent calls via BatchClientInterface
                              → failures don't abort batch (returns null)
 ```
 
-**Result:** 5-13x speedup for batch operations (20 movies: 300ms vs 4000ms sequential)
+`app:benchmark` times repeated batch calls. It does not run the sequential
+equivalent or establish a speedup ratio; timings depend on TMDB and the local
+environment.
 
 ## Configuration
 

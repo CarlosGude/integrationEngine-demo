@@ -1,5 +1,11 @@
 # 📝 Release Notes - v1.0.0
 
+> **Historical release record:** The numbers and architecture below describe
+> an earlier tag and are not measurements or guarantees for current `main`.
+> In particular, the current `app:benchmark` command times batch calls only,
+> so the quoted speedup cannot be reproduced with it. See the
+> [current architecture](ARCHITECTURE.md) and the latest CI run.
+
 **IntegrationEngine Demo** — Tagged Release  
 **Date:** September 2026  
 **Status:** Feature-complete for this demo's scope; never deployed to a live host

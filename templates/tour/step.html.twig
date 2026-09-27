@@ -16,6 +16,23 @@
         {% endif %}
     </div>
 
+    {% set liveStep = step.id in ['the-problem', 'parallel-requests', 'behind-the-counter', 'renting-a-movie'] %}
+    {% set simulatedEvent = step.id == 'payment-confirmation' %}
+    <p class="execution-mode">
+        {% if simulatedEvent %}
+            {{ app.request.locale == 'es'
+                ? 'Evento tipado simulado: no se recibe un webhook de Stripe en este paso.'
+                : 'Simulated typed event: this step does not receive a Stripe webhook.' }}
+        {% elseif liveStep %}
+            {{ app.request.locale == 'es'
+                ? 'Llamada real: requiere el proveedor y sus credenciales cuando corresponda.'
+                : 'Live call: requires the provider and credentials where applicable.' }}
+        {% else %}
+            {{ app.request.locale == 'es'
+                ? 'Escenario determinista: muestra el patrón sin conectarlo al tráfico real.'
+                : 'Deterministic scenario: illustrates the pattern without wiring it into live traffic.' }}
+        {% endif %}
+    </p>
     <button id="run-btn" class="btn-run">Run Step</button>
 
     <div id="trace" class="trace-output" style="display: none;">
@@ -32,6 +49,7 @@
     .tour-nav { margin: 2rem 0; display: flex; gap: 1rem; }
     .btn-run { padding: 0.5rem 1.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
     .btn-run:hover { background: #0056b3; }
+    .execution-mode { padding: 0.6rem 0.8rem; border-left: 3px solid #007bff; background: #f3f7fb; }
     .btn-prev, .btn-next { padding: 0.5rem 1rem; text-decoration: none; background: #f0f0f0; border-radius: 4px; }
     .trace-output { margin-top: 2rem; padding: 1rem; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; }
     #trace-list { list-style: none; padding: 0; }
