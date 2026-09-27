@@ -40,23 +40,23 @@ Master index of all IntegrationEngine Demo documentation.
 ### Real-time Updates
 
 - **[Mercure & WebSockets](MERCURE-WEBSOCKETS.md)** — WebSocket communication protocol
-  guide. In this repo it powers a standalone demo page (`/mercure-demo.html`), not the
-  rental/payment flow — see the note at the top of that file.
+  guide. The Billing event listener also publishes payment events to Mercure;
+  the tour's confirmation step simulates the typed event.
 
 ### API Integrations
 
-- **[TMDB Integration](ARCHITECTURE.md#tmdb-integration)** — Movie data
+- **[TMDB Integration](ARCHITECTURE.md#four-integrations)** — Movie data
   - Action classes
   - Mappers & responses
   - Configuration
   - Rate limiting
 
-- **[Stripe Webhooks](ARCHITECTURE.md#stripe-integration)** — Payment processing
+- **[Stripe Webhooks](ARCHITECTURE.md#webhook-and-simulation)** — Payment processing
   - Webhook setup
   - Event mapping
   - Signature verification
 
-- **[CSV & GraphQL](ARCHITECTURE.md#csv--graphql-integrations)** — Alternative protocols
+- **[CSV & GraphQL](ARCHITECTURE.md#four-integrations)** — Alternative protocols
   - CSV parsing
   - GraphQL queries
   - Protocol adapters
@@ -81,9 +81,9 @@ Master index of all IntegrationEngine Demo documentation.
 
 ### Parallelism & Performance
 
-- **[Benchmark Guide](ARCHITECTURE.md#parallelism)** — Parallel requests
+- **[Batch timing](ARCHITECTURE.md#batch-and-failures)** — Parallel requests
   - Request batching via `sendMany()`
-  - Performance metrics (5-13x speedup)
+  - Median, minimum and maximum batch durations; no sequential comparison
 
 ### Custom Development
 
@@ -148,7 +148,7 @@ make ci
 | `make stan` | Static analysis (PHPStan) |
 | `make deptrac` | Architecture validation |
 | `make ci` | Full CI suite |
-| `php bin/console app:benchmark` | Parallel performance test |
+| `php bin/console app:benchmark` | Repeated batch timings (no sequential baseline) |
 | `php bin/console mercure:publish` | Publish a real-time update (standalone demo) |
 | `php bin/console debug:router` | List routes |
 
@@ -248,9 +248,8 @@ Quality targets and verification commands (see the latest CI run for results):
 
 | Metric | Value |
 |--------|-------|
-| Parallel Speedup | 5-13x |
-| Sequential Response (20 items) | ~4000ms |
-| Parallel Response (20 items) | ~300-600ms |
+| Batch timings | Environment-dependent; `app:benchmark` reports no speedup ratio |
+| Sequential comparison | Not implemented by `app:benchmark` |
 | Persistence | None — see `README.md` § "Scope of this demo" |
 | Integrations | 4 (TMDB/REST, Supplier/CSV, Countries/GraphQL, Stripe/form-urlencoded) |
 
@@ -332,13 +331,13 @@ RabbitMQ/Messenger workers, or a FrankenPHP migration — all explicitly descope
 
 ✨ **Multi-protocol integration** — 4 protocols (REST, CSV, GraphQL, Stripe form-urlencoded) through one uniform Action → Mapper → Response pattern
 
-⚡ **Parallel performance** — 5-13x speedup demonstrated and measured (`app:benchmark`)
+⚡ **Batch dispatch** — concurrent requests are demonstrated; `app:benchmark` measures batch duration only
 
 🔐 **Resilience patterns** — Retry, circuit breaker, fallback, chaos injection — built and demonstrated in the tour, not yet wired into the live pipeline
 
 🌍 **Bilingual** — Interactive 7-step tour in English & Spanish, with code snippets extracted live from source
 
-🧪 **Well-tested** — 169 tests, PHPStan level max, Deptrac architecture checks
+🧪 **Quality gates** — PHPUnit, PHPStan max, Deptrac and mutation testing in CI; see the current run for counts
 
 ---
 
