@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+
+rule_files:
+  - alerts.yml
+
+scrape_configs:
+  - job_name: integration-engine-demo
+    metrics_path: /metrics
+    static_configs:
+      # "php" is the app service's name in compose.yaml; within the Compose
+      # network it resolves to the container, which listens on 8080 (see
+      # docker/nginx.conf). METRICS_ENABLED=1 must be set for the app for
+      # this endpoint to respond with anything but 404.
+      - targets: ['php:8080']
