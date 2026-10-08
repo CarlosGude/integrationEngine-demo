@@ -1,0 +1,11 @@
+groups:
+  - name: integration-engine-demo
+    rules:
+      - alert: IntegrationSlowP95
+        expr: histogram_quantile(0.95, sum by (le, integration) (rate(integration_duration_ms_bucket[10m]))) > 2000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Integration {{ $labels.integration }} p95 latency is above 2000ms'
+          description: 'p95 duration for {{ $labels.integration }} has been above 2000ms for 10 minutes.'

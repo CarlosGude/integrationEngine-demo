@@ -122,9 +122,24 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 FROM runtime AS development
 
+# APCu backs the Prometheus metrics registry (METRICS_STORAGE=apcu, see
+# docs/OBSERVABILITY.md) so samples survive across PHP-FPM workers without
+# adding infrastructure. Installed only here: production doesn't need the
+# build toolchain ($PHPIZE_DEPS) this requires, and the demo is only ever run
+# via the development Compose target.
+USER root
+
+RUN apt-get update && apt-get install -y --no-install-recommends $PHPIZE_DEPS \
+    && pecl install apcu \
+    && docker-php-ext-enable apcu \
+    && apt-get purge -y --auto-remove $PHPIZE_DEPS \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=vendor-dev /app/vendor /app/vendor
 
 ENV APP_ENV=dev
 ENV APP_DEBUG=1
+
+USER www-data
 
 FROM runtime AS production

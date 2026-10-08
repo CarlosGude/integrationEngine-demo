@@ -34,6 +34,31 @@ services:
         arguments:
             - '@event_dispatcher'
 
+    App\Shared\Observability\Lifecycle\CollectorRegistryFactory:
+        arguments:
+            $storage: '%env(METRICS_STORAGE)%'
+            $redisHost: '%env(METRICS_REDIS_HOST)%'
+            $redisPort: '%env(int:METRICS_REDIS_PORT)%'
+
+    Prometheus\CollectorRegistry:
+        factory: ['@App\Shared\Observability\Lifecycle\CollectorRegistryFactory', 'create']
+
+    App\Controller\MetricsController:
+        arguments:
+            $enabled: '%env(bool:METRICS_ENABLED)%'
+
+    InfluxDB2\Client:
+        arguments:
+            - url: '%env(INFLUXDB_URL)%'
+              token: '%env(INFLUXDB_TOKEN)%'
+              bucket: '%env(INFLUXDB_BUCKET)%'
+              org: '%env(INFLUXDB_ORG)%'
+              precision: 'ms'
+
+    App\Shared\Observability\Lifecycle\InfluxDbLifecycleListener:
+        arguments:
+            $enabled: '%env(bool:INFLUXDB_ENABLED)%'
+
 # No monolog-bundle is installed, so FrameworkBundle's LoggerPass falls back to
 # Symfony\Component\HttpKernel\Log\Logger writing straight to STDERR. That's
 # harmless for plain PHPUnit runs but Infection aborts its initial test suite

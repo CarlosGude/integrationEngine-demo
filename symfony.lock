@@ -1,4 +1,7 @@
 {
+    "carlosgude/integration-engine": {
+        "version": "v8.0.4"
+    },
     "deptrac/deptrac": {
         "version": "4.7.2"
     },
@@ -21,6 +24,18 @@
         },
         "files": [
             ".php-cs-fixer.dist.php"
+        ]
+    },
+    "php-http/discovery": {
+        "version": "1.20",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "1.18",
+            "ref": "f45b5dd173a27873ab19f5e3180b2f661c21de02"
+        },
+        "files": [
+            "config/packages/http_discovery.yaml"
         ]
     },
     "phpstan/phpstan": {

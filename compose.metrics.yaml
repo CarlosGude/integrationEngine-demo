@@ -1,0 +1,16 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    volumes:
+      - ./docker/prometheus:/etc/prometheus:ro
+    ports:
+      - "127.0.0.1:9090:9090"
+
+  # Only pulled in if METRICS_STORAGE=redis. Set METRICS_REDIS_HOST=redis (its
+  # Compose service name) so the php service can reach it — the default
+  # METRICS_REDIS_HOST of 127.0.0.1 only works for a Redis reachable on the
+  # php container's own loopback, which this service is not.
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
