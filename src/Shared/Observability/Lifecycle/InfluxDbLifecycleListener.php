@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\Observability\Lifecycle;
 
+use App\Shared\Observability\StatusClass;
 use InfluxDB2\Client;
 use InfluxDB2\Model\WritePrecision;
 use InfluxDB2\Point;

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Shared\Observability\Lifecycle;
+namespace Tests\Shared\Observability;
 
-use App\Shared\Observability\Lifecycle\StatusClass;
+use App\Shared\Observability\StatusClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;

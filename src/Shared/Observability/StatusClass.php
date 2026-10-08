@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Observability\Lifecycle;
+namespace App\Shared\Observability;
 
 /**
  * Buckets an HTTP status code into a low-cardinality label value.

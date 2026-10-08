@@ -28,7 +28,7 @@ IntegrationEngine::send()
 ## 2. Why labels are bounded
 
 The listener attaches exactly three labels: `integration`, `action`, `status_class`
-(see `App\Shared\Observability\Lifecycle\StatusClass::fromCode()`). It never attaches
+(see `App\Shared\Observability\StatusClass::fromCode()`). It never attaches
 `requestKey`, `message`, `exceptionClass` or `responseClass` — those are per-request
 or effectively unbounded values, and Prometheus allocates one time series per unique
 label combination. A per-request label would mean a new time series on every single
