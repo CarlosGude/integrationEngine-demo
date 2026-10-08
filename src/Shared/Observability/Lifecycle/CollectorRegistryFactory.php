@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Observability;
+namespace App\Shared\Observability\Lifecycle;
 
 use Prometheus\CollectorRegistry;
 use Prometheus\Storage\Adapter;

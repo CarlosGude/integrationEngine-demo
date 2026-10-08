@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Shared\Observability;
+namespace Tests\Shared\Observability\Lifecycle;
 
-use App\Shared\Observability\InfluxDbLifecycleListener;
+use App\Shared\Observability\Lifecycle\InfluxDbLifecycleListener;
 use InfluxDB2\Client;
 use InfluxDB2\Model\WritePrecision;
 use InfluxDB2\Point;

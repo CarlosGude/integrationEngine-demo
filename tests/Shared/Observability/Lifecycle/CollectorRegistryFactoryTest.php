@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Shared\Observability;
+namespace Tests\Shared\Observability\Lifecycle;
 
-use App\Shared\Observability\CollectorRegistryFactory;
+use App\Shared\Observability\Lifecycle\CollectorRegistryFactory;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Prometheus\CollectorRegistry;

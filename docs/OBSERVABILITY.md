@@ -12,7 +12,7 @@ bundle or to any integration under `src/Integrations/`.
 ```
 IntegrationEngine::send()
     → dispatches ResponseMapped / RequestFailed (Symfony's event_dispatcher)
-    → App\Shared\Observability\PrometheusLifecycleListener
+    → App\Shared\Observability\Lifecycle\PrometheusLifecycleListener
         (#[AsEventListener] on both events)
     → Prometheus\CollectorRegistry
         (backed by shared storage — see §3)
@@ -21,14 +21,14 @@ IntegrationEngine::send()
     → Grafana (dashboards) / Alertmanager (docker/prometheus/alerts.yml)
 ```
 
-`App\Shared\Observability\CollectorRegistryFactory` builds the registry from
+`App\Shared\Observability\Lifecycle\CollectorRegistryFactory` builds the registry from
 `METRICS_STORAGE`. Nothing here reads or depends on anything under
 `src/Integrations/`.
 
 ## 2. Why labels are bounded
 
 The listener attaches exactly three labels: `integration`, `action`, `status_class`
-(see `App\Shared\Observability\StatusClass::fromCode()`). It never attaches
+(see `App\Shared\Observability\Lifecycle\StatusClass::fromCode()`). It never attaches
 `requestKey`, `message`, `exceptionClass` or `responseClass` — those are per-request
 or effectively unbounded values, and Prometheus allocates one time series per unique
 label combination. A per-request label would mean a new time series on every single
@@ -63,7 +63,7 @@ histograms are exactly what the lifecycle events already carry, and PHP-FPM does
 need to hold a connection open to anywhere.
 
 InfluxDB is a push model, implemented here by
-`App\Shared\Observability\InfluxDbLifecycleListener` (disabled by default —
+`App\Shared\Observability\Lifecycle\InfluxDbLifecycleListener` (disabled by default —
 `INFLUXDB_ENABLED=0`, every method a no-op). Each lifecycle event becomes a `Point`
 with **tags** `integration`/`action`/`status_class` (indexed, same bounded set as
 Prometheus) and **fields** `duration_ms`/`status_code`/`request_key`. `requestKey`

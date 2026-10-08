@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Shared\Observability;
+namespace Tests\Shared\Observability\Lifecycle;
 
-use App\Shared\Observability\PrometheusLifecycleListener;
+use App\Shared\Observability\Lifecycle\PrometheusLifecycleListener;
 use IntegrationEngine\Core\Event\RequestFailed;
 use IntegrationEngine\Core\Event\ResponseMapped;
 use PHPUnit\Framework\Attributes\Test;

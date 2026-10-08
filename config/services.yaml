@@ -34,14 +34,14 @@ services:
         arguments:
             - '@event_dispatcher'
 
-    App\Shared\Observability\CollectorRegistryFactory:
+    App\Shared\Observability\Lifecycle\CollectorRegistryFactory:
         arguments:
             $storage: '%env(METRICS_STORAGE)%'
             $redisHost: '%env(METRICS_REDIS_HOST)%'
             $redisPort: '%env(int:METRICS_REDIS_PORT)%'
 
     Prometheus\CollectorRegistry:
-        factory: ['@App\Shared\Observability\CollectorRegistryFactory', 'create']
+        factory: ['@App\Shared\Observability\Lifecycle\CollectorRegistryFactory', 'create']
 
     App\Controller\MetricsController:
         arguments:
@@ -55,7 +55,7 @@ services:
               org: '%env(INFLUXDB_ORG)%'
               precision: 'ms'
 
-    App\Shared\Observability\InfluxDbLifecycleListener:
+    App\Shared\Observability\Lifecycle\InfluxDbLifecycleListener:
         arguments:
             $enabled: '%env(bool:INFLUXDB_ENABLED)%'
 
