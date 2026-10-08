@@ -34,6 +34,15 @@ services:
         arguments:
             - '@event_dispatcher'
 
+    App\Shared\Observability\CollectorRegistryFactory:
+        arguments:
+            $storage: '%env(METRICS_STORAGE)%'
+            $redisHost: '%env(METRICS_REDIS_HOST)%'
+            $redisPort: '%env(int:METRICS_REDIS_PORT)%'
+
+    Prometheus\CollectorRegistry:
+        factory: ['@App\Shared\Observability\CollectorRegistryFactory', 'create']
+
 # No monolog-bundle is installed, so FrameworkBundle's LoggerPass falls back to
 # Symfony\Component\HttpKernel\Log\Logger writing straight to STDERR. That's
 # harmless for plain PHPUnit runs but Infection aborts its initial test suite
