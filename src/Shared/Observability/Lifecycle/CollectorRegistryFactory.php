@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Observability\Lifecycle;
 
 use Prometheus\CollectorRegistry;
+use Prometheus\Exception\StorageException;
 use Prometheus\Storage\Adapter;
 use Prometheus\Storage\APCng;
 use Prometheus\Storage\InMemory;
@@ -46,11 +47,17 @@ final readonly class CollectorRegistryFactory
 
     private function apcuAdapter(): Adapter
     {
-        if (!\extension_loaded('apcu')) {
-            return $this->fallback('METRICS_STORAGE=apcu but the apcu extension is not loaded');
+        // extension_loaded('apcu') alone isn't enough: the extension can be
+        // loaded but disabled for the current SAPI (apc.enable_cli defaults
+        // to Off, which is exactly the case for a CLI-run test suite even
+        // when apcu is compiled in). APCng itself checks both conditions and
+        // throws StorageException either way, so catching it here covers
+        // both failure modes with one guard instead of duplicating its checks.
+        try {
+            return new APCng();
+        } catch (StorageException $e) {
+            return $this->fallback(\sprintf('METRICS_STORAGE=apcu but %s', $e->getMessage()));
         }
-
-        return new APCng();
     }
 
     private function redisAdapter(): Adapter
