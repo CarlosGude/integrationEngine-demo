@@ -9,6 +9,7 @@ use App\Integrations\Tmdb\GetMovie\GetMovieResponse;
 use App\Integrations\Tmdb\GetTvSeason\GetTvSeasonResponse;
 use App\Integrations\Tmdb\TmdbIntegration;
 use PHPUnit\Framework\Attributes\Test;
+use Prometheus\CollectorRegistry;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -59,6 +60,21 @@ final class TmdbIntegrationTest extends KernelTestCase
         self::assertInstanceOf(GetMovieResponse::class, $movie);
         self::assertSame(550, $movie->id());
         self::assertSame('Fight Club', $movie->title());
+
+        // Proves the Prometheus listener observes real integration traffic
+        // without TmdbIntegration (or any code under src/Integrations/)
+        // knowing it exists.
+        $registry = $container->get(CollectorRegistry::class);
+        \assert($registry instanceof CollectorRegistry);
+
+        $hasRequestSample = false;
+        foreach ($registry->getMetricFamilySamples() as $family) {
+            if ($family->getName() === 'integration_requests_total' && $family->getSamples() !== []) {
+                $hasRequestSample = true;
+            }
+        }
+
+        self::assertTrue($hasRequestSample, 'Expected at least one integration_requests_total sample after calling TmdbIntegration::getMovie().');
     }
 
     #[Test]
