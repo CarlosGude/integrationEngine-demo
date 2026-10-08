@@ -43,6 +43,10 @@ services:
     Prometheus\CollectorRegistry:
         factory: ['@App\Shared\Observability\CollectorRegistryFactory', 'create']
 
+    App\Controller\MetricsController:
+        arguments:
+            $enabled: '%env(bool:METRICS_ENABLED)%'
+
 # No monolog-bundle is installed, so FrameworkBundle's LoggerPass falls back to
 # Symfony\Component\HttpKernel\Log\Logger writing straight to STDERR. That's
 # harmless for plain PHPUnit runs but Infection aborts its initial test suite
