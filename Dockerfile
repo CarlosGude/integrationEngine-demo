@@ -4,8 +4,10 @@
 # This build uses composer.lock to pin exact versions (reproducible builds).
 # No dev-dependencies shipped to production. All versions documented below.
 #
-# BASE IMAGE: php:8.4-fpm
-#   - PHP 8.4: Latest stable (LTS until Nov 2027)
+# BASE IMAGE: php:8.4.27-fpm
+#   - PHP 8.4.27: pinned patch version (fixes CVE-2026-109618 / CVE-2026-109619,
+#     unauthenticated RCE in PHP <8.4.27 — see CERT-EU 2026-018). A floating
+#     8.4-fpm tag would silently regress to a vulnerable build on a stale pull.
 #   - FPM: FastCGI Process Manager for Nginx
 #
 # MAIN DEPENDENCIES: (from composer.lock)
@@ -20,7 +22,7 @@
 #   → No persistence layer; demo uses in-memory event transport
 # =============================================================================
 
-FROM php:8.4-fpm AS vendor
+FROM php:8.4.27-fpm AS vendor
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
@@ -67,7 +69,7 @@ FROM vendor AS vendor-dev
 
 RUN composer install --no-scripts --no-progress --no-interaction --optimize-autoloader
 
-FROM php:8.4-fpm AS runtime
+FROM php:8.4.27-fpm AS runtime
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \

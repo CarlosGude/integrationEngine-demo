@@ -27,17 +27,24 @@ final class CollectorRegistryFactoryTest extends TestCase
     }
 
     #[Test]
-    public function apcuStorageFallsBackToInMemoryAndWarnsWhenTheExtensionIsMissing(): void
+    public function apcuStorageFallsBackToInMemoryAndWarnsWhenApcuIsUnavailable(): void
     {
-        if (\extension_loaded('apcu')) {
-            self::markTestSkipped('This environment has apcu loaded; the fallback path cannot be exercised.');
+        // Extension loaded but disabled for the SAPI (apc.enable_cli
+        // defaults to Off, which is exactly the state of a CLI-run test
+        // suite even when apcu is compiled in — this is the scenario that
+        // escaped extension_loaded()-only coverage before) is just as much
+        // "unavailable" as the extension not being loaded at all.
+        if (\extension_loaded('apcu') && \apcu_enabled()) {
+            self::markTestSkipped('APCu is actually available and enabled here; the fallback path cannot be exercised.');
         }
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects(self::once())
             ->method('warning')
-            ->with('METRICS_STORAGE=apcu but the apcu extension is not loaded'
-                .'; falling back to in-memory metrics storage (not shared across workers, requests will not accumulate).');
+            ->with(self::logicalAnd(
+                self::stringStartsWith('METRICS_STORAGE=apcu but '),
+                self::stringContains('; falling back to in-memory metrics storage'),
+            ));
 
         $factory = new CollectorRegistryFactory('apcu', '127.0.0.1', 6379, $logger);
 
