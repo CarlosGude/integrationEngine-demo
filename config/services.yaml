@@ -47,6 +47,18 @@ services:
         arguments:
             $enabled: '%env(bool:METRICS_ENABLED)%'
 
+    InfluxDB2\Client:
+        arguments:
+            - url: '%env(INFLUXDB_URL)%'
+              token: '%env(INFLUXDB_TOKEN)%'
+              bucket: '%env(INFLUXDB_BUCKET)%'
+              org: '%env(INFLUXDB_ORG)%'
+              precision: 'ms'
+
+    App\Shared\Observability\InfluxDbLifecycleListener:
+        arguments:
+            $enabled: '%env(bool:INFLUXDB_ENABLED)%'
+
 # No monolog-bundle is installed, so FrameworkBundle's LoggerPass falls back to
 # Symfony\Component\HttpKernel\Log\Logger writing straight to STDERR. That's
 # harmless for plain PHPUnit runs but Infection aborts its initial test suite
