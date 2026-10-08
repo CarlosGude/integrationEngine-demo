@@ -28,6 +28,7 @@ These aren't gaps to fill later — they're scope decisions. The original, broad
 
 **Technical Guides:**
 - **[Architecture & Patterns Guide](docs/ARCHITECTURE.md)** — Complete reference covering layers, patterns, integrations, parallelism, and configuration
+- **[Observability](docs/OBSERVABILITY.md)** — Prometheus metrics from lifecycle events, without touching the bundle or any integration
 - **[Project Analysis & Recommendations](docs/PROJECT-ANALYSIS.md)** — What's working, what's missing, and what could be added to the engine
 
 **Real-time & Webhooks:**
