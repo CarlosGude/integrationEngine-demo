@@ -16,6 +16,14 @@ The payment-confirmation step exercises the typed-event downstream path and
 publishes to Mercure; authentic inbound Stripe requests still enter through
 `POST /webhook/stripe` with IntegrationEngine signature verification.
 
+**How to read this file:** the dated phases below preserve implementation
+history. Some older bullets describe components before later replacement;
+the current wiring and scope are defined by
+[README](README.md), [architecture](docs/ARCHITECTURE.md) and
+`config/packages/integration_engine.yaml`. The `app:benchmark` command
+reports batch timings only; historical performance ratios below are not
+current measurements.
+
 ### Overview
 A progressive demonstration of the **IntegrationEngine** Symfony bundle, showcasing API integration patterns through a movie storefront demo. Spans 9 days of incremental development with 3 distinct protocols and middleware extensibility.
 
@@ -35,7 +43,7 @@ A progressive demonstration of the **IntegrationEngine** Symfony bundle, showcas
 - Batch/parallel request handling
 - Domain→Application→Infrastructure separation
 - Bilingual tour with live code snippets
-- Performance benchmarking (5-13x speedup)
+- Batch timing samples (the command does not measure a sequential baseline)
 - Legacy code parity testing
 
 ### Phase 2: Protocol Expansion & Extensibility (Days 23-25)
@@ -57,12 +65,12 @@ A progressive demonstration of the **IntegrationEngine** Symfony bundle, showcas
 - Middleware pipeline for cross-cutting concerns
 - Rate limiting with Symfony integration — **the only one of these actually wired into a live request**: `tmdb`'s `middlewares:` in `config/packages/integration_engine.yaml`
 - Extensibility demonstrated via YAML configuration
-- **Caveat (verified 2026-09-22):** CSV (`SupplierIntegration`) isn't even registered under `integration_engine.yaml`'s `integrations:`, and GraphQL (`countries`, which *is* registered) has no caller anywhere in `src/` — no controller, no command, no tour step. Both exist only as tested, standalone code; neither is reachable from a running instance of the app. Tour step 3 ("Behind the Counter") only shows the rate-limit middleware snippets, not CSV or GraphQL.
+- **Historical caveat, now closed:** Supplier and Countries were previously unreachable from the running tour. Both are registered in `config/packages/integration_engine.yaml` and called by `PricingGateway` through the `behind-the-counter` step.
 - Three complete tour steps (1-3) with live snippets
 
 **Achievements (Day 26):**
 - First inbound endpoint (all previous were outbound)
-- Outbound payment intent creation via Stripe REST API (form-urlencoded via custom StripeFormClientAdapter)
+- Outbound payment intent creation via Stripe REST API (form-urlencoded through the configured `app.client.stripe`)
 - Inbound webhooks (`POST /webhook/stripe`) via Symfony Webhook + IntegrationEngine v5.2 pieces:
   - IntegrationWebhookRequestParser subclass (StripePaymentIntentParser) with TimestampedHmacSignatureVerifier
   - AbstractWebhookMapper for payload transformation (StripePaymentIntentMapper → StripePaymentIntentEvent)
@@ -89,7 +97,7 @@ A progressive demonstration of the **IntegrationEngine** Symfony bundle, showcas
 ### Phase 5: Engine v8 Integration Cleanup
 
 IntegrationEngine v8 is pinned as a stable dependency and the demo uses its current contracts:
-- Removed the custom `StripeFormClientAdapter` (129 lines) in favor of the engine's `FormEncodedClientAdapter`
+- Removed the former `StripeFormClientAdapter`; the current demo registers the engine's `FormEncodedClientAdapter` as `app.client.stripe`
 - Simplified `GetPricesMapper` (44 lines removed) using the engine's CSV parser utility
 - Net effect: ~410 → ~100 lines of custom protocol-handling code (-76%)
 
@@ -235,7 +243,7 @@ php bin/console debug:router | grep -E "storefront|tour"
 ### Access Points
 - **Storefront**: http://localhost:8080/en/store (20 movies in parallel)
 - **Storefront ES**: http://localhost:8080/es/store (Spanish version)
-- **Benchmark**: `php bin/console catalog:benchmark` (CLI)
+- **Batch timing**: `php bin/console app:benchmark` (CLI; no sequential comparison)
 - **Tour**: `/{_locale}/tour/{stepId}` — 7 steps, from "the-problem" to "payment-confirmation"
 - **API Endpoints**:
   - TMDB (REST/JSON): https://api.themoviedb.org/3/configuration
@@ -251,7 +259,7 @@ TMDB_ACCESS_TOKEN=<your_v4_access_token_here>  # Needs valid token
 ```
 
 **Why TMDB 401 Error:**
-The demo uses a test token from `.env.local` that has expired. To see live movie data:
+The repository's placeholder token cannot fetch live movie data. To see live movie data:
 1. Get a valid TMDB v4 access token from https://www.themoviedb.org/settings/api
 2. Replace `TMDB_ACCESS_TOKEN` in `.env.local`
 3. Restart Docker container
@@ -271,7 +279,7 @@ The demo uses a test token from `.env.local` that has expired. To see live movie
 **Architecture Proven:**
 ✅ Separates concerns (Domain/Application/Infrastructure per context)
 ✅ Handles multiple protocols uniformly in code (outbound + inbound)
-✅ Supports parallelism (5-13x speedup) — live in the storefront
+✅ Uses concurrent batch dispatch in the storefront; no reproducible speedup ratio is claimed
 ✅ Extensible via middleware and custom client adapters
 ✅ Webhook infrastructure (Symfony webhook + remote-event): verified, mapped and dispatched as a typed event; Billing publishes the resulting payment event to Mercure for live browser updates
 ✅ Bilingual UI with live, extracted-from-source code snippets

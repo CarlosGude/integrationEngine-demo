@@ -1,4 +1,10 @@
-# 📊 IntegrationEngine Demo - Project Analysis & Recommendations
+# Historical analysis: IntegrationEngine Demo (v6 era)
+
+> **Archive notice:** This is a point-in-time design review, not a status page
+> for the current checkout. Its performance ratios, test counts, coverage
+> percentages and proposed components were not remeasured against `main`.
+> Use [README](../README.md) and [current architecture](ARCHITECTURE.md)
+> for the actual demo; use the engine's roadmap for unshipped bundle proposals.
 
 **Date:** September 2026 | **Engine Version:** 6.0.0 | **Project Status:** Phase 3 Complete
 
@@ -451,7 +457,7 @@ Enable production projects to handle CSV feeds properly.
 
 ## 📚 Related Documentation
 
-- [Architecture Guide](docs/ARCHITECTURE.md) — Deep dive into current patterns
+- [Architecture Guide](ARCHITECTURE.md) — Current application boundaries
 - [README.md](README.md) — Project status and progress
 - [IntegrationEngine Repository](https://github.com/carlosgude/integrationEngine) — Core engine
 
