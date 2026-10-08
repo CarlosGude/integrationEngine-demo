@@ -64,6 +64,7 @@ final class PrometheusLifecycleListenerTest extends TestCase
         self::assertCount(1, $requestSamples);
         self::assertCount(1, $failureSamples);
         self::assertSame(['supplier', 'get_prices', '5xx'], $failureSamples[0]->getLabelValues());
+        self::assertNotEmpty($this->samplesFor($registry, 'integration_duration_ms'));
     }
 
     #[Test]
@@ -97,7 +98,12 @@ final class PrometheusLifecycleListenerTest extends TestCase
         $registry->method('getOrRegisterCounter')->willThrowException(new \RuntimeException('storage down'));
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects(self::once())->method('warning');
+        $logger->expects(self::once())
+            ->method('warning')
+            ->with(
+                'Failed to record a Prometheus metric from an integration lifecycle event.',
+                ['exception' => \RuntimeException::class, 'message' => 'storage down'],
+            );
 
         $listener = new PrometheusLifecycleListener($registry, $logger);
 

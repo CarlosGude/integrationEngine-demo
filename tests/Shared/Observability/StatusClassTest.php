@@ -20,6 +20,9 @@ final class StatusClassTest extends TestCase
     #[TestWith([199, 'other'])]
     #[TestWith([599, '5xx'])]
     #[TestWith([600, 'other'])]
+    #[TestWith([300, '3xx'])]
+    #[TestWith([400, '4xx'])]
+    #[TestWith([500, '5xx'])]
     public function fromCodeClassifiesStatusCodes(int $statusCode, string $expected): void
     {
         self::assertSame($expected, StatusClass::fromCode($statusCode));

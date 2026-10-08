@@ -19,12 +19,22 @@ final class StatusClass
             return 'network';
         }
 
-        return match (true) {
-            $statusCode >= 200 && $statusCode < 300 => '2xx',
-            $statusCode >= 300 && $statusCode < 400 => '3xx',
-            $statusCode >= 400 && $statusCode < 500 => '4xx',
-            $statusCode >= 500 && $statusCode < 600 => '5xx',
-            default => 'other',
-        };
+        if ($statusCode >= 200 && $statusCode < 300) {
+            return '2xx';
+        }
+
+        if ($statusCode >= 300 && $statusCode < 400) {
+            return '3xx';
+        }
+
+        if ($statusCode >= 400 && $statusCode < 500) {
+            return '4xx';
+        }
+
+        if ($statusCode >= 500 && $statusCode < 600) {
+            return '5xx';
+        }
+
+        return 'other';
     }
 }
