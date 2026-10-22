@@ -15,19 +15,19 @@ final class GetCountriesMapperTest extends TestCase
     #[Test]
     public function mapsGraphQLCountriesResponse(): void
     {
+        // The `data` member only: GraphQLClientAdapter unwraps the envelope
+        // before the mapper runs.
         $graphQLResponse = [
-            'data' => [
-                'countries' => [
-                    [
-                        'code' => 'US',
-                        'name' => 'United States',
-                        'continent' => ['name' => 'North America'],
-                    ],
-                    [
-                        'code' => 'MX',
-                        'name' => 'Mexico',
-                        'continent' => ['name' => 'North America'],
-                    ],
+            'countries' => [
+                [
+                    'code' => 'US',
+                    'name' => 'United States',
+                    'continent' => ['name' => 'North America'],
+                ],
+                [
+                    'code' => 'MX',
+                    'name' => 'Mexico',
+                    'continent' => ['name' => 'North America'],
                 ],
             ],
         ];
@@ -45,7 +45,7 @@ final class GetCountriesMapperTest extends TestCase
     #[Test]
     public function handlesEmptyCountriesList(): void
     {
-        $graphQLResponse = ['data' => ['countries' => []]];
+        $graphQLResponse = ['countries' => []];
 
         $action = GetCountriesAction::create('POST', '/graphql');
         $response = GetCountriesMapper::map($action, $graphQLResponse, []);
@@ -57,7 +57,7 @@ final class GetCountriesMapperTest extends TestCase
     #[Test]
     public function defaultsMissingFieldsToEmptyStrings(): void
     {
-        $graphQLResponse = ['data' => ['countries' => [['code' => 'FR']]]];
+        $graphQLResponse = ['countries' => [['code' => 'FR']]];
 
         $action = GetCountriesAction::create('POST', '/graphql');
         $response = GetCountriesMapper::map($action, $graphQLResponse, []);
@@ -67,7 +67,7 @@ final class GetCountriesMapperTest extends TestCase
     }
 
     #[Test]
-    public function handlesAMissingDataKeyEntirely(): void
+    public function handlesAMissingCountriesKeyEntirely(): void
     {
         $action = GetCountriesAction::create('POST', '/graphql');
         $response = GetCountriesMapper::map($action, [], []);
