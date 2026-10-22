@@ -47,8 +47,7 @@ final class TourController extends AbstractController
                 $result = ['success' => false, 'error' => $e->getMessage()];
             }
         } finally {
-            $trace = TraceRecorderMiddleware::getCurrentTrace();
-            TraceRecorderMiddleware::clearTrace();
+            $trace = TraceRecorderMiddleware::stopTrace();
         }
 
         return $this->json([

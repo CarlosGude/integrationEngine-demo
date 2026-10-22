@@ -9,3 +9,11 @@ groups:
         annotations:
           summary: 'Integration {{ $labels.integration }} p95 latency is above 2000ms'
           description: 'p95 duration for {{ $labels.integration }} has been above 2000ms for 10 minutes.'
+
+      - alert: IntegrationMappingFailures
+        expr: sum by (integration, action) (increase(integration_mapping_failures_total[10m])) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: 'Responses from {{ $labels.integration }}.{{ $labels.action }} are failing to map'
+          description: 'The API answered but the mapper threw. The upstream is reachable, so this usually means its response shape changed.'

@@ -10,6 +10,7 @@ use InfluxDB2\Model\WritePrecision;
 use InfluxDB2\Point;
 use IntegrationEngine\Core\Event\RequestFailed;
 use IntegrationEngine\Core\Event\ResponseMapped;
+use IntegrationEngine\Core\Event\ResponseReceived;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
@@ -32,11 +33,24 @@ final class InfluxDbLifecycleListener
     /** @var list<Point> */
     private array $points = [];
 
+    private readonly ReceivedResponses $received;
+
     public function __construct(
         private readonly bool $enabled,
         private readonly Client $client,
         private readonly LoggerInterface $logger,
     ) {
+        $this->received = new ReceivedResponses();
+    }
+
+    #[AsEventListener(event: ResponseReceived::class)]
+    public function onResponseReceived(ResponseReceived $event): void
+    {
+        if (!$this->enabled) {
+            return;
+        }
+
+        $this->received->remember($event);
     }
 
     #[AsEventListener(event: ResponseMapped::class)]
@@ -46,7 +60,7 @@ final class InfluxDbLifecycleListener
             return;
         }
 
-        $this->points[] = $this->point(
+        $point = $this->point(
             $event->integrationName,
             $event->action,
             $event->statusCode,
@@ -54,6 +68,13 @@ final class InfluxDbLifecycleListener
             $event->timestamp,
             $event->requestKey,
         );
+
+        $received = $this->received->take($event->integrationName, $event->action, $event->requestKey);
+        if ($received !== null) {
+            $point->addField('mapping_ms', ReceivedResponses::mappingMs($received, $event->timestamp));
+        }
+
+        $this->points[] = $point;
     }
 
     #[AsEventListener(event: RequestFailed::class)]
@@ -63,7 +84,7 @@ final class InfluxDbLifecycleListener
             return;
         }
 
-        $this->points[] = $this->point(
+        $point = $this->point(
             $event->integrationName,
             $event->action,
             $event->statusCode,
@@ -71,6 +92,13 @@ final class InfluxDbLifecycleListener
             $event->timestamp,
             $event->requestKey,
         );
+
+        // true when the API answered and the mapper threw (ResponseReceived
+        // came first); false when the call never got a response at all.
+        $received = $this->received->take($event->integrationName, $event->action, $event->requestKey);
+        $point->addField('mapping_failed', $received !== null);
+
+        $this->points[] = $point;
     }
 
     #[AsEventListener(event: KernelEvents::TERMINATE)]

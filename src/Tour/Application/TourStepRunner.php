@@ -10,7 +10,6 @@ use App\Catalog\Application\MovieCatalogGateway;
 use App\Pricing\Application\PricingGateway;
 use App\Shared\Infrastructure\Resilience\CircuitBreaker;
 use App\Shared\Infrastructure\Resilience\FallbackStrategy;
-use App\Shared\Observability\TraceRecorderMiddleware;
 
 final readonly class TourStepRunner
 {
@@ -40,38 +39,30 @@ final readonly class TourStepRunner
     /** @return array<string, mixed> */
     private function singleMovie(): array
     {
-        return $this->timed('tmdb.get_movie', 'GET', function (): array {
-            $movie = $this->catalog->getMovieById(550);
+        $movie = $this->catalog->getMovieById(550);
 
-            return ['movie' => ['id' => $movie->id, 'title' => $movie->title]];
-        });
+        return ['movie' => ['id' => $movie->id, 'title' => $movie->title]];
     }
 
     /** @return array<string, mixed> */
     private function parallelMovies(): array
     {
-        return $this->timed('tmdb.get_movies_batch', 'GET', function (): array {
-            $movies = $this->catalog->getMoviesByIdBatch([550, 278, 238, 240, 424]);
+        $movies = $this->catalog->getMoviesByIdBatch([550, 278, 238, 240, 424]);
 
-            return [
-                'requested' => count($movies),
-                'loaded' => count(array_filter($movies)),
-                'mode' => 'sendMany',
-            ];
-        });
+        return [
+            'requested' => count($movies),
+            'loaded' => count(array_filter($movies)),
+            'mode' => 'sendMany',
+        ];
     }
 
     /** @return array<string, mixed> */
     private function protocols(): array
     {
-        $countries = $this->timed('countries.get_countries', 'POST', fn (): array => [
-            'countries' => $this->pricing->countCountries(),
-        ]);
-        $supplier = $this->timed('supplier.get_prices', 'GET', fn (): array => [
-            'prices' => $this->pricing->countSupplierPrices(),
-        ]);
-
-        return ['graphql' => $countries, 'csv' => $supplier];
+        return [
+            'graphql' => ['countries' => $this->pricing->countCountries()],
+            'csv' => ['prices' => $this->pricing->countSupplierPrices()],
+        ];
     }
 
     /** @return array<string, mixed> */
@@ -101,42 +92,19 @@ final readonly class TourStepRunner
     /** @return array<string, mixed> */
     private function rentMovie(): array
     {
-        return $this->timed('stripe.create_payment_intent', 'POST', function (): array {
-            $payment = $this->payments->rentMovie(movieId: 550, amountCents: 500, currency: 'usd');
+        $payment = $this->payments->rentMovie(movieId: 550, amountCents: 500, currency: 'usd');
 
-            return [
-                'payment_intent_id' => $payment->paymentIntentId,
-                'status' => $payment->status,
-                'amount' => $payment->amountCents,
-                'currency' => $payment->currency,
-            ];
-        });
+        return [
+            'payment_intent_id' => $payment->paymentIntentId,
+            'status' => $payment->status,
+            'amount' => $payment->amountCents,
+            'currency' => $payment->currency,
+        ];
     }
 
     /** @return array<string, mixed> */
     private function paymentConfirmation(): array
     {
         return $this->paymentConfirmation->simulate(movieId: 550, amount: 500, currency: 'usd');
-    }
-
-    /**
-     * @param callable(): array<string, mixed> $operation
-     *
-     * @return array<string, mixed>
-     */
-    private function timed(string $action, string $method, callable $operation): array
-    {
-        $started = microtime(true);
-
-        try {
-            $result = $operation();
-            TraceRecorderMiddleware::recordCall($action, $method, 200, (microtime(true) - $started) * 1000);
-
-            return $result;
-        } catch (\Throwable $e) {
-            TraceRecorderMiddleware::recordCall($action, $method, 0, (microtime(true) - $started) * 1000);
-
-            throw $e;
-        }
     }
 }

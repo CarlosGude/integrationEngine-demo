@@ -1,7 +1,12 @@
+# profiler_payloads shows body, context and response contents in the Symfony
+# Profiler panel. It's inert unless kernel.debug is on, and it never records
+# headers, so TMDB's bearer token stays out of it. Stripe keeps it off: its
+# PaymentIntent response carries the client_secret.
 integration_engine:
     integrations:
         tmdb:
             base_url: 'https://api.themoviedb.org'
+            profiler_payloads: true
             headers:
                 Authorization: 'Bearer %env(TMDB_ACCESS_TOKEN)%'
             config_path: '%kernel.project_dir%/src/Integrations/Tmdb/Tmdb.yaml'
@@ -12,9 +17,11 @@ integration_engine:
         countries:
             base_url: 'https://countries.trevorblades.com'
             client: graphql
+            profiler_payloads: true
             config_path: '%kernel.project_dir%/src/Integrations/Countries/Countries.yaml'
         supplier:
             client_service: app.client.supplier_csv
+            profiler_payloads: true
             config_path: '%kernel.project_dir%/src/Integrations/Supplier/Supplier.yaml'
         stripe:
             client_service: app.client.stripe

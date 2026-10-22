@@ -39,6 +39,11 @@
         <h3>Result</h3>
         <pre id="result-output"></pre>
         <h3>Execution Trace</h3>
+        <p class="trace-legend">
+            {{ app.request.locale == 'es'
+                ? 'Una línea por llamada del engine, a partir de sus eventos de ciclo de vida. Upstream: hasta ResponseReceived (la API ha respondido). Mapping: de ResponseReceived a ResponseMapped.'
+                : 'One line per engine call, built from its lifecycle events. Upstream: until ResponseReceived (the API answered). Mapping: ResponseReceived to ResponseMapped.' }}
+        </p>
         <ul id="trace-list"></ul>
         <p>Total: <span id="total-duration">0</span>ms</p>
     </div>
@@ -54,6 +59,8 @@
     .trace-output { margin-top: 2rem; padding: 1rem; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; }
     #trace-list { list-style: none; padding: 0; }
     #trace-list li { padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+    #trace-list li.trace-failed { color: #b02a37; }
+    .trace-legend { font-size: 0.9em; color: #555; }
 </style>
 
 <script>
@@ -72,11 +79,28 @@
         list.innerHTML = '';
         trace.calls.forEach(call => {
             const li = document.createElement('li');
-            li.textContent = `${call.action} → ${call.method} (${call.status}) ${call.duration_ms}ms`;
+            li.textContent = `${call.action} → ${call.method} (${call.status}) ${call.duration_ms}ms${traceDetail(call)}`;
+            if (call.outcome !== 'mapped') {
+                li.classList.add('trace-failed');
+            }
             list.appendChild(li);
         });
         document.getElementById('total-duration').textContent = trace.total_duration_ms.toFixed(2);
         document.getElementById('trace').style.display = 'block';
+    }
+
+    function traceDetail(call) {
+        if (call.outcome === 'mapped' && call.upstream_ms !== null) {
+            return ` — upstream ${call.upstream_ms}ms · mapping ${call.mapping_ms}ms`;
+        }
+        if (call.outcome === 'mapping_failed') {
+            return ` — upstream ${call.upstream_ms}ms · mapping failed`;
+        }
+        if (call.outcome === 'failed') {
+            return ' — failed before a response';
+        }
+
+        return '';
     }
 </script>
 {% endblock %}
