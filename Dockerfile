@@ -12,7 +12,7 @@
 #
 # MAIN DEPENDENCIES: (from composer.lock)
 #   - Symfony 7.4 LTS: Web framework
-#   - IntegrationEngine v8.0+: TMDB/Stripe/Countries/Supplier integrations
+#   - IntegrationEngine v9.4+: TMDB/Stripe/Countries/Supplier integrations
 #   - Mercure 0.8+: Real-time WebSocket hub
 #   - symfony/security-bundle 7.4: HTTP Basic auth for webhooks
 #

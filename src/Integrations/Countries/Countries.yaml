@@ -2,4 +2,5 @@ get_countries:
   action: 'App\Integrations\Countries\GetCountries\GetCountriesAction'
   method: POST
   path: /
+  body: 'App\Integrations\Countries\GetCountries\GetCountriesBody'
   mapper: 'App\Integrations\Countries\Mappers\GetCountriesMapper'

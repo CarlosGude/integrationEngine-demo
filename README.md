@@ -53,10 +53,9 @@ must not be read as current guarantees.
 ## Status & Versions
 
 **Demo:** `main` is the development branch; the next release is the executable-tour update.
-**IntegrationEngine:** `^8.0.4` (stable release, not `dev-main`).
-The engine repository currently tags v9; this application's declared dependency
-remains v8. The engine's separate contract workflow also tests its current checkout
-against the demo, but does not change this application's installed version.
+**IntegrationEngine:** `^9.4.0` (stable release, not `dev-main`).
+The engine's separate contract workflow also tests its current checkout against the
+demo, but does not change this application's installed version.
 **Symfony:** 7.4 LTS
 **PHP:** 8.4 in Docker (project requirement: >=8.4)
 

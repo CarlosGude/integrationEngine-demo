@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": ">=8.4",
-        "carlosgude/integration-engine": "^8.0.4",
+        "carlosgude/integration-engine": "^9.4.0",
         "influxdata/influxdb-client-php": "^3.9",
         "promphp/prometheus_client_php": "^2.15",
         "symfony/console": "^7.4",

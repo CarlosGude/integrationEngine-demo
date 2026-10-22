@@ -11,6 +11,7 @@ use InfluxDB2\Point;
 use InfluxDB2\WriteApi;
 use IntegrationEngine\Core\Event\RequestFailed;
 use IntegrationEngine\Core\Event\ResponseMapped;
+use IntegrationEngine\Core\Event\ResponseReceived;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -176,6 +177,72 @@ final class InfluxDbLifecycleListenerTest extends TestCase
 
         $listener->onResponseMapped($this->responseMapped());
         $listener->flush();
+    }
+
+    #[Test]
+    public function aMappedPointCarriesTheMappingTimeWhenTheResponseWasReceivedFirst(): void
+    {
+        $lineProtocol = $this->writtenLineProtocol(static function (InfluxDbLifecycleListener $listener): void {
+            $listener->onResponseReceived(new ResponseReceived('tmdb', 'get_movie', 40.0, 200, 1_700_000_000.1209, 'req-123'));
+            $listener->onResponseMapped(new ResponseMapped('tmdb', 'get_movie', 42.5, 200, 'App\Foo', 1_700_000_000.1234, 'req-123'));
+        });
+
+        self::assertMatchesRegularExpression('/mapping_ms=2\.5\d*/', $lineProtocol[0]);
+    }
+
+    #[Test]
+    public function aFailedPointSaysWhetherTheApiHadAnswered(): void
+    {
+        $lineProtocol = $this->writtenLineProtocol(function (InfluxDbLifecycleListener $listener): void {
+            $listener->onResponseReceived(new ResponseReceived('tmdb', 'get_movie', 40.0, 200, microtime(true)));
+            $listener->onRequestFailed(new RequestFailed('tmdb', 'get_movie', 41.0, 0, 'TypeError', 'Integration request failed.', microtime(true)));
+            $listener->onRequestFailed($this->requestFailed());
+        });
+
+        self::assertStringContainsString('mapping_failed=true', $lineProtocol[0]);
+        self::assertStringContainsString('mapping_failed=false', $lineProtocol[1]);
+    }
+
+    #[Test]
+    public function disabledListenerDoesNotTrackReceivedResponses(): void
+    {
+        $client = $this->createMock(Client::class);
+        $client->expects(self::never())->method('createWriteApi');
+
+        $listener = new InfluxDbLifecycleListener(false, $client, new NullLogger());
+
+        $listener->onResponseReceived(new ResponseReceived('tmdb', 'get_movie', 40.0, 200, microtime(true)));
+        $listener->flush();
+    }
+
+    /**
+     * @param callable(InfluxDbLifecycleListener): void $emit
+     *
+     * @return list<string>
+     */
+    private function writtenLineProtocol(callable $emit): array
+    {
+        $written = [];
+        $writeApi = $this->createMock(WriteApi::class);
+        $writeApi->expects(self::once())
+            ->method('write')
+            ->with(self::callback(static function (array $points) use (&$written): bool {
+                foreach ($points as $point) {
+                    self::assertInstanceOf(Point::class, $point);
+                    $written[] = (string) $point->toLineProtocol();
+                }
+
+                return true;
+            }), WritePrecision::MS);
+
+        $client = $this->createMock(Client::class);
+        $client->method('createWriteApi')->willReturn($writeApi);
+
+        $listener = new InfluxDbLifecycleListener(true, $client, new NullLogger());
+        $emit($listener);
+        $listener->flush();
+
+        return $written;
     }
 
     private function responseMapped(): ResponseMapped

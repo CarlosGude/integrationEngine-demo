@@ -68,13 +68,19 @@ final class TmdbIntegrationTest extends KernelTestCase
         \assert($registry instanceof CollectorRegistry);
 
         $hasRequestSample = false;
+        $hasMappingSample = false;
         foreach ($registry->getMetricFamilySamples() as $family) {
             if ($family->getName() === 'integration_requests_total' && $family->getSamples() !== []) {
                 $hasRequestSample = true;
             }
+            if ($family->getName() === 'integration_mapping_duration_ms' && $family->getSamples() !== []) {
+                $hasMappingSample = true;
+            }
         }
 
         self::assertTrue($hasRequestSample, 'Expected at least one integration_requests_total sample after calling TmdbIntegration::getMovie().');
+        // Only possible if the engine dispatched ResponseReceived before ResponseMapped.
+        self::assertTrue($hasMappingSample, 'Expected an integration_mapping_duration_ms sample after calling TmdbIntegration::getMovie().');
     }
 
     #[Test]

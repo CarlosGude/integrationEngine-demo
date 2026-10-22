@@ -19,11 +19,14 @@ final class GetCountriesMapper extends AbstractMapper
 
     protected static function transform(AbstractAction $action, array $response, array $headers): ResponseInterface
     {
-        /** @var array{data?: array{countries?: list<array{code?: string, name?: string, continent?: array{name?: string}}>}} $response */
+        // GraphQLClientAdapter hands the mapper the response's `data` member,
+        // not the whole envelope: `errors` has already been turned into an
+        // exception by then.
+        /** @var array{countries?: list<array{code?: string, name?: string, continent?: array{name?: string}}>} $response */
         $countries = [];
 
-        if (isset($response['data']['countries'])) {
-            foreach ($response['data']['countries'] as $country) {
+        if (isset($response['countries'])) {
+            foreach ($response['countries'] as $country) {
                 $countries[] = [
                     'code' => $country['code'] ?? '',
                     'name' => $country['name'] ?? '',
