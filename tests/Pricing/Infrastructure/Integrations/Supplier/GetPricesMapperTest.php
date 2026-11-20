@@ -7,6 +7,7 @@ namespace Tests\Pricing\Infrastructure\Integrations\Supplier;
 use App\Integrations\Supplier\GetPrices\GetPricesAction;
 use App\Integrations\Supplier\GetPrices\GetPricesResponse;
 use App\Integrations\Supplier\Mappers\GetPricesMapper;
+use App\Shared\Infrastructure\Integration\UnexpectedApiResponse;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -32,22 +33,34 @@ CSV;
     }
 
     #[Test]
-    public function whitespaceOnlyBodyMapsToAnEmptyResponse(): void
+    public function aHeaderOnlyCsvMapsToAnEmptyPriceList(): void
     {
         $action = GetPricesAction::create('GET', '/prices.csv');
-        $response = GetPricesMapper::map($action, ['csv' => "   \n  "], []);
+        $response = GetPricesMapper::map($action, ['csv' => "sku,price,currency\n"], []);
 
         self::assertInstanceOf(GetPricesResponse::class, $response);
         self::assertSame([], $response->prices());
     }
 
     #[Test]
-    public function missingBodyMapsToAnEmptyResponse(): void
+    public function rejectsAWhitespaceOnlyBody(): void
     {
         $action = GetPricesAction::create('GET', '/prices.csv');
-        $response = GetPricesMapper::map($action, [], []);
-        \assert($response instanceof GetPricesResponse);
 
-        self::assertSame([], $response->prices());
+        $this->expectException(UnexpectedApiResponse::class);
+        $this->expectExceptionMessage('Supplier prices CSV: field "csv" is missing or not a CSV document with a header row.');
+
+        GetPricesMapper::map($action, ['csv' => "   \n  "], []);
+    }
+
+    #[Test]
+    public function rejectsAMissingBody(): void
+    {
+        $action = GetPricesAction::create('GET', '/prices.csv');
+
+        $this->expectException(UnexpectedApiResponse::class);
+        $this->expectExceptionMessage('Supplier prices CSV: field "csv" is missing or not a string.');
+
+        GetPricesMapper::map($action, [], []);
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Integrations\Stripe\Webhook\Mapper;
 
-use App\Integrations\Stripe\Webhook\StripePaymentIntentEvent;
 use IntegrationEngine\Core\Contract\Webhook\AbstractWebhookMapper;
 use IntegrationEngine\Core\Contract\Webhook\WebhookEventInterface;
 
@@ -17,6 +16,6 @@ final class StripePaymentIntentFailedMapper extends AbstractWebhookMapper
 
     protected static function transform(array $payload, array $headers): WebhookEventInterface
     {
-        return new StripePaymentIntentEvent('', 'payment_intent.payment_failed', '', null, '', 0, '');
+        return PaymentIntentEventPayload::toEvent($payload);
     }
 }
