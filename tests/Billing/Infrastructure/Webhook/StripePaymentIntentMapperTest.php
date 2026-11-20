@@ -6,6 +6,7 @@ namespace Tests\Billing\Infrastructure\Webhook;
 
 use App\Integrations\Stripe\Webhook\Mapper\StripePaymentIntentMapper;
 use App\Integrations\Stripe\Webhook\StripePaymentIntentEvent;
+use App\Shared\Infrastructure\Integration\UnexpectedApiResponse;
 use PHPUnit\Framework\TestCase;
 
 final class StripePaymentIntentMapperTest extends TestCase
@@ -65,46 +66,66 @@ final class StripePaymentIntentMapperTest extends TestCase
         self::assertNull($event->movieId);
     }
 
-    public function testMapCastsNonStringAndNonIntFieldsToTheirDeclaredTypes(): void
+    public function testMapReadsTheStringMovieIdStripeSendsInMetadata(): void
     {
-        $payload = [
-            'id' => 12345,
+        $event = StripePaymentIntentMapper::map('payment_intent.succeeded', self::payload(['metadata' => ['movie_id' => '550']]), []);
+        \assert($event instanceof StripePaymentIntentEvent);
+
+        self::assertSame(550, $event->movieId);
+    }
+
+    public function testRejectsAnAmountThatIsNotAnInteger(): void
+    {
+        $this->expectException(UnexpectedApiResponse::class);
+        $this->expectExceptionMessage('Stripe webhook data.object: field "amount" is missing or not an integer.');
+
+        StripePaymentIntentMapper::map('payment_intent.succeeded', self::payload(['amount' => '750']), []);
+    }
+
+    public function testRejectsANonNumericMovieId(): void
+    {
+        $this->expectException(UnexpectedApiResponse::class);
+        $this->expectExceptionMessage('field "metadata.movie_id" is missing or not a numeric movie id');
+
+        StripePaymentIntentMapper::map('payment_intent.succeeded', self::payload(['metadata' => ['movie_id' => 'abc']]), []);
+    }
+
+    public function testRejectsAPayloadWithoutItsEventId(): void
+    {
+        $payload = self::payload();
+        unset($payload['id']);
+
+        $this->expectException(UnexpectedApiResponse::class);
+        $this->expectExceptionMessage('Stripe webhook: field "id" is missing or not a string.');
+
+        StripePaymentIntentMapper::map('payment_intent.succeeded', $payload, []);
+    }
+
+    public function testRejectsAnEmptyPayload(): void
+    {
+        $this->expectException(UnexpectedApiResponse::class);
+
+        StripePaymentIntentMapper::map('payment_intent.succeeded', [], []);
+    }
+
+    /**
+     * @param array<string, mixed> $object overrides for data.object
+     *
+     * @return array<string, mixed>
+     */
+    private static function payload(array $object = []): array
+    {
+        return [
+            'id' => 'evt_test789',
             'type' => 'payment_intent.succeeded',
             'data' => [
-                'object' => [
-                    'id' => 999,
+                'object' => $object + [
+                    'id' => 'pi_test789',
                     'status' => 'succeeded',
-                    'amount' => '750',
+                    'amount' => 750,
                     'currency' => 'usd',
-                    'metadata' => ['movie_id' => '550'],
                 ],
             ],
         ];
-
-        $event = StripePaymentIntentMapper::map('payment_intent.succeeded', $payload, []);
-        \assert($event instanceof StripePaymentIntentEvent);
-
-        self::assertSame('12345', $event->eventId);
-        self::assertIsString($event->eventId);
-        self::assertSame('999', $event->paymentIntentId);
-        self::assertIsString($event->paymentIntentId);
-        self::assertSame(550, $event->movieId);
-        self::assertIsInt($event->movieId);
-        self::assertSame(750, $event->amount);
-        self::assertIsInt($event->amount);
-    }
-
-    public function testMapDefaultsMissingTopLevelFieldsToEmptyValues(): void
-    {
-        $event = StripePaymentIntentMapper::map('payment_intent.succeeded', [], []);
-        \assert($event instanceof StripePaymentIntentEvent);
-
-        self::assertSame('', $event->eventId);
-        self::assertSame('', $event->eventType);
-        self::assertSame('', $event->paymentIntentId);
-        self::assertNull($event->movieId);
-        self::assertSame('', $event->status);
-        self::assertSame(0, $event->amount);
-        self::assertSame('', $event->currency);
     }
 }

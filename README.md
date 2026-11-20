@@ -195,7 +195,20 @@ integrationEngine-demo/
 
 ### Credentials and startup
 
-Create or edit the Git-ignored `.env.local` without overwriting existing settings:
+No credentials are needed to start the demo:
+
+```bash
+docker compose up -d --build --wait
+```
+
+Start the tour at http://localhost:8080/en/tour/the-problem (Spanish:
+http://localhost:8080/es/tour/the-problem). Without credentials, tour steps 3, 4, 5
+and 7 run, Countries GraphQL and the Supplier CSV included; steps 1 and 2 and the
+store need TMDB, and step 6 and the Rent button need Stripe. The
+[Quick Start](docs/QUICKSTART.md#1-credentials-optional) lists what each step needs.
+
+To enable TMDB and Stripe, create or edit the Git-ignored `.env.local` without
+overwriting existing settings, setting only the variables you need:
 
 ```dotenv
 TMDB_ACCESS_TOKEN=your_tmdb_api_read_access_token
@@ -204,14 +217,8 @@ STRIPE_SECRET_KEY=sk_test_your_stripe_test_secret_key
 
 These are placeholders: use your own TMDB Bearer token and Stripe test secret key.
 `TMDB_API_KEY` is not used by the configured client. `STRIPE_WEBHOOK_SECRET` is
-required separately for authentic inbound Stripe webhooks.
-
-```bash
-docker compose up -d --build --wait
-```
-
-Open http://localhost:8080/es/store or http://localhost:8080/en/store.
-Start the tour at http://localhost:8080/es/tour/the-problem.
+required separately for authentic inbound Stripe webhooks. The store is then at
+http://localhost:8080/en/store (Spanish: http://localhost:8080/es/store).
 
 Compose selects the `development` Docker target, including PHPUnit and Symfony's
 WebProfilerBundle. The default Dockerfile target is `production`, without dev

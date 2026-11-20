@@ -3,9 +3,22 @@
 Run the demo locally with Docker Compose. It starts the Symfony application,
 the CSV supplier and the Mercure hub. No database or JavaScript build is needed.
 
-## 1. Configure credentials
+## 1. Credentials (optional)
 
-Clone the repository, then create or edit `.env.local` in its root. Preserve any
+The demo starts without any credentials. Clone the repository and go straight to
+step 2 if you only want to see the engine; add credentials later for the steps
+that call TMDB or Stripe.
+
+| Works without credentials | Needs credentials |
+| --- | --- |
+| Tour steps 3 *Behind the Counter*, 4 *When Suppliers Fail*, 5 *Graceful Degradation* and 7 *Payment Confirmation*, including their **Run Step** action | Tour steps 1 *The Problem* and 2 *Parallel Requests*, the store catalog and `app:benchmark` (TMDB) |
+| Tour snippets of every step, read live from the source | Tour step 6 *Renting a Movie* and the store's **Rent** button (Stripe) |
+| Supplier CSV (local Compose service) and Countries GraphQL (public endpoint) | |
+
+Without a TMDB token, the store page and the TMDB tour steps show an unavailable
+message; the logs show TMDB HTTP 401.
+
+To enable them, create or edit `.env.local` in the repository root. Preserve any
 existing settings; this file is ignored by Git.
 
 ```dotenv
@@ -13,7 +26,7 @@ TMDB_ACCESS_TOKEN=your_tmdb_api_read_access_token
 STRIPE_SECRET_KEY=sk_test_your_stripe_test_secret_key
 ```
 
-Replace both placeholders with your own credentials:
+Each variable is independent: set only the one you need.
 
 - `TMDB_ACCESS_TOKEN` is the API Read Access Token used as a Bearer token. The
   application does not use `TMDB_API_KEY` for authentication.
@@ -48,10 +61,13 @@ host; Mercure's named volumes are not affected.
 
 ## 3. Open the demo
 
-- Spanish store: http://localhost:8080/es/store
-- English store: http://localhost:8080/en/store
-- Spanish tour: http://localhost:8080/es/tour/the-problem
+Start with the tour; it works without credentials from step 3 onwards.
+
 - English tour: http://localhost:8080/en/tour/the-problem
+  (without a TMDB token, start at http://localhost:8080/en/tour/behind-the-counter)
+- Spanish tour: http://localhost:8080/es/tour/the-problem
+- English store (needs TMDB): http://localhost:8080/en/store
+- Spanish store (needs TMDB): http://localhost:8080/es/store
 - Standalone Mercure demo: http://localhost:8080/mercure-demo.html
 
 The app listens on loopback port `8080`; Mercure uses loopback port `3000`.

@@ -7,6 +7,7 @@ namespace Tests\Pricing\Infrastructure\Integrations\Countries;
 use App\Integrations\Countries\GetCountries\GetCountriesAction;
 use App\Integrations\Countries\GetCountries\GetCountriesResponse;
 use App\Integrations\Countries\Mappers\GetCountriesMapper;
+use App\Shared\Infrastructure\Integration\UnexpectedApiResponse;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -55,24 +56,24 @@ final class GetCountriesMapperTest extends TestCase
     }
 
     #[Test]
-    public function defaultsMissingFieldsToEmptyStrings(): void
+    public function rejectsACountryWithMissingFieldsInsteadOfFillingThemWithEmptyStrings(): void
     {
-        $graphQLResponse = ['countries' => [['code' => 'FR']]];
-
         $action = GetCountriesAction::create('POST', '/graphql');
-        $response = GetCountriesMapper::map($action, $graphQLResponse, []);
-        \assert($response instanceof GetCountriesResponse);
 
-        self::assertSame([['code' => 'FR', 'name' => '', 'continent' => '']], $response->countries());
+        $this->expectException(UnexpectedApiResponse::class);
+        $this->expectExceptionMessage('Countries GraphQL countries[0]: field "continent" is missing or not an object or array.');
+
+        GetCountriesMapper::map($action, ['countries' => [['code' => 'FR']]], []);
     }
 
     #[Test]
-    public function handlesAMissingCountriesKeyEntirely(): void
+    public function rejectsAResponseWithoutTheCountriesKey(): void
     {
         $action = GetCountriesAction::create('POST', '/graphql');
-        $response = GetCountriesMapper::map($action, [], []);
-        \assert($response instanceof GetCountriesResponse);
 
-        self::assertEmpty($response->countries());
+        $this->expectException(UnexpectedApiResponse::class);
+        $this->expectExceptionMessage('Countries GraphQL: field "countries" is missing or not an object or array.');
+
+        GetCountriesMapper::map($action, [], []);
     }
 }

@@ -8,7 +8,7 @@ use IntegrationEngine\Core\Contract\Response\ResponseInterface;
 
 final readonly class GetTvSeasonResponse implements ResponseInterface
 {
-    /** @param array<string, mixed> $episodes */
+    /** @param array<mixed> $episodes */
     public function __construct(
         private readonly int $id,
         private readonly string $name,
@@ -36,7 +36,7 @@ final readonly class GetTvSeasonResponse implements ResponseInterface
         return $this->name;
     }
 
-    /** @return array<string, mixed> */
+    /** @return array<mixed> */
     public function episodes(): array
     {
         return $this->episodes;

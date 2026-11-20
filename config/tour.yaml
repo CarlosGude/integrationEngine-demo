@@ -104,7 +104,7 @@ steps:
     order: 7
     snippets:
       - id: webhook/mapper
-        file: src/Integrations/Stripe/Webhook/Mapper/StripePaymentIntentMapper.php
+        file: src/Integrations/Stripe/Webhook/Mapper/PaymentIntentEventPayload.php
         title: "Webhook: Payload Mapping to Event DTO"
       - id: webhook/consumer
         file: src/Integrations/Stripe/Webhook/StripePaymentIntentConsumer.php

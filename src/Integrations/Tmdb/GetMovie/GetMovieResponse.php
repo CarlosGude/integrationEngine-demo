@@ -12,7 +12,7 @@ final readonly class GetMovieResponse implements ResponseInterface
         private readonly int $id,
         private readonly string $title,
         private readonly string $overview,
-        private readonly string $posterPath,
+        private readonly ?string $posterPath,
         private readonly float $voteAverage,
         private readonly string $releaseDate,
     ) {
@@ -46,7 +46,7 @@ final readonly class GetMovieResponse implements ResponseInterface
         return $this->overview;
     }
 
-    public function posterPath(): string
+    public function posterPath(): ?string
     {
         return $this->posterPath;
     }

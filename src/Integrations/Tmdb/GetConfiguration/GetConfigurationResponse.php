@@ -8,36 +8,27 @@ use IntegrationEngine\Core\Contract\Response\ResponseInterface;
 
 final readonly class GetConfigurationResponse implements ResponseInterface
 {
-    /** @param array<string, mixed> $images */
+    /** @param list<string> $posterSizes */
     public function __construct(
-        private readonly array $images,
+        private string $posterSecureBaseUrl,
+        private array $posterSizes,
     ) {
     }
 
     /** @return array<string, mixed> */
     public function toArray(): array
     {
-        return ['images' => $this->images];
-    }
-
-    /** @return array<string, mixed> */
-    public function images(): array
-    {
-        return $this->images;
+        return ['images' => ['secure_base_url' => $this->posterSecureBaseUrl, 'poster_sizes' => $this->posterSizes]];
     }
 
     public function posterSecureBaseUrl(): string
     {
-        $url = $this->images['secure_base_url'] ?? '';
-
-        return \is_string($url) ? $url : '';
+        return $this->posterSecureBaseUrl;
     }
 
     /** @return list<string> */
     public function posterSizes(): array
     {
-        $sizes = $this->images['poster_sizes'] ?? [];
-
-        return \is_array($sizes) ? array_values(array_filter($sizes, \is_string(...))) : [];
+        return $this->posterSizes;
     }
 }
